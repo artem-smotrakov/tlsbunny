@@ -2,10 +2,11 @@ package com.gypsyengineer.tlsbunny.tls13.handshake;
 
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.utils.Converter;
+
+import javax.crypto.spec.DHParameterSpec;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import javax.crypto.spec.DHParameterSpec;
 
 class FFDHEParameters {
     

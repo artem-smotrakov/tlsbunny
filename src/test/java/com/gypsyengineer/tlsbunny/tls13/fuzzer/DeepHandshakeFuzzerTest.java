@@ -16,7 +16,6 @@ import com.gypsyengineer.tlsbunny.tls13.server.OneConnectionReceived;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -30,8 +29,6 @@ import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.application_data;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.certificate;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.certificate_verify;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
@@ -130,19 +127,19 @@ public class DeepHandshakeFuzzerTest {
         assertTrue(fuzzer.targeted().length == 3);
         assertArrayEquals(
                 fuzzer.targeted(),
-                new HandshakeType[] { client_hello, client_hello, finished });
+                new HandshakeType[]{client_hello, client_hello, finished});
 
         // disable recording
         fuzzer.fuzzing();
         assertTrue(fuzzer.targeted().length == 3);
         assertArrayEquals(
                 fuzzer.targeted(),
-                new HandshakeType[] { client_hello, client_hello, finished});
+                new HandshakeType[]{client_hello, client_hello, finished});
         assertNotNull(createClientHello(fuzzer));
         assertTrue(fuzzer.targeted().length == 3);
         assertArrayEquals(
                 fuzzer.targeted(),
-                new HandshakeType[] { client_hello, client_hello, finished });
+                new HandshakeType[]{client_hello, client_hello, finished});
 
         // enable recording again
         fuzzer.recording();
@@ -155,7 +152,7 @@ public class DeepHandshakeFuzzerTest {
         assertTrue(fuzzer.targeted().length == 3);
         assertArrayEquals(
                 fuzzer.targeted(),
-                new HandshakeType[] { client_hello, finished, finished });
+                new HandshakeType[]{client_hello, finished, finished});
     }
 
     private static ClientHello createClientHello(StructFactory factory) {
@@ -194,29 +191,23 @@ public class DeepHandshakeFuzzerTest {
 
     @Test
     public void handshake() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
                         .set(serverConfig)
-                        .set(serverOutput))
-                .set(serverConfig)
-                .set(serverOutput)
-                .stopWhen(new OneConnectionReceived());
+                        .set(serverConfig))
+                        .stopWhen(new OneConnectionReceived());
 
         HttpsClientAuth client = new HttpsClientAuth();
 
         DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer();
         fuzzer.recording();
 
-        try (server; clientOutput; serverOutput) {
+        try (server) {
             server.start();
 
-            Config clientConfig = SystemPropertiesConfig.load()
-                    .port(server.port());
-            client.set(fuzzer).set(clientConfig).set(clientOutput);
+            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
+            client.set(fuzzer).set(clientConfig);
 
             try (client) {
                 client.connect().engines()[0].apply(new NoAlertAnalyzer());
@@ -225,7 +216,7 @@ public class DeepHandshakeFuzzerTest {
 
         assertArrayEquals(
                 fuzzer.targeted(),
-                new HandshakeType[] { client_hello, certificate, certificate_verify, finished });
+                new HandshakeType[]{client_hello, certificate, certificate_verify, finished});
 
         List<DeepHandshakeFuzzer.Holder> holders = fuzzer.recorded();
         holders.get(0).message().type().equals(client_hello);
@@ -245,19 +236,19 @@ public class DeepHandshakeFuzzerTest {
 
         assertArrayEquals(
                 holders.get(0).paths()[0].indexes(),
-                new Integer[] {});
+                new Integer[]{});
         assertArrayEquals(
                 holders.get(0).paths()[1].indexes(),
-                new Integer[] { 0 });
+                new Integer[]{0});
         assertArrayEquals(
                 holders.get(0).paths()[2].indexes(),
-                new Integer[] { 1 });
+                new Integer[]{1});
         assertArrayEquals(
                 holders.get(0).paths()[3].indexes(),
-                new Integer[] { 2 });
+                new Integer[]{2});
         assertArrayEquals(
                 holders.get(0).paths()[holders.get(0).paths().length - 1].indexes(),
-                new Integer[] { 5, 3, 1 });
+                new Integer[]{5, 3, 1});
     }
 
     @Test
@@ -271,40 +262,40 @@ public class DeepHandshakeFuzzerTest {
         assertEquals(paths.length, 12);
         assertArrayEquals(
                 paths[0].indexes(),
-                new Integer[] {});
+                new Integer[]{});
         assertArrayEquals(
                 paths[1].indexes(),
-                new Integer[] { 0 });
+                new Integer[]{0});
         assertArrayEquals(
                 paths[2].indexes(),
-                new Integer[] { 1 });
+                new Integer[]{1});
         assertArrayEquals(
                 paths[3].indexes(),
-                new Integer[] { 2 });
+                new Integer[]{2});
         assertArrayEquals(
                 paths[4].indexes(),
-                new Integer[] { 3 });
+                new Integer[]{3});
         assertArrayEquals(
                 paths[5].indexes(),
-                new Integer[] { 3, 0 });
+                new Integer[]{3, 0});
         assertArrayEquals(
                 paths[6].indexes(),
-                new Integer[] { 4 });
+                new Integer[]{4});
         assertArrayEquals(
                 paths[7].indexes(),
-                new Integer[] { 4, 0 });
+                new Integer[]{4, 0});
         assertArrayEquals(
                 paths[8].indexes(),
-                new Integer[] { 5 });
+                new Integer[]{5});
         assertArrayEquals(
                 paths[9].indexes(),
-                new Integer[] { 5, 0 });
+                new Integer[]{5, 0});
         assertArrayEquals(
                 paths[10].indexes(),
-                new Integer[] { 5, 0, 0 });
+                new Integer[]{5, 0, 0});
         assertArrayEquals(
                 paths[11].indexes(),
-                new Integer[] { 5, 0, 1 });
+                new Integer[]{5, 0, 1});
     }
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
@@ -320,7 +311,7 @@ public class DeepHandshakeFuzzerTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

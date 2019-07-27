@@ -1,7 +1,9 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
 import com.gypsyengineer.tlsbunny.tls.Vector;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme;
+import com.gypsyengineer.tlsbunny.tls13.struct.SignatureSchemeList;
+import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import org.junit.Test;
 
 import java.io.IOException;

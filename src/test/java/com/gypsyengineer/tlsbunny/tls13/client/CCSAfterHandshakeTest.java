@@ -1,7 +1,8 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
 import com.gypsyengineer.tlsbunny.tls13.client.ccs.CCSAfterHandshake;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.BaseEngineFactory;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingChangeCipherSpec;
@@ -14,13 +15,10 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
-import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.application_data;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
+import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
@@ -32,24 +30,19 @@ public class CCSAfterHandshakeTest {
 
     @Test
     public void expectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new CorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         CCSAfterHandshake client = new CCSAfterHandshake();
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
         }
 
         Alert alert = client.engines()[0].context().getAlert();
@@ -60,24 +53,19 @@ public class CCSAfterHandshakeTest {
 
     @Test
     public void noExpectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new IncorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         CCSAfterHandshake client = new CCSAfterHandshake();
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
 
             fail("expected ActionFailed");
         } catch (ActionFailed e) {
@@ -102,7 +90,7 @@ public class CCSAfterHandshakeTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 
@@ -214,7 +202,7 @@ public class CCSAfterHandshakeTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

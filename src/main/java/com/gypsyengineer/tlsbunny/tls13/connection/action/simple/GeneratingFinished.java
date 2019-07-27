@@ -5,7 +5,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.crypto.TranscriptHash;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.Finished;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,7 +27,7 @@ public class GeneratingFinished extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("generating Finished (%s)", side);
+        return String.format("generating Finished ({})", side);
     }
 
     public GeneratingFinished side(Side side) {

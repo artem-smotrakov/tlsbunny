@@ -1,7 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.composite;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
@@ -9,6 +8,8 @@ import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.utils.Config;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +17,6 @@ import java.nio.ByteBuffer;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
@@ -24,6 +24,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.rsa_pkcs1_sha256;
 
 public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerFlight> {
+
+    private static final Logger logger = LogManager.getLogger(OutgoingMainServerFlight.class);
 
     private String serverCertificate;
     private String serverKey;
@@ -49,15 +51,8 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
     }
 
     @Override
-    public OutgoingMainServerFlight run() throws ActionFailed, AEADException,
-            NegotiatorException, IOException {
-
-        try {
-            runImpl();
-        } finally {
-            output.flush();
-        }
-
+    public OutgoingMainServerFlight run() throws ActionFailed, AEADException, NegotiatorException, IOException {
+        runImpl();
         return this;
     }
 
@@ -78,14 +73,14 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
                 .group(secp256r1)
                 .signatureScheme(ecdsa_secp256r1_sha256)
                 .keyShareEntry(context -> context.negotiator().createKeyShareEntry())
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         buffer = new WrappingIntoHandshake()
                 .type(server_hello)
                 .updateContext(Context.Element.server_hello)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
@@ -93,7 +88,7 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
         buffer = new WrappingIntoTLSPlaintexts()
                 .type(handshake)
                 .version(TLSv12)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
@@ -101,38 +96,38 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
         store(buffer);
 
         buffer = new OutgoingChangeCipherSpec()
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         store(buffer);
 
         new NegotiatingServerDHSecret()
-                .set(output)
+
                 .set(context)
                 .run();
 
         new ComputingHandshakeTrafficKeys()
                 .server()
-                .set(output)
+
                 .set(context)
                 .run();
 
         buffer = new GeneratingEncryptedExtensions()
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         buffer = new WrappingIntoHandshake()
                 .type(encrypted_extensions)
                 .updateContext(Context.Element.encrypted_extensions)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
                 .out();
         buffer = new WrappingHandshakeDataIntoTLSCiphertext()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
@@ -142,20 +137,20 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
         if (clientAuthEnabled) {
             buffer = new GeneratingCertificateRequest()
                     .signatures(rsa_pkcs1_sha256)
-                    .set(output)
+
                     .set(context)
                     .run()
                     .out();
             buffer = new WrappingIntoHandshake()
                     .type(certificate_request)
                     .updateContext(Context.Element.server_certificate_request)
-                    .set(output)
+
                     .set(context)
                     .in(buffer)
                     .run()
                     .out();
             buffer = new WrappingHandshakeDataIntoTLSCiphertext()
-                    .set(output)
+
                     .set(context)
                     .in(buffer)
                     .run()
@@ -165,20 +160,20 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
 
         buffer = new GeneratingCertificate()
                 .certificate(serverCertificate)
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         buffer = new WrappingIntoHandshake()
                 .type(certificate)
                 .updateContext(Context.Element.server_certificate)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
                 .out();
         buffer = new WrappingHandshakeDataIntoTLSCiphertext()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
@@ -188,20 +183,20 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
         buffer = new GeneratingCertificateVerify()
                 .server()
                 .key(serverKey)
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         buffer = new WrappingIntoHandshake()
                 .type(certificate_verify)
                 .updateContext(Context.Element.server_certificate_verify)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
                 .out();
         buffer = new WrappingHandshakeDataIntoTLSCiphertext()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
@@ -209,20 +204,20 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
         store(buffer);
 
         buffer = new GeneratingFinished(Side.server)
-                .set(output)
+
                 .set(context)
                 .run()
                 .out();
         buffer = new WrappingIntoHandshake()
                 .type(finished)
                 .updateContext(Context.Element.server_finished)
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()
                 .out();
         buffer = new WrappingHandshakeDataIntoTLSCiphertext()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run()

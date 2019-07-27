@@ -1,10 +1,10 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
+import com.gypsyengineer.tlsbunny.tls13.struct.UncompressedPointRepresentation;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
-
-import com.gypsyengineer.tlsbunny.tls13.struct.UncompressedPointRepresentation;
 
 public class UncompressedPointRepresentationImpl implements UncompressedPointRepresentation {
 

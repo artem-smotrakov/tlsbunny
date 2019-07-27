@@ -89,26 +89,26 @@ public class ContentTypeImpl implements ContentType {
         //   are not initialized at the moment of initializing of the map
         String template = "content type (%d)";
         if (isAlert()) {
-            template = "alert (%s)";
+            template = "alert ({})";
         }
         if (isHandshake()) {
-            template = "handshake (%s)";
+            template = "handshake ({})";
         }
         if (isApplicationData()) {
-            template = "application_data (%s)";
+            template = "application_data ({})";
         }
         if (isChangeCipherSpec()) {
-            template = "change_cipher_spec (%s)";
+            template = "change_cipher_spec ({})";
         }
         if (isInvalid()) {
-            template = "invalid (%s)";
+            template = "invalid ({})";
         }
         return String.format(template, code);
     }
 
     private static void check(int code) {
         if (code < 0 || code > 255) {
-            throw whatTheHell("code is wrong: %s", code);
+            throw whatTheHell("code is wrong: {}", code);
         }
     }
 

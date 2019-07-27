@@ -2,7 +2,7 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 public class PreparingHttpGetRequest extends PreparingApplicationData {
 
-    public static final String HTTP_GET_REQUEST_TEMPLATE = "GET %s HTTP/1.1\n\n";
+    public static final String HTTP_GET_REQUEST_TEMPLATE = "GET {} HTTP/1.1\n\n";
     public static final String DEFAULT_PATH = "/";
 
     public PreparingHttpGetRequest(String path) {

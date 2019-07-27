@@ -6,6 +6,8 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,6 +17,8 @@ import java.util.List;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class GeneratingServerHello extends AbstractAction {
+
+    private static final Logger logger = LogManager.getLogger(GeneratingServerHello.class);
 
     private static final byte[] downgrade_tls12_message = new byte[] {
             0x44, 0x4F, 0x57, 0x4E, 0x47, 0x52, 0x44, 0x01
@@ -88,7 +92,7 @@ public class GeneratingServerHello extends AbstractAction {
         Random random = createRandom();
         if (downgradeVersion != null) {
             if (ProtocolVersion.TLSv13.equals(downgradeVersion)) {
-                output.info("downgrade protection doesn't make sense if TLSv13 selected");
+                logger.info("downgrade protection doesn't make sense if TLSv13 selected");
             } else if (ProtocolVersion.TLSv12.equals(downgradeVersion)) {
                 random.setLastBytes(downgrade_tls12_message);
             } else {

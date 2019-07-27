@@ -8,7 +8,6 @@ import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -23,25 +22,20 @@ public class StartWithFinishedTest {
 
     @Test
     public void test() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .maxConnections(1);
 
         StartWithFinished client = new StartWithFinished();
 
-        try (server; clientOutput; serverOutput) {
+        try (server) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput);
+            client.set(clientConfig);
 
             try (client) {
                 client.connect();
@@ -65,7 +59,7 @@ public class StartWithFinishedTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     // receive ServerHello
                     .receive(new IncomingData())

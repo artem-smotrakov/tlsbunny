@@ -1,10 +1,10 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
+import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-
-import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 
 public class NamedGroupImpl implements NamedGroup {
 
@@ -48,7 +48,7 @@ public class NamedGroupImpl implements NamedGroup {
 
     @Override
     public String toString() {
-        return String.format("named groups { code: %s }", code);
+        return String.format("named groups { code: {} }", code);
     }
 
     static class SecpImpl extends NamedGroupImpl implements Secp {
@@ -67,7 +67,7 @@ public class NamedGroupImpl implements NamedGroup {
 
         @Override
         public String toString() {
-            return String.format("named groups, ecdhe { code: %d, curve: %s }",
+            return String.format("named groups, ecdhe { code: %d, curve: {} }",
                     code, curve);
         }
 
@@ -81,7 +81,7 @@ public class NamedGroupImpl implements NamedGroup {
 
         @Override
         public String toString() {
-            return String.format("named groups, x { code: %s }", code);
+            return String.format("named groups, x { code: {} }", code);
         }
 
     }

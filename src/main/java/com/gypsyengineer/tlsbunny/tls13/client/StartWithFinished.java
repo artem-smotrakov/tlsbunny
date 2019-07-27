@@ -1,14 +1,13 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.output.Output;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -20,10 +19,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 public class StartWithFinished extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             StartWithFinished client = new StartWithFinished()) {
-
-            client.set(output).connect();
+        try (StartWithFinished client = new StartWithFinished()) {
+            client.connect();
         }
     }
 
@@ -39,7 +36,7 @@ public class StartWithFinished extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send Finished
                 .run(new GeneratingRandomFinishedKey())

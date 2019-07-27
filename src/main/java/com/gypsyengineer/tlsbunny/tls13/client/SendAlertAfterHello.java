@@ -7,7 +7,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
@@ -23,12 +22,9 @@ public class SendAlertAfterHello extends SingleConnectionClient {
     private ProtocolVersion protocolVersion = TLSv13;
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             SendAlertAfterHello client = new SendAlertAfterHello()) {
-
+        try (SendAlertAfterHello client = new SendAlertAfterHello()) {
             client.set(SystemPropertiesConfig.load())
                     .set(StructFactory.getDefault())
-                    .set(output)
                     .connect();
         }
     }
@@ -46,7 +42,7 @@ public class SendAlertAfterHello extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send ClientHello
                 .run(new GeneratingClientHello()

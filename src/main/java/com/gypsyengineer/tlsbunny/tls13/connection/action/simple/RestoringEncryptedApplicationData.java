@@ -1,11 +1,15 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.ByteBuffer;
 
 public class RestoringEncryptedApplicationData
         extends AbstractAction<RestoringEncryptedApplicationData> {
+
+    private static final Logger logger = LogManager.getLogger(RestoringEncryptedApplicationData.class);
 
     @Override
     public String name() {
@@ -21,7 +25,7 @@ public class RestoringEncryptedApplicationData
         byte[] data = new byte[applicationDataIn.remaining()];
         applicationDataIn.get(data);
         out = ByteBuffer.wrap(data);
-        output.info("restored %d bytes of encrypted application data", data.length);
+        logger.info("restored %d bytes of encrypted application data", data.length);
 
         return this;
     }

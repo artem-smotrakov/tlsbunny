@@ -1,12 +1,13 @@
 package com.gypsyengineer.tlsbunny.tls13.handshake;
 
 import com.gypsyengineer.tlsbunny.tls13.client.*;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
+import com.gypsyengineer.tlsbunny.tls13.connection.NoAlertAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -53,9 +54,6 @@ public class BasicTest {
     }
 
     private static void test(Client client, NamedGroup group, int n) throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         serverConfig.serverCertificate(serverCertificatePath);
         serverConfig.serverKey(serverKeyPath);
@@ -64,16 +62,15 @@ public class BasicTest {
                 .set(factory)
                 .set(group)
                 .set(serverConfig)
-                .set(serverOutput)
                 .maxConnections(n);
 
-        try (server; client; clientOutput; serverOutput) {
+        try (server; client) {
             new Thread(server).start();
             Thread.sleep(delay);
 
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
             client.set(Negotiator.create(group, factory))
-                    .set(clientConfig).set(clientOutput);
+                    .set(clientConfig);
 
             client.connect();
         }
@@ -81,7 +78,7 @@ public class BasicTest {
         Engine[] clientEngines = client.engines();
         assertEquals(n, clientEngines.length);
 
-        Analyzer clientAnalyzer = new NoAlertAnalyzer().set(clientOutput);
+        Analyzer clientAnalyzer = new NoAlertAnalyzer();
         for (Engine engine : clientEngines) {
             engine.apply(clientAnalyzer);
         }
@@ -90,7 +87,7 @@ public class BasicTest {
         Engine[] serverEngines = server.engines();
         assertEquals(n, serverEngines.length);
 
-        Analyzer serverAnalyzer = new NoAlertAnalyzer().set(serverOutput);
+        Analyzer serverAnalyzer = new NoAlertAnalyzer();
         for (Engine engine : serverEngines) {
             engine.apply(serverAnalyzer);
         }
@@ -99,17 +96,15 @@ public class BasicTest {
         for (int i = 0; i < n; i++) {
             boolean success = checkContexts(
                     clientEngines[i].context(),
-                    serverEngines[i].context(),
-                    clientOutput);
+                    serverEngines[i].context());
 
             assertTrue("something went wrong!", success);
         }
     }
 
     private static boolean checkContexts(
-            Context clientContext, Context serverContext, Output output) {
+            Context clientContext, Context serverContext) {
 
-        output.info("check client and server contexts");
         assertNotNull("client context should not be null", clientContext);
         assertNotNull("server context should not be null", serverContext);
 

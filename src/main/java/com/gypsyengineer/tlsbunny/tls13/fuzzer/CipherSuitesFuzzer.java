@@ -3,7 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,16 +15,18 @@ import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 
 public class CipherSuitesFuzzer extends FuzzyStructFactory<Vector<CipherSuite>> {
 
+    private static final Logger logger = LogManager.getLogger(CipherSuitesFuzzer.class);
+
     public static CipherSuitesFuzzer cipherSuitesFuzzer() {
         return new CipherSuitesFuzzer();
     }
 
     public CipherSuitesFuzzer() {
-        this(StructFactory.getDefault(), Output.standard());
+        this(StructFactory.getDefault());
     }
 
-    public CipherSuitesFuzzer(StructFactory factory, Output output) {
-        super(factory, output);
+    public CipherSuitesFuzzer(StructFactory factory) {
+        super(factory);
         targets(client_hello, server_hello);
     }
 
@@ -44,7 +47,7 @@ public class CipherSuitesFuzzer extends FuzzyStructFactory<Vector<CipherSuite>> 
                 extensions);
 
         if (targeted(client_hello)) {
-            output.info("fuzz cipher suites in ClientHello");
+            logger.info("fuzz cipher suites in ClientHello");
             Vector<CipherSuite> fuzzed = fuzz(clientHello.cipherSuites());
             clientHello.cipherSuites(fuzzed);
         }
@@ -59,20 +62,16 @@ public class CipherSuitesFuzzer extends FuzzyStructFactory<Vector<CipherSuite>> 
         try {
             byte[] encoding = cipherSuites.encoding();
             byte[] fuzzed = fuzzedCipherSuites.encoding();
-            output.info("cipher suites (original): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(encoding, fuzzed));
-            output.decreaseIndent();
-            output.info("cipher suites (fuzzed): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(fuzzed, encoding));
-            output.decreaseIndent();
+            logger.info("cipher suites (original)");
+            logger.info("{}", printHexDiff(encoding, fuzzed));
+            logger.info("cipher suites (fuzzed):");
+            logger.info("{}", printHexDiff(fuzzed, encoding));
 
             if (Vector.equals(fuzzedCipherSuites, cipherSuites)) {
-                output.important("nothing actually fuzzed");
+                logger.info("nothing actually fuzzed");
             }
         } catch (IOException e) {
-            output.achtung("what the hell?", e);
+            logger.warn("what the hell?", e);
         }
 
         return fuzzedCipherSuites;

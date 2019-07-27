@@ -2,10 +2,14 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.ByteBuffer;
 
 public class OutgoingData extends AbstractAction {
+
+    private static final Logger logger = LogManager.getLogger(OutgoingData.class);
 
     @Override
     public String name() {
@@ -17,7 +21,7 @@ public class OutgoingData extends AbstractAction {
         out = ByteBuffer.allocate(in.remaining());
         out.put(in);
         out.position(0);
-        output.info("sent %d bytes", out.remaining());
+        logger.info("sent %d bytes", out.remaining());
 
         return this;
     }

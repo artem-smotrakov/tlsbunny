@@ -6,15 +6,16 @@ import com.gypsyengineer.tlsbunny.tls13.connection.EngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingMainServerFlight;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.IncomingData;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.OutgoingData;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.PreparingHttpResponse;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingApplicationDataIntoTLSCiphertext;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
-import com.gypsyengineer.tlsbunny.utils.Sync;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
@@ -57,12 +58,6 @@ public class HttpsServer implements Server {
     @Override
     public HttpsServer set(Check check) {
         server.set(check);
-        return this;
-    }
-
-    @Override
-    public Server set(Sync sync) {
-        // do nothing
         return this;
     }
 
@@ -114,18 +109,6 @@ public class HttpsServer implements Server {
     }
 
     @Override
-    public HttpsServer set(Output output) {
-        engineFactory.set(output);
-        server.set(output);
-        return this;
-    }
-
-    @Override
-    public Output output() {
-        return server.output();
-    }
-
-    @Override
     public void close() {
         server.close();
     }
@@ -170,7 +153,7 @@ public class HttpsServer implements Server {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
                     .set(negotiator)
 
                     .receive(new IncomingData())

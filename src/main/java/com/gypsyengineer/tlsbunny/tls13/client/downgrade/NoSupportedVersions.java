@@ -7,7 +7,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
@@ -21,16 +20,13 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 public class NoSupportedVersions extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient()) {
-            run(output, SystemPropertiesConfig.load());
-        }
+        run(SystemPropertiesConfig.load());
     }
 
-    public static void run(Output output, Config config) throws Exception {
+    public static void run(Config config) throws Exception {
         try (NoSupportedVersions client = new NoSupportedVersions()) {
             client.set(config)
                     .set(StructFactory.getDefault())
-                    .set(output)
                     .connect();
         }
     }
@@ -41,7 +37,7 @@ public class NoSupportedVersions extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send ClientHello without SupportedVersions extensions
                 // instead, just set legacy_protocol to TLSv12

@@ -2,23 +2,26 @@ package com.gypsyengineer.tlsbunny.tls13.client.ccs;
 
 import com.gypsyengineer.tlsbunny.tls13.client.AbstractClient;
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
+import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
+import com.gypsyengineer.tlsbunny.tls13.connection.NoAlertAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import static com.gypsyengineer.tlsbunny.tls13.struct.ChangeCipherSpec.max;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ChangeCipherSpec.min;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ChangeCipherSpec.valid_value;
+import static com.gypsyengineer.tlsbunny.tls13.struct.ChangeCipherSpec.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
@@ -30,14 +33,14 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class InvalidCCS extends AbstractClient {
 
+    private static final Logger logger = LogManager.getLogger(InvalidCCS.class);
+
     private int start = min;
     private int end = max;
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             InvalidCCS client = new InvalidCCS()) {
-
-            client.set(output).connect();
+        try (InvalidCCS client = new InvalidCCS()) {
+            client.connect();
         }
     }
 
@@ -64,15 +67,14 @@ public class InvalidCCS extends AbstractClient {
                     "than end ccs value (%d)", start, end);
         }
 
-        Analyzer analyzer = new NoAlertAnalyzer().set(output);
+        Analyzer analyzer = new NoAlertAnalyzer();
         for (int ccsValue = start; ccsValue <= end; ccsValue++) {
             if (ccsValue == valid_value) {
                 continue;
             }
 
-            sync().start();
             try {
-                output.info("try CCS with %d", ccsValue);
+                logger.info("try CCS with %d", ccsValue);
                 Engine engine = createEngine(ccsValue)
                         .connect()
                         .run(checks)
@@ -83,12 +85,10 @@ public class InvalidCCS extends AbstractClient {
                 if (cause instanceof IOException) {
                     // we expect that the server might have closed the connection
                     // after receiving an invalid CCS message
-                    output.info("exception: %s", e.getMessage());
+                    logger.info("exception: {}", e.getMessage());
                 } else {
                     throw e;
                 }
-            } finally {
-                sync().end();
             }
         }
         analyzer.run();
@@ -103,7 +103,7 @@ public class InvalidCCS extends AbstractClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
                 .label(String.format("invalid_ccs:%d", ccsValue))
 
                 // send ClientHello

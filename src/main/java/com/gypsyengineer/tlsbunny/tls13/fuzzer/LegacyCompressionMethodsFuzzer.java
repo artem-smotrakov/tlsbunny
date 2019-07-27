@@ -3,7 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,17 +16,18 @@ import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 public class LegacyCompressionMethodsFuzzer
         extends FuzzyStructFactory<Vector<CompressionMethod>> {
 
+    private static final Logger logger = LogManager.getLogger(LegacyCompressionMethodsFuzzer.class);
+
     public static LegacyCompressionMethodsFuzzer legacyCompressionMethodsFuzzer() {
         return new LegacyCompressionMethodsFuzzer();
     }
 
     public LegacyCompressionMethodsFuzzer() {
-        this(StructFactory.getDefault(), Output.standard());
+        this(StructFactory.getDefault());
     }
 
-    public LegacyCompressionMethodsFuzzer(StructFactory factory,
-                                          Output output) {
-        super(factory, output);
+    public LegacyCompressionMethodsFuzzer(StructFactory factory) {
+        super(factory);
         targets(client_hello, server_hello);
     }
 
@@ -46,7 +48,7 @@ public class LegacyCompressionMethodsFuzzer
                 extensions);
 
         if (targeted(client_hello)) {
-            output.info("fuzz legacy compression methods in ClientHello");
+            logger.info("fuzz legacy compression methods in ClientHello");
             Vector<CompressionMethod> fuzzed = fuzz(hello.legacyCompressionMethods());
             hello.legacyCompressionMethods(fuzzed);
         }
@@ -63,20 +65,16 @@ public class LegacyCompressionMethodsFuzzer
         try {
             byte[] encoding = compressionMethods.encoding();
             byte[] fuzzed = fuzzedCompressionMethods.encoding();
-            output.info("legacy compression methods (original): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(encoding, fuzzed));
-            output.decreaseIndent();
-            output.info("legacy compression methods (fuzzed): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(fuzzed, encoding));
-            output.decreaseIndent();
+            logger.info("legacy compression methods (original): %n");
+            logger.info("{}%n", printHexDiff(encoding, fuzzed));
+            logger.info("legacy compression methods (fuzzed): %n");
+            logger.info("{}%n", printHexDiff(fuzzed, encoding));
 
             if (Vector.equals(fuzzedCompressionMethods, compressionMethods)) {
-                output.important("nothing actually fuzzed");
+                logger.info("nothing actually fuzzed");
             }
         } catch (IOException e) {
-            output.achtung("what the hell?", e);
+            logger.warn("what the hell?", e);
         }
 
         return fuzzedCompressionMethods;

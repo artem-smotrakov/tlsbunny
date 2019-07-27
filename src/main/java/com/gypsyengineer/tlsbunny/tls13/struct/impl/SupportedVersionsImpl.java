@@ -4,6 +4,7 @@ import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
 import com.gypsyengineer.tlsbunny.tls13.struct.SupportedVersions;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -122,7 +123,7 @@ public abstract class SupportedVersionsImpl implements SupportedVersions {
 
         @Override
         public String toString() {
-            return String.format("SupportedVersion { ServerHello, selected_version: %s }", selected_version);
+            return String.format("SupportedVersion { ServerHello, selected_version: {} }", selected_version);
         }
 
         @Override

@@ -6,12 +6,16 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 import com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class IncomingCertificateRequest extends AbstractAction {
+
+    private static final Logger logger = LogManager.getLogger(IncomingCertificateRequest.class);
 
     @Override
     public String name() {
@@ -51,7 +55,7 @@ public class IncomingCertificateRequest extends AbstractAction {
         for (SignatureScheme scheme : list.getSupportedSignatureAlgorithms().toList()) {
             signature_algorithms.add(scheme.toString());
         }
-        output.info("CertificateRequest, algorithms: %s", String.join(", ", signature_algorithms));
+        logger.info("CertificateRequest, algorithms: {}", String.join(", ", signature_algorithms));
     }
 
 }

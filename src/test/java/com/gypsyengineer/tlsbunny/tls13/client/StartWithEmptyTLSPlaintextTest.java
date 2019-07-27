@@ -15,7 +15,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -31,44 +30,39 @@ public class StartWithEmptyTLSPlaintextTest {
 
     @Test
     public void expectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         CorrectServerEngineFactoryImpl serverEngineFactory =
                 (CorrectServerEngineFactoryImpl) new CorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput);
+                        .set(serverConfig);
 
         SingleThreadServer server = new SingleThreadServer()
                 .set(serverEngineFactory)
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new NConnectionsReceived(4));
 
-        try (server; clientOutput; serverOutput) {
+        try (server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
 
             serverEngineFactory.set(handshake);
-            test(clientConfig, clientOutput, handshake);
+            test(clientConfig, handshake);
 
             serverEngineFactory.set(change_cipher_spec);
-            test(clientConfig, clientOutput, change_cipher_spec);
+            test(clientConfig, change_cipher_spec);
 
             serverEngineFactory.set(application_data);
-            test(clientConfig, clientOutput, application_data);
+            test(clientConfig, application_data);
 
             serverEngineFactory.set(alert);
-            test(clientConfig, clientOutput, alert);
+            test(clientConfig, alert);
         }
     }
 
-    private static void test(Config config, Output output, ContentType type)
+    private static void test(Config config, ContentType type)
             throws Exception {
 
         try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
-            client.set(type).set(config).set(output).connect();
+            client.set(type).set(config).connect();
 
             Alert alert = client.engines()[0].context().getAlert();
             assertNotNull(alert);
@@ -79,24 +73,19 @@ public class StartWithEmptyTLSPlaintextTest {
 
     @Test
     public void noExpectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new IncorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext();
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
 
             fail("expected ActionFailed");
         } catch (ActionFailed e) {
@@ -122,7 +111,7 @@ public class StartWithEmptyTLSPlaintextTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 
@@ -155,7 +144,7 @@ public class StartWithEmptyTLSPlaintextTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     // process an empty TLSPlaintext
                     .receive(new IncomingData())

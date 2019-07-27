@@ -9,10 +9,10 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.Config;
 import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
-import com.gypsyengineer.tlsbunny.output.Output;
-import com.gypsyengineer.tlsbunny.utils.Sync;
+import com.gypsyengineer.tlsbunny.utils.Config;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -23,11 +23,12 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class MutatedClient extends AbstractFuzzyClient {
 
+    private static final Logger logger = LogManager.getLogger(MutatedClient.class);
+
     private static final int max_attempts = 3;
     private static final int delay = 3000; // in millis
 
     private Client client;
-    private Output output;
     private Analyzer analyzer;
     private Check[] checks;
     private FuzzerConfig fuzzerConfig;
@@ -39,20 +40,14 @@ public class MutatedClient extends AbstractFuzzyClient {
 
     private MutatedClient() {}
 
-    public MutatedClient(Client client, Output output, FuzzerConfig fuzzerConfig) {
+    public MutatedClient(Client client, FuzzerConfig fuzzerConfig) {
         this.client = client;
-        this.output = output;
         this.fuzzerConfig = fuzzerConfig;
     }
 
     public MutatedClient from(Client client) {
         this.client = client;
         return this;
-    }
-
-    @Override
-    public Output output() {
-        return output;
     }
 
     @Override
@@ -80,12 +75,6 @@ public class MutatedClient extends AbstractFuzzyClient {
     }
 
     @Override
-    public MutatedClient set(Output output) {
-        this.output = output;
-        return this;
-    }
-
-    @Override
     public MutatedClient set(Check... checks) {
         this.checks = checks;
         return this;
@@ -110,9 +99,7 @@ public class MutatedClient extends AbstractFuzzyClient {
 
     @Override
     public void close() {
-        if (output != null) {
-            output.flush();
-        }
+
     }
 
     @Override
@@ -127,80 +114,70 @@ public class MutatedClient extends AbstractFuzzyClient {
         }
 
         FuzzyStructFactory fuzzyStructFactory = (FuzzyStructFactory) factory;
-        fuzzyStructFactory.set(output);
 
-        sync().start();
         try {
-            output.info("run a smoke test before fuzzing");
+            logger.info("run a smoke test before fuzzing");
             client.set(StructFactory.getDefault())
                     .set(fuzzerConfig)
-                    .set(output)
+
                     .set(analyzer)
                     .set(new SuccessCheck())
                     .set(new NoAlertCheck())
                     .connect();
 
-            output.info("smoke test passed, start fuzzing");
+            logger.info("smoke test passed, start fuzzing");
         } catch (Exception e) {
             throw whatTheHell("smoke test failed", e);
-        } finally {
-            output.flush();
-            sync().end();
         }
 
         if (fuzzerConfig.hasState()) {
             fuzzyStructFactory.state(fuzzerConfig.state());
         }
 
-        output.important("run fuzzer config:");
-        output.important("  targets     = %s",
+        logger.info("run fuzzer config:");
+        logger.info("  targets     = {}",
                 Arrays.stream(fuzzyStructFactory.targets())
                         .map(Object::toString)
                         .collect(Collectors.joining(", ")));
-        output.important("  fuzzer      = %s",
+        logger.info("  fuzzer      = {}",
                 fuzzyStructFactory.fuzzer() != null
                         ? fuzzyStructFactory.fuzzer().toString()
                         : "null");
-        output.important("  total tests = %d", fuzzerConfig.total());
-        output.important("  state       = %s",
+        logger.info("  total tests = {}", fuzzerConfig.total());
+        logger.info("  state       = {}",
                 fuzzerConfig.hasState() ? fuzzerConfig.state() : "not specified");
 
         client.set(fuzzyStructFactory)
                 .set(fuzzerConfig)
-                .set(output)
+
                 .set(analyzer)
                 .set(checks);
 
         try {
             test = 0;
             while (shouldRun(fuzzyStructFactory)) {
-                sync().start();
                 try {
                     run(fuzzyStructFactory);
                 } finally {
-                    output.flush();
-                    sync().end();
                     fuzzyStructFactory.moveOn();
                     test++;
                 }
             }
         } catch (Exception e) {
-            output.achtung("what the hell? unexpected exception", e);
-        } finally {
-            output.flush();
+            logger.warn("what the hell? unexpected exception", e);
         }
     }
 
     private void run(FuzzyStructFactory fuzzyStructFactory) throws Exception {
-        String message = String.format("test #%d, %s/%s, targets: [%s]",
+        String message = String.format("test #%d, {}/{}, targets: [{}]",
                 test,
                 getClass().getSimpleName(),
                 fuzzyStructFactory.fuzzer().getClass().getSimpleName(),
                 Arrays.stream(fuzzyStructFactory.targets)
                         .map(Enum::toString)
                         .collect(Collectors.joining(", ")));
-        output.important(message);
-        output.important("state: %s", fuzzyStructFactory.state());
+        logger.info(message);
+        logger.info("state: {}", fuzzyStructFactory.state());
 
         int attempt = 0;
         while (attempt <= max_attempts) {
@@ -213,7 +190,7 @@ public class MutatedClient extends AbstractFuzzyClient {
                     // an EngineException may occur due to multiple reasons
                     // if the exception was not caused by ConnectException
                     // we tolerate EngineException here to let the fuzzer to continue
-                    output.achtung("an exception occurred, but we continue fuzzing", e);
+                    logger.warn("an exception occurred, but we continue fuzzing", e);
                     break;
                 }
 
@@ -225,11 +202,9 @@ public class MutatedClient extends AbstractFuzzyClient {
                 }
                 attempt++;
 
-                output.important("connection failed: %s ", cause.getMessage());
-                output.important("let's wait a bit and try again (attempt %d)", attempt);
+                logger.info("connection failed: {} ", cause.getMessage());
+                logger.info("let's wait a bit and try again (attempt {})", attempt);
                 Thread.sleep(delay);
-            } finally {
-                output.flush();
             }
         }
     }

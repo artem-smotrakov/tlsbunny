@@ -8,9 +8,13 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.ECDHENegotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
+import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
+import com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme;
+import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Connection;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,6 +26,8 @@ import static com.gypsyengineer.tlsbunny.utils.Utils.cantDoThat;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class Engine {
+
+    private static final Logger logger = LogManager.getLogger(Engine.class);
 
     private static final ByteBuffer nothing = ByteBuffer.allocate(0);
 
@@ -38,7 +44,6 @@ public class Engine {
     private Connection connection;
     private boolean createdConnection = false;
 
-    private Output output = Output.local();
     private String host = "localhost";
     private int port = 443;
     private Status status = Status.not_started;
@@ -103,17 +108,8 @@ public class Engine {
         return label;
     }
 
-    public Output output() {
-        return output;
-    }
-
     public Engine set(Connection connection) {
         this.connection = connection;
-        return this;
-    }
-
-    public Engine set(Output output) {
-        this.output = output;
         return this;
     }
 
@@ -191,7 +187,6 @@ public class Engine {
     }
 
     public Engine connect() throws EngineException {
-        context.negotiator().set(output);
         context.negotiator().set(context.factory());
         status = Status.running;
 
@@ -201,7 +196,7 @@ public class Engine {
 
             loop: for (ActionHolder holder : actions) {
                 if (connection.isClosed()) {
-                    output.achtung("connection is closed, stop");
+                    logger.warn("connection is closed, stop");
                     break;
                 }
 
@@ -211,20 +206,20 @@ public class Engine {
                 switch (holder.type) {
                     case send:
                         action = actionFactory.create();
-                        output.info("send: %s", action.name());
+                        logger.info("send: {}", action.name());
                         init(action).run();
                         connection.send(action.out());
                         if (connection.failed()) {
-                            output.achtung("could not send data, stop", connection.exception());
+                            logger.warn("could not send data, stop", connection.exception());
                             break loop;
                         }
                         break;
                     case receive:
                         action = actionFactory.create();
-                        output.info("receive: %s", action.name());
+                        logger.info("receive: {}", action.name());
                         read(connection, action);
                         if (connection.failed()) {
-                            output.achtung("could not read data, stop", connection.exception());
+                            logger.warn("could not read data, stop", connection.exception());
                             break loop;
                         }
                         init(action).run();
@@ -233,10 +228,10 @@ public class Engine {
                     case receive_while:
                         action = actionFactory.create();
                         while (holder.condition.met(context)) {
-                            output.info("receive (conditional): %s", action.name());
+                            logger.info("receive (conditional): {}", action.name());
                             read(connection, action);
                             if (connection.failed()) {
-                                output.achtung("could not read data, stop", connection.exception());
+                                logger.warn("could not read data, stop", connection.exception());
                                 break loop;
                             }
                             init(action).run();
@@ -245,7 +240,7 @@ public class Engine {
                         break;
                     case run:
                         action = actionFactory.create();
-                        output.info("run: %s", action.name());
+                        logger.info("run: {}", action.name());
                         init(action).run();
                         combineData(action);
                         break;
@@ -257,34 +252,30 @@ public class Engine {
                         break;
                     default:
                         throw new IllegalStateException(
-                                String.format("unknown action type: %s", holder.type));
+                                String.format("unknown action type: {}", holder.type));
                 }
 
                 if (context.hasAlert()) {
                     if (context.getAlert().isFatal()) {
-                        output.info("stop, fatal alert occurred: %s", context.getAlert());
+                        logger.info("stop, fatal alert occurred: {}", context.getAlert());
                         break;
                     }
 
                     if (stopIfAlert) {
-                        output.info("stop, alert occurred: %s", context.getAlert());
+                        logger.info("stop, alert occurred: {}", context.getAlert());
                         break;
                     }
                 }
-
-                output.flush();
             }
         } catch (Exception e) {
             status = Status.unexpected_error;
             return reportError(e);
         } finally {
-            output.flush();
-
             if (createdConnection && !connection.isClosed()) {
                 try {
                     connection.close();
                 } catch (IOException e) {
-                    output.achtung("could not close connection", e);
+                    logger.warn("could not close connection", e);
                 }
             }
         }
@@ -307,11 +298,11 @@ public class Engine {
 
             check.run();
             if (!check.failed()) {
-                output.info("check passed: %s", check.name());
+                logger.info("check passed: {}", check.name());
                 return this;
             }
 
-            output.info("check failed: %s", check.name());
+            logger.info("check failed: {}", check.name());
         }
 
         throw new ActionFailed("all checks failed");
@@ -326,7 +317,7 @@ public class Engine {
             if (check.failed()) {
                 throw new ActionFailed(String.format("check failed: %s", check.name()));
             }
-            output.info(String.format("check passed: %s", check.name()));
+            logger.info(String.format("check passed: {}", check.name()));
         }
 
         return this;
@@ -353,7 +344,7 @@ public class Engine {
             throw new EngineException("unexpected exception", e);
         }
 
-        output.achtung("error: %s", e.toString());
+        logger.warn("error: {}", e.toString());
         return this;
     }
 
@@ -362,7 +353,7 @@ public class Engine {
         buffer.get(data);
         storedData.add(data);
         buffer = nothing;
-        output.info("stored %d bytes", data.length);
+        logger.info("stored %d bytes", data.length);
     }
 
     private void restoreImpl() {
@@ -384,7 +375,7 @@ public class Engine {
         buffer.put(data);
         buffer.flip();
 
-        output.info("restored %d bytes", n);
+        logger.info("restored %d bytes", n);
     }
 
     private void combineData(Action action) {
@@ -429,7 +420,6 @@ public class Engine {
     }
 
     private Action init(Action action) {
-        action.set(output);
         action.set(context);
         action.in(buffer);
         action.applicationData(applicationData);
@@ -503,11 +493,6 @@ public class Engine {
         @Override
         public String name() {
             return "I am a fake action, you're probably not supposed to call this method!";
-        }
-
-        @Override
-        public Action set(Output output) {
-            return this;
         }
 
         @Override

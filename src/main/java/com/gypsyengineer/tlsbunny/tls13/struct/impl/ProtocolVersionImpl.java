@@ -1,9 +1,9 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
+import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
 
 public class ProtocolVersionImpl implements ProtocolVersion {
 
@@ -70,21 +70,21 @@ public class ProtocolVersionImpl implements ProtocolVersion {
         // - "switch" doesn't work because we can't use ProtocolVersion.getMinor() for "case"
         // - creating a map {code, description} doesn't work because standard types in ProtocolVersion
         //   are not initialized at the moment of initializing of the map
-        String template = "protocol version (0x%s%s)";
+        String template = "protocol version (0x{}{})";
         if (SSLv3.getMinor() == minor && SSLv3.getMajor() == major) {
-            template = "SSLv3 (0x%s%s)";
+            template = "SSLv3 (0x{}{})";
         }
         if (TLSv10.getMinor() == minor && TLSv10.getMajor() == major) {
-            template = "TLSv10 (0x%s%s)";
+            template = "TLSv10 (0x{}{})";
         }
         if (TLSv11.getMinor() == minor && TLSv11.getMajor() == major) {
-            template = "TLSv11 (0x%s%s)";
+            template = "TLSv11 (0x{}{})";
         }
         if (TLSv12.getMinor() == minor && TLSv12.getMajor() == major) {
-            template = "TLSv12 (0x%s%s)";
+            template = "TLSv12 (0x{}{})";
         }
         if (TLSv13.getMinor() == minor && TLSv13.getMajor() == major) {
-            template = "TLSv13 (0x%s%s)";
+            template = "TLSv13 (0x{}{})";
         }
 
         return String.format(template, Integer.toHexString(major), Integer.toHexString(minor));

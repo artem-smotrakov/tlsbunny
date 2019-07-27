@@ -8,9 +8,7 @@ import static com.gypsyengineer.tlsbunny.TestUtils.expectException;
 import static com.gypsyengineer.tlsbunny.tls13.state.BooleanFact.booleanFact;
 import static com.gypsyengineer.tlsbunny.tls13.state.State.state;
 import static com.gypsyengineer.tlsbunny.tls13.state.Transition.transition;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class TransitionTest {
 

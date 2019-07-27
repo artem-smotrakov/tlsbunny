@@ -13,7 +13,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -29,24 +28,19 @@ public class DoubleClientHelloTest {
 
     @Test
     public void expectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new CorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         DoubleClientHello client = new DoubleClientHello();
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
         }
 
         Engine[] engines = client.engines();
@@ -61,24 +55,19 @@ public class DoubleClientHelloTest {
 
     @Test
     public void noExpectedAlertReceived() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new IncorrectServerEngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         DoubleClientHello client = new DoubleClientHello();
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
 
             fail("expected ActionFailed");
         } catch (ActionFailed e) {
@@ -107,7 +96,7 @@ public class DoubleClientHelloTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 
@@ -221,7 +210,7 @@ public class DoubleClientHelloTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

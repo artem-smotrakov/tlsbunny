@@ -1,14 +1,13 @@
 package com.gypsyengineer.tlsbunny.tls13.client.ccs;
 
 import com.gypsyengineer.tlsbunny.tls13.client.SingleConnectionClient;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
-import com.gypsyengineer.tlsbunny.output.Output;
 
 import java.util.List;
 
@@ -23,10 +22,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 public class StartWithCCS extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             StartWithCCS client = new StartWithCCS()) {
-
-            client.set(output).connect();
+        try (StartWithCCS client = new StartWithCCS()) {
+            client.connect();
         }
     }
 
@@ -40,7 +37,7 @@ public class StartWithCCS extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 .send(new OutgoingChangeCipherSpec())
 

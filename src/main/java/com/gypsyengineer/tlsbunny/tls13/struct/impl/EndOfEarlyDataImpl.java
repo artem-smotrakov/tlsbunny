@@ -2,6 +2,7 @@ package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
 import com.gypsyengineer.tlsbunny.tls13.struct.EndOfEarlyData;
 import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
+
 import java.io.IOException;
 
 public class EndOfEarlyDataImpl implements EndOfEarlyData {

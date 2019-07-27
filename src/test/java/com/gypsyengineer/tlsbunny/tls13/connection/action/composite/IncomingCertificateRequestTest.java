@@ -8,8 +8,9 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingIntoTLS
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
+import com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme;
+import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,140 +19,111 @@ import java.nio.ByteBuffer;
 import static com.gypsyengineer.tlsbunny.tls13.crypto.AEAD.Method.aes_128_gcm;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
 
 public class IncomingCertificateRequestTest {
 
     @Test
     public void basic() throws Exception {
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            byte[] expected_request_context = new byte[10];
+        byte[] expected_request_context = new byte[10];
 
-            GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
-            gcr.set(context);
-            gcr.set(output);
-            gcr.context(expected_request_context);
-            gcr.signatures(SignatureScheme.ecdsa_secp521r1_sha512);
+        GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
+        gcr.set(context);
+        gcr.context(expected_request_context);
+        gcr.signatures(SignatureScheme.ecdsa_secp521r1_sha512);
 
-            ByteBuffer buffer = gcr.run().out();
+        ByteBuffer buffer = gcr.run().out();
 
-            WrappingIntoHandshake wih = new WrappingIntoHandshake();
-            wih.type(HandshakeType.certificate_request);
-            wih.set(context);
-            wih.set(output);
-            wih.in(buffer);
+        WrappingIntoHandshake wih = new WrappingIntoHandshake();
+        wih.type(HandshakeType.certificate_request);
+        wih.set(context);
+        wih.in(buffer);
 
-            buffer = wih.run().out();
+        buffer = wih.run().out();
 
-            WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
-            witc.type(handshake);
-            witc.set(context);
-            witc.set(output);
-            witc.in(buffer);
+        WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
+        witc.type(handshake);
+        witc.set(context);
+        witc.in(buffer);
 
-            buffer = witc.run().out();
+        buffer = witc.run().out();
 
-            IncomingCertificateRequest icr = new IncomingCertificateRequest();
-            icr.set(context);
-            icr.set(output);
-            icr.in(buffer);
+        IncomingCertificateRequest icr = new IncomingCertificateRequest();
+        icr.set(context);
+        icr.in(buffer);
 
-            icr.run();
+        icr.run();
 
-            byte[] actual_request_context = context.certificateRequestContext().bytes();
-            assertArrayEquals(expected_request_context, actual_request_context);
-
-            output.info(icr.name());
-        }
+        byte[] actual_request_context = context.certificateRequestContext().bytes();
+        assertArrayEquals(expected_request_context, actual_request_context);
     }
 
-    @Test
+    @Test(expected = ActionFailed.class)
     public void notCertificateRequest() throws Exception {
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            byte[] expected_request_context = new byte[10];
+        byte[] expected_request_context = new byte[10];
 
-            GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
-            gcr.set(context);
-            gcr.set(output);
-            gcr.context(expected_request_context);
-            gcr.signatures(SignatureScheme.ecdsa_secp521r1_sha512);
+        GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
+        gcr.set(context);
+        gcr.context(expected_request_context);
+        gcr.signatures(SignatureScheme.ecdsa_secp521r1_sha512);
 
-            ByteBuffer buffer = gcr.run().out();
+        ByteBuffer buffer = gcr.run().out();
 
-            WrappingIntoHandshake wih = new WrappingIntoHandshake();
-            wih.type(HandshakeType.client_hello);
-            wih.set(context);
-            wih.set(output);
-            wih.in(buffer);
+        WrappingIntoHandshake wih = new WrappingIntoHandshake();
+        wih.type(HandshakeType.client_hello);
+        wih.set(context);
+        wih.in(buffer);
 
-            buffer = wih.run().out();
+        buffer = wih.run().out();
 
-            WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
-            witc.type(handshake);
-            witc.set(context);
-            witc.set(output);
-            witc.in(buffer);
+        WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
+        witc.type(handshake);
+        witc.set(context);
+        witc.in(buffer);
 
-            buffer = witc.run().out();
+        buffer = witc.run().out();
 
-            IncomingCertificateRequest icr = new IncomingCertificateRequest();
-            icr.set(context);
-            icr.set(output);
-            icr.in(buffer);
+        IncomingCertificateRequest icr = new IncomingCertificateRequest();
+        icr.set(context);
+        icr.in(buffer);
 
-            icr.run();
-
-            fail("no exception was thrown!");
-        } catch (ActionFailed e) {
-            // good
-        }
+        icr.run();
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void noSignatures() throws Exception {
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            byte[] expected_request_context = new byte[10];
+        byte[] expected_request_context = new byte[10];
 
-            GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
-            gcr.set(context);
-            gcr.set(output);
-            gcr.context(expected_request_context);
+        GeneratingCertificateRequest gcr = new GeneratingCertificateRequest();
+        gcr.set(context);
+        gcr.context(expected_request_context);
 
-            ByteBuffer buffer = gcr.run().out();
+        ByteBuffer buffer = gcr.run().out();
 
-            WrappingIntoHandshake wih = new WrappingIntoHandshake();
-            wih.type(HandshakeType.certificate_request);
-            wih.set(context);
-            wih.set(output);
-            wih.in(buffer);
+        WrappingIntoHandshake wih = new WrappingIntoHandshake();
+        wih.type(HandshakeType.certificate_request);
+        wih.set(context);
+        wih.in(buffer);
 
-            buffer = wih.run().out();
+        buffer = wih.run().out();
 
-            WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
-            witc.type(handshake);
-            witc.set(context);
-            witc.set(output);
-            witc.in(buffer);
+        WrappingIntoTLSCiphertext witc = new WrappingIntoTLSCiphertext(Phase.handshake);
+        witc.type(handshake);
+        witc.set(context);
+        witc.in(buffer);
 
-            buffer = witc.run().out();
+        buffer = witc.run().out();
 
-            IncomingCertificateRequest icr = new IncomingCertificateRequest();
-            icr.set(context);
-            icr.set(output);
-            icr.in(buffer);
+        IncomingCertificateRequest icr = new IncomingCertificateRequest();
+        icr.set(context);
+        icr.in(buffer);
 
-            icr.run();
-
-            fail("no exception was thrown!");
-        } catch (IOException e) {
-            // good
-        }
+        icr.run();
     }
 
     private static Context context() throws AEADException {

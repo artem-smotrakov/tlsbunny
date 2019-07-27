@@ -4,10 +4,14 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public class ProcessingTLSPlaintextWithAlert extends AbstractAction<ProcessingTLSPlaintextWithAlert> {
+
+    private static final Logger logger = LogManager.getLogger(ProcessingTLSPlaintextWithAlert.class);
 
     @Override
     public String name() {
@@ -25,7 +29,7 @@ public class ProcessingTLSPlaintextWithAlert extends AbstractAction<ProcessingTL
         Alert alert = context.factory().parser().parseAlert(tlsPlaintext.getFragment());
         context.setAlert(alert);
 
-        output.info("received an alert: %s", alert);
+        logger.info("received an alert: {}", alert);
 
         return this;
     }

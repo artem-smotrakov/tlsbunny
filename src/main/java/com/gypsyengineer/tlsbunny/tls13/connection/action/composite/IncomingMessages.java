@@ -7,7 +7,12 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
+import com.gypsyengineer.tlsbunny.tls13.struct.Handshake;
+import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
+import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,6 +20,8 @@ import java.nio.ByteBuffer;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class IncomingMessages extends AbstractAction<IncomingMessages> {
+
+    private static final Logger logger = LogManager.getLogger(IncomingMessages.class);
 
     private Side side;
 
@@ -47,11 +54,8 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
             IOException, NegotiatorException {
 
         while (in.remaining() > 0) {
-            try {
-                runImpl();
-            } finally {
-                output.flush();
-            }
+            runImpl();
+
         }
 
         return this;
@@ -62,11 +66,11 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
         TLSPlaintext tlsPlaintext
                 = new ProcessingTLSPlaintext()
-                        .set(output)
-                        .set(context)
-                        .in(in)
-                        .run()
-                        .tlsPlaintext();
+
+                .set(context)
+                .in(in)
+                .run()
+                .tlsPlaintext();
 
         if (tlsPlaintext.containsChangeCipherSpec()) {
             processChangeCipherSpec(tlsPlaintext);
@@ -84,7 +88,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
         if (expectEncryptedHandshakeData()) {
             TLSInnerPlaintext tlsInnerPlaintext =
                     new ProcessingTLSCiphertext(Phase.handshake)
-                            .set(output)
+
                             .set(context)
                             .set(tlsPlaintext)
                             .run()
@@ -96,7 +100,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
             if (canDecryptApplicationData()) {
                 TLSInnerPlaintext tlsInnerPlaintext =
                         new ProcessingTLSCiphertext(Phase.application_data)
-                                .set(output)
+
                                 .set(context)
                                 .set(tlsPlaintext)
                                 .run()
@@ -106,7 +110,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
                 content = ByteBuffer.wrap(tlsInnerPlaintext.getContent());
             } else {
                 new PreservingEncryptedApplicationData()
-                        .set(output)
+
                         .set(context)
                         .in(tlsPlaintext.getFragment())
                         .run();
@@ -144,7 +148,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
             return context.hasFirstClientHello() && !context.receivedClientFinished();
         }
 
-        throw whatTheHell("unexpected side: %s", side);
+        throw whatTheHell("unexpected side: {}", side);
     }
 
     private boolean expectEncryptedApplicationData() {
@@ -156,7 +160,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
             return context.receivedClientFinished();
         }
 
-        throw whatTheHell("unexpected side: %s", side);
+        throw whatTheHell("unexpected side: {}", side);
     }
 
     private boolean canDecryptApplicationData() {
@@ -169,7 +173,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
         while (buffer.remaining() > 0) {
             Handshake handshake =
                     new ProcessingHandshake()
-                            .set(output)
+
                             .set(context)
                             .in(buffer)
                             .run()
@@ -230,7 +234,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processChangeCipherSpec(ByteBuffer buffer) throws ActionFailed {
         new ProcessingChangeCipherSpec()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run();
@@ -242,7 +246,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processAlert(ByteBuffer buffer) {
         new ProcessingAlert()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run();
@@ -251,7 +255,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
     private void processApplicationData(ByteBuffer buffer) {
         context.addApplicationData(buffer.array());
         new PrintingData()
-                .set(output)
+
                 .set(context)
                 .in(buffer)
                 .run();
@@ -259,7 +263,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processClientHello(Handshake handshake) throws ActionFailed {
         new ProcessingClientHello()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -280,7 +284,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
             throws IOException, AEADException, NegotiatorException {
 
         new ProcessingServerHello()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -288,12 +292,12 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
         context.setServerHello(handshake);
 
         new NegotiatingClientDHSecret()
-                .set(output)
+
                 .set(context)
                 .run();
 
         new ComputingHandshakeTrafficKeys()
-                .set(output)
+
                 .set(context)
                 .side(side)
                 .run();
@@ -305,7 +309,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processEncryptedExtensions(Handshake handshake) {
         new ProcessingEncryptedExtensions()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -315,7 +319,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processCertificateRequest(Handshake handshake) {
         new ProcessingCertificateRequest()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -325,7 +329,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processCertificate(Handshake handshake) {
         new ProcessingCertificate()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -341,7 +345,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processCertificateVerify(Handshake handshake) {
         new ProcessingCertificateVerify()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
@@ -363,13 +367,13 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
         }
 
         new ProcessingFinished(side)
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();
 
         new ComputingApplicationTrafficKeys()
-                .set(output)
+
                 .set(context)
                 .side(side)
                 .run();
@@ -385,7 +389,7 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private void processNewSessionTicket(Handshake handshake) throws IOException {
         new ProcessingNewSessionTicket()
-                .set(output)
+
                 .set(context)
                 .in(handshake.getBody())
                 .run();

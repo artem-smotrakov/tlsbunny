@@ -14,7 +14,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.server.OneConnectionReceived;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -83,28 +82,23 @@ public class StructCopyTest {
         // instead of creating Struct objects manually we start a handshake process
         // and collect handshake messages which were created during handshaking
 
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         HttpsClientAuth client = new HttpsClientAuth();
 
-        Analyzer analyzer = new NoAlertAnalyzer().set(clientOutput);
+        Analyzer analyzer = new NoAlertAnalyzer();
 
-        try (server; client; clientOutput; serverOutput) {
+        try (server; client) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load()
                     .port(server.port());
-            client.set(clientConfig).set(clientOutput);
+            client.set(clientConfig);
 
             client.connect();
         }
@@ -200,7 +194,7 @@ public class StructCopyTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

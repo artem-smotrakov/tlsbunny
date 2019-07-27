@@ -1,20 +1,16 @@
 package com.gypsyengineer.tlsbunny.tls13.connection;
 
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoAlertAnalyzer implements Analyzer {
 
-    private Output output;
-    private final List<Engine> engines = new ArrayList<>();
+    private static final Logger logger = LogManager.getLogger(NoAlertAnalyzer.class);
 
-    @Override
-    public Analyzer set(Output output) {
-        this.output = output;
-        return this;
-    }
+    private final List<Engine> engines = new ArrayList<>();
 
     @Override
     public Analyzer add(Engine... engines) {
@@ -24,27 +20,27 @@ public class NoAlertAnalyzer implements Analyzer {
 
     @Override
     public Analyzer run() {
-        output.info("let's look for connections with no alerts");
+        logger.info("let's look for connections with no alerts");
 
         if (engines.isEmpty()) {
-            output.info("there is nothing to analyze!");
+            logger.info("there is nothing to analyze!");
             return this;
         }
 
         int count = 0;
         for (Engine engine : engines) {
             if (!engine.context().hasAlert()) {
-                output.info("connection '%s' didn't result to an alert:", engine.label());
+                logger.info("connection '{}' didn't result to an alert:", engine.label());
                 count++;
             }
         }
 
         if (count == 0) {
-            output.info("all connections resulted to an alert");
+            logger.info("all connections resulted to an alert");
         } else if (count == 1) {
-            output.info("found 1 connection which didn't result to an alert");
+            logger.info("found 1 connection which didn't result to an alert");
         } else {
-            output.info("found %d connections which didn't result to an alert", count);
+            logger.info("found %d connections which didn't result to an alert", count);
         }
 
         return this;

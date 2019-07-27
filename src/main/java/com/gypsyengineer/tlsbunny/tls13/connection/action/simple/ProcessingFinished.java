@@ -7,6 +7,8 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.crypto.TranscriptHash;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Constants;
 import com.gypsyengineer.tlsbunny.tls13.struct.Finished;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -16,6 +18,8 @@ import static com.gypsyengineer.tlsbunny.tls13.handshake.Constants.zero_hash_val
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class ProcessingFinished extends AbstractAction<ProcessingFinished> {
+
+    private static final Logger logger = LogManager.getLogger(ProcessingFinished.class);
 
     private Side side;
 
@@ -29,7 +33,7 @@ public class ProcessingFinished extends AbstractAction<ProcessingFinished> {
 
     @Override
     public String name() {
-        return String.format("processing Finished (%s)", side);
+        return String.format("processing Finished ({})", side);
     }
 
     public ProcessingFinished side(Side side) {
@@ -87,7 +91,7 @@ public class ProcessingFinished extends AbstractAction<ProcessingFinished> {
                 throw whatTheHell("unknown side: " + side);
         }
 
-        output.info("verified Finished message");
+        logger.info("verified Finished message");
 
         return this;
     }

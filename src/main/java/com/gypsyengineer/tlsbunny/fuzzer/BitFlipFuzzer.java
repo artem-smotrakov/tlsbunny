@@ -1,6 +1,8 @@
 package com.gypsyengineer.tlsbunny.fuzzer;
 
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BitFlipFuzzer extends AbstractFlipFuzzer {
 

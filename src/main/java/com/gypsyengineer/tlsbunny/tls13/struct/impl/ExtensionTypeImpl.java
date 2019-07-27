@@ -1,8 +1,8 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
-import java.io.IOException;
-
 import com.gypsyengineer.tlsbunny.tls13.struct.ExtensionType;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ExtensionTypeImpl implements ExtensionType {

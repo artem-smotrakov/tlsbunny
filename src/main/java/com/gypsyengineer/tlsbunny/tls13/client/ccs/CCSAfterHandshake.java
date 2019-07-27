@@ -1,15 +1,15 @@
 package com.gypsyengineer.tlsbunny.tls13.client.ccs;
 
 import com.gypsyengineer.tlsbunny.tls13.client.SingleConnectionClient;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.security.NoSuchAlgorithmException;
@@ -26,12 +26,9 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 public class CCSAfterHandshake extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             CCSAfterHandshake client = new CCSAfterHandshake()) {
-
+        try (CCSAfterHandshake client = new CCSAfterHandshake()) {
             client.set(SystemPropertiesConfig.load())
                     .set(StructFactory.getDefault())
-                    .set(output)
                     .connect();
         }
     }
@@ -48,7 +45,7 @@ public class CCSAfterHandshake extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send ClientHello
                 .run(new GeneratingClientHello()

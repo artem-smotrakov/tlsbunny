@@ -1,6 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
@@ -10,12 +10,12 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
-import com.gypsyengineer.tlsbunny.output.Output;
 
 import java.util.List;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
@@ -26,10 +26,8 @@ public class ManyGroupsInClientHello extends SingleConnectionClient {
     private int numberOfGroups = 30000;
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             ManyGroupsInClientHello client = new ManyGroupsInClientHello()) {
-
-            client.set(output).connect();
+        try (ManyGroupsInClientHello client = new ManyGroupsInClientHello()) {
+            client.connect();
         }
     }
 
@@ -53,7 +51,7 @@ public class ManyGroupsInClientHello extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send ClientHello
                 .run(new GeneratingClientHello()

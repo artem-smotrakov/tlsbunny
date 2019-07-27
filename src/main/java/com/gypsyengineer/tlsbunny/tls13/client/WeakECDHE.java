@@ -11,6 +11,8 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.WeakECDHENegotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -26,6 +28,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 
 public class WeakECDHE extends AbstractClient {
+
+    private static final Logger logger = LogManager.getLogger(WeakECDHE.class);
 
     // TODO: should it be more?
     private int n = 1;
@@ -43,13 +47,8 @@ public class WeakECDHE extends AbstractClient {
     @Override
     public WeakECDHE connectImpl() throws Exception {
         for (int i = 0; i < n; i++) {
-            sync().start();
-            try {
-                output.info("test #%d", i);
-                engines.add(createEngine().connect().run(checks));
-            } finally {
-                sync().end();
-            }
+            logger.info("test #%d", i);
+            engines.add(createEngine().connect().run(checks));
         }
 
         return this;
@@ -62,7 +61,7 @@ public class WeakECDHE extends AbstractClient {
         return Engine.init()
                 .target(config.host())
                 .target(config.port())
-                .set(output)
+
                 .set(negotiator)
 
                 // send ClientHello

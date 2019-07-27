@@ -5,11 +5,15 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class IncomingEncryptedHandshakeData extends AbstractAction<IncomingEncryptedHandshakeData> {
+
+    private static final Logger logger = LogManager.getLogger(IncomingEncryptedHandshakeData.class);
 
     @Override
     public String name() {
@@ -31,7 +35,7 @@ public class IncomingEncryptedHandshakeData extends AbstractAction<IncomingEncry
 
         out = ByteBuffer.wrap(tlsInnerPlaintext.getContent());
 
-        output.info("received encrypted handshake data (%d bytes)",
+        logger.info("received encrypted handshake data (%d bytes)",
                 tlsInnerPlaintext.getContent().length);
 
         return this;

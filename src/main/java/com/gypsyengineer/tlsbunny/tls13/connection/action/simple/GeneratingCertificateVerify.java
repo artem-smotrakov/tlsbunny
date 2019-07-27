@@ -5,7 +5,8 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.crypto.TranscriptHash;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.CertificateVerify;
+import com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme;
 import com.gypsyengineer.tlsbunny.utils.Utils;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class GeneratingCertificateVerify extends AbstractAction<GeneratingCertif
 
     @Override
     public String name() {
-        return String.format("generating CertificateVerify (%s)", side);
+        return String.format("generating CertificateVerify ({})", side);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class GeneratingCertificateVerify extends AbstractAction<GeneratingCertif
             case server:
                 return SERVER_CERTIFICATE_VERIFY_CONTEXT_STRING;
             default:
-                throw whatTheHell("unexpected side: %s", side);
+                throw whatTheHell("unexpected side: {}", side);
         }
     }
 }

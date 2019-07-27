@@ -62,7 +62,7 @@ public class CertificateStatusTypeImpl implements CertificateStatusType {
 
     private static void check(int code) {
         if (code < 0 || code > 255) {
-            throw whatTheHell("code is wrong: %s", code);
+            throw whatTheHell("code is wrong: {}", code);
         }
     }
 

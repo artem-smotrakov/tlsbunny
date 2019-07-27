@@ -5,14 +5,16 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingMainServerFlight;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.IncomingData;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.OutgoingData;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.PreparingHttpResponse;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingApplicationDataIntoTLSCiphertext;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.ECDHENegotiator;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import com.gypsyengineer.tlsbunny.utils.Utils;
 import org.junit.Test;
@@ -24,26 +26,21 @@ public class SendAlertAfterHelloTest {
 
     @Test
     public void test() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .set(new AlertCheck())
                 .maxConnections(1);
 
         SendAlertAfterHello client = new SendAlertAfterHello();
 
-        try (server; clientOutput; serverOutput) {
+        try (server) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).set(clientOutput);
+            client.set(clientConfig);
 
             try (client) {
                 client.connect();
@@ -67,7 +64,7 @@ public class SendAlertAfterHelloTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
                     .set(ECDHENegotiator.create(NamedGroup.secp256r1, StructFactory.getDefault()))
 
                     .receive(new IncomingData())

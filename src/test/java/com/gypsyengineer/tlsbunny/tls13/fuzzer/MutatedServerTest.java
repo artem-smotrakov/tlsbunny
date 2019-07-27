@@ -8,13 +8,10 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.MutatedConfigs.*;
-import static com.gypsyengineer.tlsbunny.tls13.fuzzer.MutatedConfigs.legacyCompressionMethodsConfigs;
-import static com.gypsyengineer.tlsbunny.tls13.fuzzer.MutatedConfigs.legacySessionIdConfigs;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.MutatedServer.mutatedServer;
 import static com.gypsyengineer.tlsbunny.tls13.server.HttpsServer.httpsServer;
 import static org.junit.Assert.*;
@@ -105,18 +102,15 @@ public class MutatedServerTest {
     public void test(FuzzerConfig fuzzerConfig, int expectedFuzzedMessages)
             throws Exception {
 
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config clientConfig = SystemPropertiesConfig.load();
 
-        MutatedServer server = mutatedServer(httpsServer(), fuzzerConfig).set(serverOutput);
+        MutatedServer server = mutatedServer(httpsServer(), fuzzerConfig);
 
         Client client = new HttpsClient()
                 .set(clientConfig)
-                .set(clientOutput);
+                ;
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
 
             clientConfig.port(server.port());

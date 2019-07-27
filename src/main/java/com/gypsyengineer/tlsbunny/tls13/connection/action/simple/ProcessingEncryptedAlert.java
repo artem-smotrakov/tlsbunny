@@ -1,7 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Phase;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
@@ -9,11 +8,15 @@ import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ProcessingEncryptedAlert extends AbstractAction<ProcessingEncryptedAlert> {
+
+    private static final Logger logger = LogManager.getLogger(ProcessingEncryptedAlert.class);
 
     private final Phase phase;
 
@@ -23,7 +26,7 @@ public class ProcessingEncryptedAlert extends AbstractAction<ProcessingEncrypted
 
     @Override
     public String name() {
-        return String.format("encrypted alert (%s)", phase);
+        return String.format("encrypted alert ({})", phase);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class ProcessingEncryptedAlert extends AbstractAction<ProcessingEncrypted
 
             Alert alert = context.factory().parser().parseAlert(tlsInnerPlaintext.getContent());
             context.setAlert(alert);
-            output.info("received an alert: %s", alert);
+            logger.info("received an alert: {}", alert);
         } catch (ActionFailed e) {
             out = ByteBuffer.wrap(plaintext);
             throw e;

@@ -4,11 +4,15 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ProcessingTLSPlaintext extends AbstractAction<ProcessingTLSPlaintext> {
+
+    private static final Logger logger = LogManager.getLogger(ProcessingTLSPlaintext.class);
 
     public static final ContentType NO_TYPE_SPECIFIED = null;
 
@@ -32,11 +36,11 @@ public class ProcessingTLSPlaintext extends AbstractAction<ProcessingTLSPlaintex
         ContentType type = tlsPlaintext.getType();
         if (expectedType != NO_TYPE_SPECIFIED && !expectedType.equals(type)) {
             throw new ActionFailed(
-                    String.format("expected %s, but found %s", expectedType, type));
+                    String.format("expected {}, but found {}", expectedType, type));
         }
 
         out = ByteBuffer.wrap(tlsPlaintext.getFragment());
-        output.info("received a TLSPlaintext");
+        logger.info("received a TLSPlaintext");
 
         return this;
     }

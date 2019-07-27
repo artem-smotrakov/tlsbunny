@@ -1,6 +1,6 @@
 package com.gypsyengineer.tlsbunny.fuzzer;
 
-import com.gypsyengineer.tlsbunny.output.Output;
+
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 import org.junit.Test;
 
@@ -53,27 +53,24 @@ public class FlipFuzzerTest {
 
     @Test
     public void byteFlitFuzzerRatio() {
-        try (Output output = Output.standard()) {
-            ByteFlipFuzzer fuzzer = newByteFlipFuzzer();
-            fuzzer.set(output);
+        ByteFlipFuzzer fuzzer = newByteFlipFuzzer();
 
-            testRatios(fuzzer, 100, 0.01, 0.02);
-            testRatios(fuzzer, 100, 0.01, 0.05);
-            testRatios(fuzzer, 100, 0.015, 0.3);
-            testRatios(fuzzer, 100, 0.02, 0.025);
-            testRatios(fuzzer, 100, 0.07, 0.7);
-            testRatios(fuzzer, 100, 0.6, 0.9);
-            testRatios(fuzzer, 100, 0.9, 1.0);
-            testRatios(fuzzer, 100, 0.001, 0.1);
-            testRatios(fuzzer, 10000, 0.01, 0.02);
-            testRatios(fuzzer, 10000, 0.01, 0.05);
-            testRatios(fuzzer, 10000, 0.015, 0.3);
-            testRatios(fuzzer, 10000, 0.02, 0.025);
-            testRatios(fuzzer, 10000, 0.07, 0.7);
-            testRatios(fuzzer, 10000, 0.6, 0.9);
-            testRatios(fuzzer, 10000, 0.9, 1.0);
-            testRatios(fuzzer, 10000, 0.001, 0.1);
-        }
+        testRatios(fuzzer, 100, 0.01, 0.02);
+        testRatios(fuzzer, 100, 0.01, 0.05);
+        testRatios(fuzzer, 100, 0.015, 0.3);
+        testRatios(fuzzer, 100, 0.02, 0.025);
+        testRatios(fuzzer, 100, 0.07, 0.7);
+        testRatios(fuzzer, 100, 0.6, 0.9);
+        testRatios(fuzzer, 100, 0.9, 1.0);
+        testRatios(fuzzer, 100, 0.001, 0.1);
+        testRatios(fuzzer, 10000, 0.01, 0.02);
+        testRatios(fuzzer, 10000, 0.01, 0.05);
+        testRatios(fuzzer, 10000, 0.015, 0.3);
+        testRatios(fuzzer, 10000, 0.02, 0.025);
+        testRatios(fuzzer, 10000, 0.07, 0.7);
+        testRatios(fuzzer, 10000, 0.6, 0.9);
+        testRatios(fuzzer, 10000, 0.9, 1.0);
+        testRatios(fuzzer, 10000, 0.001, 0.1);
     }
 
     private static void testRatios(ByteFlipFuzzer fuzzer, int n, double min, double max) {
@@ -140,107 +137,86 @@ public class FlipFuzzerTest {
     }
 
     private static void iterate(Fuzzer<byte[]> fuzzer) {
-        try (Output output = Output.standard()) {
-            fuzzer.set(output);
-            assertEquals(output, fuzzer.output());
+        assertTrue(fuzzer.canFuzz());
 
+        int expectedState = 0;
+
+        int n = 200;
+        byte[] array = new byte[n];
+
+        int m = 300;
+        for (int i = 0; i < m; i++) {
             assertTrue(fuzzer.canFuzz());
+            assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzer.state());
 
-            int expectedState = 0;
+            byte[] fuzzed = fuzzer.fuzz(array);
+            assertFalse(Arrays.equals(array, fuzzed));
+            assertArrayEquals(fuzzed, fuzzer.fuzz(array));
 
-            int n = 200;
-            byte[] array = new byte[n];
-
-            int m = 300;
-            for (int i = 0; i < m; i++) {
-                assertTrue(fuzzer.canFuzz());
-                assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzer.state());
-
-                byte[] fuzzed = fuzzer.fuzz(array);
-                assertFalse(Arrays.equals(array, fuzzed));
-                assertArrayEquals(fuzzed, fuzzer.fuzz(array));
-
-                fuzzer.moveOn();
-                expectedState++;
-            }
+            fuzzer.moveOn();
+            expectedState++;
         }
     }
 
     private static void consistencyOf(Fuzzer<byte[]> fuzzerOne, Fuzzer<byte[]> fuzzerTwo) {
-        try (Output output = Output.standard()) {
-            fuzzerOne.set(output);
-            fuzzerTwo.set(output);
+        assertTrue(fuzzerOne.canFuzz());
+        assertTrue(fuzzerTwo.canFuzz());
 
+        int expectedState = 0;
+
+        int n = 1000;
+        byte[] array = new byte[n];
+
+        int m = 300;
+        for (int i = 0; i < m; i++) {
             assertTrue(fuzzerOne.canFuzz());
             assertTrue(fuzzerTwo.canFuzz());
 
-            int expectedState = 0;
+            assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzerOne.state());
+            assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzerTwo.state());
 
-            int n = 1000;
-            byte[] array = new byte[n];
+            byte[] fuzzedOne = fuzzerOne.fuzz(array);
+            byte[] fuzzedTwo = fuzzerTwo.fuzz(array);
+            assertArrayEquals(fuzzedOne, fuzzedTwo);
 
-            int m = 300;
-            for (int i = 0; i < m; i++) {
-                assertTrue(fuzzerOne.canFuzz());
-                assertTrue(fuzzerTwo.canFuzz());
+            fuzzerOne.moveOn();
+            fuzzerTwo.moveOn();
 
-                assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzerOne.state());
-                assertEquals("0:-1:0.01:0.05:" + expectedState, fuzzerTwo.state());
-
-                byte[] fuzzedOne = fuzzerOne.fuzz(array);
-                byte[] fuzzedTwo = fuzzerTwo.fuzz(array);
-                assertArrayEquals(fuzzedOne, fuzzedTwo);
-
-                fuzzerOne.moveOn();
-                fuzzerTwo.moveOn();
-
-                expectedState++;
-            }
+            expectedState++;
         }
     }
 
 
     private static void setTestIn(Fuzzer<byte[]> fuzzer) {
-        try (Output output = Output.standard()) {
-            output.info("setTest: fuzzer = %s", fuzzer.toString());
+        assertTrue(fuzzer.canFuzz());
 
-            fuzzer.set(output);
-            assertEquals(output, fuzzer.output());
+        int n = 100;
+        byte[] array = new byte[n];
+        String prefix = "0:-1:0.01:0.3:";
 
+        long expectedState = Long.MAX_VALUE - 50;
+        fuzzer.state(prefix + expectedState);
+        while (expectedState < Long.MAX_VALUE) {
             assertTrue(fuzzer.canFuzz());
+            assertEquals(prefix + expectedState, fuzzer.state());
 
-            int n = 100;
-            byte[] array = new byte[n];
-            String prefix = "0:-1:0.01:0.3:";
-
-            long expectedState = Long.MAX_VALUE - 50;
-            fuzzer.state(prefix + expectedState);
-            while (expectedState < Long.MAX_VALUE) {
-                assertTrue(fuzzer.canFuzz());
-                assertEquals(prefix + expectedState, fuzzer.state());
-
-                byte[] fuzzed = fuzzer.fuzz(array);
-                assertFalse(Arrays.equals(array, fuzzed));
-                assertArrayEquals(fuzzed, fuzzer.fuzz(array));
-
-                fuzzer.moveOn();
-                expectedState++;
-            }
-
-            assertEquals(prefix + Long.MAX_VALUE, fuzzer.state());
-            assertFalse(fuzzer.canFuzz());
-        }
-    }
-
-    private static void oneByteArray(Fuzzer<byte[]> fuzzer) {
-        try (Output output = Output.standard()) {
-            fuzzer.set(output);
-
-            byte[] array = new byte[] { 1 };
             byte[] fuzzed = fuzzer.fuzz(array);
             assertFalse(Arrays.equals(array, fuzzed));
             assertArrayEquals(fuzzed, fuzzer.fuzz(array));
+
+            fuzzer.moveOn();
+            expectedState++;
         }
+
+        assertEquals(prefix + Long.MAX_VALUE, fuzzer.state());
+        assertFalse(fuzzer.canFuzz());
+    }
+
+    private static void oneByteArray(Fuzzer<byte[]> fuzzer) {
+        byte[] array = new byte[]{1};
+        byte[] fuzzed = fuzzer.fuzz(array);
+        assertFalse(Arrays.equals(array, fuzzed));
+        assertArrayEquals(fuzzed, fuzzer.fuzz(array));
     }
 
 }

@@ -2,12 +2,12 @@ package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
 import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls.Vector;
-import com.gypsyengineer.tlsbunny.utils.Utils;
-import java.io.IOException;
-import java.util.Objects;
-
 import com.gypsyengineer.tlsbunny.tls13.struct.KeyShareEntry;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
+import com.gypsyengineer.tlsbunny.utils.Utils;
+
+import java.io.IOException;
+import java.util.Objects;
 
 import static com.gypsyengineer.tlsbunny.utils.Utils.cast;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;

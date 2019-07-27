@@ -1,9 +1,10 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
 import com.gypsyengineer.tlsbunny.tls.Bytes;
-import com.gypsyengineer.tlsbunny.utils.Utils;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
+import com.gypsyengineer.tlsbunny.utils.Utils;
+
 import java.io.IOException;
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
@@ -10,8 +10,9 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -20,10 +21,13 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.*;
+import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
+import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 
 public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
+
+    private static final Logger logger = LogManager.getLogger(StartWithEmptyTLSPlaintext.class);
 
     private ContentType type = handshake;
 
@@ -31,8 +35,7 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
         Config config = SystemPropertiesConfig.load();
         StructFactory factory = StructFactory.getDefault();
 
-        try (Output output = Output.standardClient();
-             StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
+        try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             /**
              * The TLS 1.3 spec says the following:
@@ -45,12 +48,11 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
             client.set(change_cipher_spec)
                     .set(config)
                     .set(factory)
-                    .set(output)
+
                     .connect();
         }
 
-        try (Output output = Output.standardClient();
-             StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
+        try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             /**
              * The TLS 1.3 spec says the following:
@@ -66,27 +68,25 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
             client.set(handshake)
                     .set(config)
                     .set(factory)
-                    .set(output)
+
                     .connect();
         }
 
-        try (Output output = Output.standardClient();
-             StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
+        try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             client.set(application_data)
                     .set(config)
                     .set(factory)
-                    .set(output)
+
                     .connect();
         }
 
-        try (Output output = Output.standardClient();
-             StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
+        try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             client.set(alert)
                     .set(config)
                     .set(factory)
-                    .set(output)
+
                     .connect();
         }
     }
@@ -103,13 +103,13 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
     protected Engine createEngine()
             throws NegotiatorException, NoSuchAlgorithmException {
 
-        output.info("test: start handshake with an empty TLSPlaintext (%s)", type);
+        logger.info("test: start handshake with an empty TLSPlaintext ({})", type);
 
         return Engine.init()
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 .run(new GeneratingEmptyTLSPlaintext()
                         .type(type)

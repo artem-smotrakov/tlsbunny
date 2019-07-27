@@ -10,8 +10,8 @@ import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
 import com.gypsyengineer.tlsbunny.utils.Config;
 import com.gypsyengineer.tlsbunny.utils.Connection;
-import com.gypsyengineer.tlsbunny.output.Output;
-import com.gypsyengineer.tlsbunny.utils.Sync;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -25,6 +25,8 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class MutatedServer implements Server {
 
+    private static final Logger logger = LogManager.getLogger(MutatedServer.class);
+
     private static final int free_port = 0;
 
     private final ServerSocket ssocket;
@@ -34,9 +36,7 @@ public class MutatedServer implements Server {
     // TODO: synchronization
     private Status status = Status.not_started;
     private boolean failed = false;
-    private Output output;
     private FuzzerConfig[] fuzzerConfigs;
-    private Sync sync = Sync.dummy();
 
     private long test = 0;
 
@@ -79,7 +79,7 @@ public class MutatedServer implements Server {
 
             StructFactory factory = fuzzerConfig.factory();
             if (factory instanceof FuzzyStructFactory == false) {
-                throw whatTheHell("expected %s",
+                throw whatTheHell("expected {}",
                         FuzzyStructFactory.class.getSimpleName());
             }
         }
@@ -107,12 +107,6 @@ public class MutatedServer implements Server {
     }
 
     @Override
-    public MutatedServer set(Sync sync) {
-        this.sync = sync;
-        return this;
-    }
-
-    @Override
     public MutatedServer stopWhen(StopCondition condition) {
         throw whatTheHell("I know when I should stop!");
     }
@@ -123,7 +117,7 @@ public class MutatedServer implements Server {
             try {
                 ssocket.close();
             } catch (IOException e) {
-                output.achtung("exception occurred while stopping the server", e);
+                logger.warn("exception occurred while stopping the server", e);
             }
         }
 
@@ -146,17 +140,6 @@ public class MutatedServer implements Server {
     }
 
     @Override
-    public MutatedServer set(Output output) {
-        this.output = output;
-        return this;
-    }
-
-    @Override
-    public Output output() {
-        return output;
-    }
-
-    @Override
     public EngineFactory engineFactory() {
         throw whatTheHell("no engine factories for you!");
     }
@@ -171,14 +154,6 @@ public class MutatedServer implements Server {
     @Override
     public void close() {
         stop();
-
-        if (output != null) {
-            output.flush();
-        }
-    }
-
-    synchronized public Sync sync() {
-        return sync;
     }
 
     @Override
@@ -190,7 +165,6 @@ public class MutatedServer implements Server {
 
     private void run(FuzzerConfig fuzzerConfig) {
         FuzzyStructFactory fuzzer = (FuzzyStructFactory) fuzzerConfig.factory();
-        fuzzer.set(output);
 
         engineFactory.set(fuzzer);
 
@@ -198,26 +172,21 @@ public class MutatedServer implements Server {
             fuzzer.state(fuzzerConfig.state());
         }
 
-        output.info("run fuzzer config:");
-        output.increaseIndent();
-        output.info("targets     = %s",
+        logger.info("run fuzzer config:");
+        logger.info("targets     = {}",
                 Arrays.stream(fuzzer.targets())
                         .map(Object::toString)
                         .collect(Collectors.joining(", ")));
-        output.info("fuzzer      = %s",
-                fuzzer.fuzzer() != null
-                        ? fuzzer.fuzzer().toString()
-                        : "null");
-        output.info("total tests = %d", fuzzerConfig.total());
-        output.info("state       = %s",
+        logger.info("fuzzer      = {}",
+                fuzzer.fuzzer() != null ? fuzzer.fuzzer().toString() : "null");
+        logger.info("total tests = {}", fuzzerConfig.total());
+        logger.info("state       = {}",
                 fuzzerConfig.hasState() ? fuzzerConfig.state() : "not specified");
-        output.decreaseIndent();
 
         try {
             test = 0;
-            output.info("started on port %d", port());
+            logger.info("started on port %d", port());
             while (shouldRun(fuzzer, fuzzerConfig)) {
-                sync().start();
                 synchronized (this) {
                     status = Status.ready;
                 }
@@ -227,19 +196,16 @@ public class MutatedServer implements Server {
                     }
                     run(connection, fuzzer);
                 } finally {
-                    output.flush();
-                    sync().end();
                     fuzzer.moveOn();
                     test++;
                 }
             }
         } catch (Exception e) {
-            output.achtung("what the hell? unexpected exception", e);
+            logger.warn("what the hell? unexpected exception", e);
             failed = true;
         } finally {
             status = Status.done;
-            output.info("stopped");
-            output.flush();
+            logger.info("stopped");
         }
     }
 
@@ -253,10 +219,9 @@ public class MutatedServer implements Server {
                 Arrays.stream(fuzzyStructFactory.targets)
                         .map(Enum::toString)
                         .collect(Collectors.joining(", ")));
-        output.info(message);
+        logger.info(message);
 
         Engine engine = engineFactory.create()
-                .set(output)
                 .set(connection)
                 .connect();
 

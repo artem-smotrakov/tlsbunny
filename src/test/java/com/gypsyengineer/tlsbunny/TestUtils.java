@@ -2,15 +2,11 @@ package com.gypsyengineer.tlsbunny;
 
 import com.gypsyengineer.tlsbunny.fuzzer.AbstractFlipFuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
-import com.gypsyengineer.tlsbunny.output.StandardOutput;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
-import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
-import com.gypsyengineer.tlsbunny.utils.Utils;
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 
 import java.io.File;
@@ -26,7 +22,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -34,19 +29,6 @@ public class TestUtils {
 
     public interface TestAction {
         void run() throws Exception;
-    }
-
-    public static void tearDown(Server server) throws Exception {
-        Output output = server.output();
-
-        output.clear();
-        StandardOutput standardOutput = Output.standard(output);
-        try (standardOutput) {
-            server.close();
-            Utils.waitStop(server);
-        } finally {
-            standardOutput.flush();
-        }
     }
 
     public static Path createTempDirectory() throws IOException {
@@ -135,7 +117,7 @@ public class TestUtils {
         } catch (Throwable t) {
             if (!t.getClass().equals(expected)) {
                 t.printStackTrace();
-                fail(String.format("expected %s but caught %s",
+                fail(String.format("expected {} but caught {}",
                         expected.getSimpleName(), t.getClass().getSimpleName()));
             }
         }
@@ -178,7 +160,7 @@ public class TestUtils {
             }
 
             try {
-                System.out.printf("call %s()%n", method.getName());
+                System.out.printf("call {}()%n", method.getName());
                 method.invoke(object);
                 if (excluded.contains(method.getName())) {
                     continue;
@@ -255,16 +237,6 @@ public class TestUtils {
         }
 
         @Override
-        public FakeVectorFuzzer set(Output output) {
-            return this;
-        }
-
-        @Override
-        public Output output() {
-            return Output.standard();
-        }
-
-        @Override
         synchronized public int count() {
             return count;
         }
@@ -300,16 +272,6 @@ public class TestUtils {
         @Override
         public void state(String string) {
             test = Integer.parseInt(string);
-        }
-
-        @Override
-        public FakeCompressionMethodFuzzer set(Output output) {
-            return this;
-        }
-
-        @Override
-        public Output output() {
-            return Output.local();
         }
 
         @Override
@@ -351,16 +313,6 @@ public class TestUtils {
         }
 
         @Override
-        public FakeCipherSuitesFuzzer set(Output output) {
-            return this;
-        }
-
-        @Override
-        public Output output() {
-            return Output.local();
-        }
-
-        @Override
         synchronized public int count() {
             return count;
         }
@@ -399,16 +351,6 @@ public class TestUtils {
         }
 
         @Override
-        public FakeExtensionVectorFuzzer set(Output output) {
-            return this;
-        }
-
-        @Override
-        public Output output() {
-            return Output.local();
-        }
-
-        @Override
         synchronized public int count() {
             return count;
         }
@@ -434,14 +376,7 @@ public class TestUtils {
 
     public static class FakeTestAnalyzer implements Analyzer {
 
-        private Output output;
         private final List<Engine> engines = new ArrayList<>();
-
-        @Override
-        public Analyzer set(Output output) {
-            this.output = output;
-            return this;
-        }
 
         @Override
         public Analyzer add(Engine... engines) {
@@ -451,7 +386,6 @@ public class TestUtils {
 
         @Override
         public Analyzer run() {
-            output.info("run analyzer");
             return this;
         }
 

@@ -6,19 +6,23 @@ import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.tls13.struct.UncompressedPointRepresentation;
 import com.gypsyengineer.tlsbunny.utils.ECException;
 import com.gypsyengineer.tlsbunny.utils.ECUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import javax.crypto.KeyAgreement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.*;
-import javax.crypto.KeyAgreement;
 
 import static com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils.getCoordinateLength;
 import static com.gypsyengineer.tlsbunny.utils.MathUtils.toBytes;
 import static com.gypsyengineer.tlsbunny.utils.MathUtils.toPositiveBigInteger;
 
 public class ECDHENegotiator extends AbstractNegotiator {
+
+    private static final Logger logger = LogManager.getLogger(ECDHENegotiator.class);
 
     private final SecpParameters secpParameters;
     private final KeyAgreement keyAgreement;
@@ -65,8 +69,8 @@ public class ECDHENegotiator extends AbstractNegotiator {
     @Override
     public void processKeyShareEntry(KeyShareEntry entry) throws NegotiatorException {
         if (!group.equals(entry.namedGroup())) {
-            output.achtung("expected groups: %s", group);
-            output.achtung("received groups: %s", entry.namedGroup());
+            logger.warn("expected groups: {}", group);
+            logger.warn("received groups: {}", entry.namedGroup());
             throw new NegotiatorException("unexpected groups");
         }
 
@@ -126,11 +130,11 @@ public class ECDHENegotiator extends AbstractNegotiator {
             BigInteger a = curve.getA();
             BigInteger b = curve.getB();
 
-            output.info("p = %s", p.toString());
-            output.info("x = %s", x.toString());
-            output.info("y = %s", y.toString());
-            output.info("a = %s", a.toString());
-            output.info("b = %s", b.toString());
+            logger.info("p = {}", p.toString());
+            logger.info("x = {}", x.toString());
+            logger.info("y = {}", y.toString());
+            logger.info("a = {}", a.toString());
+            logger.info("b = {}", b.toString());
 
             ECUtils.checkPointOnCurve(point, curve);
         } catch (ECException e) {
@@ -143,7 +147,7 @@ public class ECDHENegotiator extends AbstractNegotiator {
             throw new NegotiatorException(e);
         }
 
-        output.achtung("%s", e.getMessage());
+        logger.warn("{}", e.getMessage());
     }
     
     public static ECDHENegotiator create(NamedGroup.Secp group, StructFactory factory) 

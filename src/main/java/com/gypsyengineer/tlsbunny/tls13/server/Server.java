@@ -1,14 +1,12 @@
 package com.gypsyengineer.tlsbunny.tls13.server;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineFactory;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.HasOutput;
-import com.gypsyengineer.tlsbunny.utils.Sync;
 
-public interface Server extends Runnable, AutoCloseable, HasOutput<Server> {
+public interface Server extends Runnable, AutoCloseable {
 
     enum Status {
         not_started, ready, accepted, done
@@ -16,7 +14,6 @@ public interface Server extends Runnable, AutoCloseable, HasOutput<Server> {
 
     Server set(Config config);
     Server set(EngineFactory engineFactory);
-    Server set(Sync sync);
 
     // TODO it should accept multiple checks
     Server set(Check check);
@@ -71,6 +68,7 @@ public interface Server extends Runnable, AutoCloseable, HasOutput<Server> {
      *
      * @return the thread where the server is running
      */
+    // TODO: move this method to an abstract class
     default Thread start() {
         String name = String.format("%s-thread", getClass().getSimpleName());
         Thread thread = new Thread(this, name);
@@ -79,7 +77,7 @@ public interface Server extends Runnable, AutoCloseable, HasOutput<Server> {
         try {
             Thread.sleep(1000); // one second
         } catch (InterruptedException e) {
-            output().achtung("exception: ", e);
+            // ignore
         }
 
         return thread;

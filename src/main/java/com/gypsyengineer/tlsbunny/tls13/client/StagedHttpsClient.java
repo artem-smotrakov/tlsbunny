@@ -1,6 +1,5 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
@@ -10,6 +9,8 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -24,6 +25,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 
 public class StagedHttpsClient extends AbstractClient {
+
+    private static final Logger logger = LogManager.getLogger(StagedHttpsClient.class);
 
     public interface Stage {
         void run(Engine engine) throws NegotiatorException, NoSuchAlgorithmException;
@@ -81,17 +84,12 @@ public class StagedHttpsClient extends AbstractClient {
 
     @Override
     public StagedHttpsClient connectImpl() throws Exception {
-        sync().start();
-        try {
-            output.info("connect to %s:%d", config.host(), config.port());
+            logger.info("connect to {}:%d", config.host(), config.port());
             Engine engine = createEngine();
             engines.add(engine);
             engine.connect();
             engine.run(checks);
             return this;
-        } finally {
-            sync().end();
-        }
     }
 
     protected final Engine createEngine()
@@ -102,7 +100,7 @@ public class StagedHttpsClient extends AbstractClient {
                 .target(config.port())
                 .set(factory)
                 .set(negotiator)
-                .set(output);
+                ;
 
         // send ClientHello
         configuringGeneratingClientHello.run(engine);

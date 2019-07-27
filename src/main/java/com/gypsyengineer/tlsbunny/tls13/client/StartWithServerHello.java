@@ -1,6 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
@@ -8,7 +8,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.output.Output;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -24,10 +23,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 public class StartWithServerHello extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             StartWithServerHello client = new StartWithServerHello()) {
-
-            client.set(output).connect();
+        try (StartWithServerHello client = new StartWithServerHello()) {
+            client.connect();
         }
     }
 
@@ -43,7 +40,7 @@ public class StartWithServerHello extends SingleConnectionClient {
                 .target(config.host())
                 .target(config.port())
                 .set(factory)
-                .set(output)
+
 
                 // send SeverHello
                 .run(new GeneratingServerHello()

@@ -4,7 +4,8 @@ import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,8 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 public class DeepHandshakeFuzzer extends StructFactoryWrapper
         implements Fuzzer<HandshakeMessage> {
 
-    private Output output;
+    private static final Logger logger = LogManager.getLogger(DeepHandshakeFuzzer.class);
+
     private Fuzzer<byte[]> fuzzer;
 
     private Mode mode;
@@ -32,22 +34,15 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
     private int rounds = 10;
 
     public static DeepHandshakeFuzzer deepHandshakeFuzzer() {
-        return deepHandshakeFuzzer(StructFactory.getDefault(), Output.standard());
+        return deepHandshakeFuzzer(StructFactory.getDefault());
     }
 
-    public static DeepHandshakeFuzzer deepHandshakeFuzzer(Output output) {
-        return deepHandshakeFuzzer(StructFactory.getDefault(), output);
+    public static DeepHandshakeFuzzer deepHandshakeFuzzer(StructFactory factory) {
+        return new DeepHandshakeFuzzer(factory);
     }
 
-    public static DeepHandshakeFuzzer deepHandshakeFuzzer(
-            StructFactory factory, Output output) {
-
-        return new DeepHandshakeFuzzer(factory, output);
-    }
-
-    private DeepHandshakeFuzzer(StructFactory factory, Output output) {
+    private DeepHandshakeFuzzer(StructFactory factory) {
         super(factory);
-        this.output = output;
     }
 
     @Override
@@ -184,17 +179,13 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
     }
 
     private void explain(String what, byte[] encoding, byte[] fuzzed) {
-        output.info("%s (original): %n", what);
-        output.increaseIndent();
-        output.info("%s%n", printHexDiff(encoding, fuzzed));
-        output.decreaseIndent();
-        output.info("%s (fuzzed): %n", what);
-        output.increaseIndent();
-        output.info("%s%n", printHexDiff(fuzzed, encoding));
-        output.decreaseIndent();
+        logger.info("{} (original):", what);
+        logger.info("{}", printHexDiff(encoding, fuzzed));
+        logger.info("{} (fuzzed):", what);
+        logger.info("{}", printHexDiff(fuzzed, encoding));
 
         if (Arrays.equals(encoding, fuzzed)) {
-            output.important("nothing actually fuzzed");
+            logger.info("nothing actually fuzzed");
         }
     }
 
@@ -312,17 +303,6 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
 
         return handle(super.createServerHello(version, random, legacy_session_id_echo,
                 cipher_suite, legacy_compression_method, extensions));
-    }
-
-    @Override
-    public DeepHandshakeFuzzer set(Output output) {
-        this.output = output;
-        return this;
-    }
-
-    @Override
-    public Output output() {
-        return output;
     }
 
     private enum Mode { recording, fuzzing }

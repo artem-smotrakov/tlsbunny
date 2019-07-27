@@ -3,11 +3,17 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.composite;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
+import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
+import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public class IncomingAlert extends AbstractAction<IncomingAlert> {
+
+    private static final Logger logger = LogManager.getLogger(IncomingAlert.class);
 
     @Override
     public String name() {
@@ -38,7 +44,7 @@ public class IncomingAlert extends AbstractAction<IncomingAlert> {
             context.setAlert(alert);
         }
 
-        output.info("received an alert: %s", alert);
+        logger.info("received an alert: {}", alert);
 
         return this;
     }

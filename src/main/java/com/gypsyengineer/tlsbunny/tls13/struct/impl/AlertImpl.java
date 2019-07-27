@@ -4,6 +4,7 @@ import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -84,7 +85,7 @@ public class AlertImpl implements Alert {
 
     @Override
     public String toString() {
-        return String.format("alert (%s, %s)", level, description);
+        return String.format("alert ({}, {})", level, description);
     }
 
 }

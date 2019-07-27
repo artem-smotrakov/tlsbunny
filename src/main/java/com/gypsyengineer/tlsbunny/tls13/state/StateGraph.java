@@ -54,7 +54,7 @@ public class StateGraph {
             }
 
             if (!found) {
-                throw whatTheHell("required fact '%s' not found!", requiredFact.name());
+                throw whatTheHell("required fact '{}' not found!", requiredFact.name());
             }
         }
     }

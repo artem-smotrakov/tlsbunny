@@ -10,18 +10,15 @@ import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class InvalidCCSTest {
 
@@ -36,9 +33,6 @@ public class InvalidCCSTest {
 
     @Test
     public void run() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
 
         InvalidCCS client = new InvalidCCS();
@@ -49,19 +43,17 @@ public class InvalidCCSTest {
 
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .maxConnections(n);
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
 
             client.startWith(start).endWith(end)
-                    .set(clientConfig).set(clientOutput)
+                    .set(clientConfig)
                     .connect();
         }
 
@@ -85,7 +77,7 @@ public class InvalidCCSTest {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

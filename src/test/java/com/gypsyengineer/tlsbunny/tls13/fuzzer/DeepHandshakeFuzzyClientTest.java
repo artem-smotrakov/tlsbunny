@@ -3,18 +3,18 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.TestUtils;
 import com.gypsyengineer.tlsbunny.TestUtils.FakeTestAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClient;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
 import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.server.HttpsServer.httpsServer;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static org.junit.Assert.*;
 
 public class DeepHandshakeFuzzyClientTest {
@@ -39,9 +39,6 @@ public class DeepHandshakeFuzzyClientTest {
     }
 
     public void test(FuzzerConfig fuzzerConfig) throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         fuzzerConfig.total(total);
 
         assertTrue(fuzzerConfig.factory() instanceof DeepHandshakeFuzzer);
@@ -51,24 +48,22 @@ public class DeepHandshakeFuzzyClientTest {
 
         HttpsServer server = httpsServer()
                 .set(serverConfig)
-                .set(serverOutput)
                 .set(new NoAlertCheck())
                 .maxConnections(n);
 
         DeepHandshakeFuzzyClient deepHandshakeFuzzyClient =
-                new DeepHandshakeFuzzyClient(new HttpsClient(), fuzzerConfig, clientOutput);
+                new DeepHandshakeFuzzyClient(new HttpsClient(), fuzzerConfig);
 
         FakeTestAnalyzer analyzer = new FakeTestAnalyzer();
-        analyzer.set(clientOutput);
 
-        try (deepHandshakeFuzzyClient; server; clientOutput; serverOutput) {
+        try (deepHandshakeFuzzyClient; server) {
             server.start();
 
             fuzzerConfig.port(server.port());
 
             deepHandshakeFuzzyClient
                     .set(fuzzerConfig)
-                    .set(clientOutput)
+
                     .set(analyzer)
                     .connect();
         }

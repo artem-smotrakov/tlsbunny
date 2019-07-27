@@ -3,17 +3,18 @@ package com.gypsyengineer.tlsbunny.tls13.crypto;
 import com.gypsyengineer.tlsbunny.tls13.struct.Handshake;
 import com.gypsyengineer.tlsbunny.tls13.struct.HkdfLabel;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import javax.crypto.Mac;
+
 import static com.gypsyengineer.tlsbunny.utils.Utils.concatenate;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
-
-import javax.crypto.spec.SecretKeySpec;
 
 public class HKDF {
 

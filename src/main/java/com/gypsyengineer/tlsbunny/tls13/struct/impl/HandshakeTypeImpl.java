@@ -1,8 +1,8 @@
 package com.gypsyengineer.tlsbunny.tls13.struct.impl;
 
-import java.nio.ByteBuffer;
-
 import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
+
+import java.nio.ByteBuffer;
 
 public class HandshakeTypeImpl implements HandshakeType {
 
@@ -63,40 +63,40 @@ public class HandshakeTypeImpl implements HandshakeType {
         //   are not initialized at the moment of initializing of the map
         String template = "handshake type (%d)";
         if (client_hello.getValue() == value) {
-            template = "client_hello (%s)";
+            template = "client_hello ({})";
         }
         if (server_hello.getValue() == value) {
-            template = "server_hello (%s)";
+            template = "server_hello ({})";
         }
         if (encrypted_extensions.getValue() == value) {
-            template = "encrypted_extensions (%s)";
+            template = "encrypted_extensions ({})";
         }
         if (certificate.getValue() == value) {
-            template = "certificate (%s)";
+            template = "certificate ({})";
         }
         if (certificate_verify.getValue() == value) {
-            template = "certificate_verify (%s)";
+            template = "certificate_verify ({})";
         }
         if (certificate_request.getValue() == value) {
-            template = "certificate_request (%s)";
+            template = "certificate_request ({})";
         }
         if (finished.getValue() == value) {
-            template = "finished (%s)";
+            template = "finished ({})";
         }
         if (end_of_early_data.getValue() == value) {
-            template = "end_of_early_data (%s)";
+            template = "end_of_early_data ({})";
         }
         if (key_update.getValue() == value) {
-            template = "key_update (%s)";
+            template = "key_update ({})";
         }
         if (hello_retry_request.getValue() == value) {
-            template = "hello_retry_request (%s)";
+            template = "hello_retry_request ({})";
         }
         if (message_hash.getValue() == value) {
-            template = "message_hash (%s)";
+            template = "message_hash ({})";
         }
         if (new_session_ticket.getValue() == value) {
-            template = "new_session_ticket (%s)";
+            template = "new_session_ticket ({})";
         }
         return String.format(template, value);
     }

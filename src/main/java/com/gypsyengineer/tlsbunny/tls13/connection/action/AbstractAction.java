@@ -5,7 +5,6 @@ import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,18 +17,11 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
     protected ByteBuffer out;
     protected ByteBuffer applicationDataIn;
     protected ByteBuffer applicationDataOut;
-    protected Output output;
     protected Context context;
 
     @Override
     public String name() {
         return "unknown action";
-    }
-
-    @Override
-    public T set(Output output) {
-        this.output = output;
-        return (T) this;
     }
 
     @Override
@@ -73,7 +65,7 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
         if (tlsPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsPlaintext.getFragment());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: %s", alert));
+            throw new ActionFailed(String.format("received an alert: {}", alert));
         }
 
         if (!tlsPlaintext.containsApplicationData()) {
@@ -85,12 +77,12 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
         if (!expectedType.isAlert() && tlsInnerPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsInnerPlaintext.getContent());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: %s", alert));
+            throw new ActionFailed(String.format("received an alert: {}", alert));
         }
 
         if (!expectedType.equals(tlsInnerPlaintext.getType())) {
             throw new ActionFailed(
-                    String.format("expected %, but received %s",
+                    String.format("expected %, but received {}",
                             expectedType, tlsInnerPlaintext.getType()));
         }
 

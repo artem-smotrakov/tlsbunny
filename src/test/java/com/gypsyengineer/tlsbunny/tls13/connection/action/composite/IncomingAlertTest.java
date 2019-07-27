@@ -13,7 +13,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -30,76 +29,68 @@ public class IncomingAlertTest {
     public void notEncrypted()
             throws IOException, ActionFailed, AEADException, NegotiatorException {
 
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            ByteBuffer buffer = new GeneratingAlert()
-                    .level(AlertLevel.fatal)
-                    .description(AlertDescription.handshake_failure)
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
+        ByteBuffer buffer = new GeneratingAlert()
+                .level(AlertLevel.fatal)
+                .description(AlertDescription.handshake_failure)
+                .set(context)
 
-            buffer = new WrappingIntoTLSPlaintexts()
-                    .type(alert)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run()
-                    .out();
+                .run()
+                .out();
 
-            IncomingAlert ia = new IncomingAlert()
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run();
+        buffer = new WrappingIntoTLSPlaintexts()
+                .type(alert)
+                .set(context)
 
-            output.info(ia.name());
+                .in(buffer)
+                .run()
+                .out();
 
-            Alert alert = context.getAlert();
-            assertNotNull(alert);
-            assertEquals(AlertLevel.fatal, alert.getLevel());
-            assertEquals(AlertDescription.handshake_failure, alert.getDescription());
-        }
+        IncomingAlert ia = new IncomingAlert()
+                .set(context)
+
+                .in(buffer)
+                .run();
+
+        Alert alert = context.getAlert();
+        assertNotNull(alert);
+        assertEquals(AlertLevel.fatal, alert.getLevel());
+        assertEquals(AlertDescription.handshake_failure, alert.getDescription());
     }
 
     @Test
     public void encrypted()
             throws IOException, ActionFailed, AEADException, NegotiatorException {
 
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            ByteBuffer buffer = new GeneratingAlert()
-                    .level(AlertLevel.warning)
-                    .description(AlertDescription.unknown_ca)
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
+        ByteBuffer buffer = new GeneratingAlert()
+                .level(AlertLevel.warning)
+                .description(AlertDescription.unknown_ca)
+                .set(context)
 
-            buffer = new WrappingIntoTLSCiphertext(Phase.application_data)
-                    .type(alert)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run()
-                    .out();
+                .run()
+                .out();
 
-            IncomingAlert ia = new IncomingAlert()
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run();
+        buffer = new WrappingIntoTLSCiphertext(Phase.application_data)
+                .type(alert)
+                .set(context)
 
-            output.info(ia.name());
+                .in(buffer)
+                .run()
+                .out();
 
-            Alert alert = context.getAlert();
-            assertNotNull(alert);
-            assertEquals(AlertLevel.warning, alert.getLevel());
-            assertEquals(AlertDescription.unknown_ca, alert.getDescription());
-        }
+        IncomingAlert ia = new IncomingAlert()
+                .set(context)
+
+                .in(buffer)
+                .run();
+
+        Alert alert = context.getAlert();
+        assertNotNull(alert);
+        assertEquals(AlertLevel.warning, alert.getLevel());
+        assertEquals(AlertDescription.unknown_ca, alert.getDescription());
     }
 
     private static Context context() throws AEADException {

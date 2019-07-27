@@ -5,9 +5,13 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
-import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Constants;
+import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 
 import static com.gypsyengineer.tlsbunny.tls13.handshake.Constants.zero_hash_value;
 import static com.gypsyengineer.tlsbunny.tls13.handshake.Constants.zero_salt;
@@ -16,9 +20,9 @@ import static com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils.findSupportedVer
 import static com.gypsyengineer.tlsbunny.utils.Utils.concatenate;
 import static com.gypsyengineer.tlsbunny.utils.Utils.zeroes;
 
-import java.io.IOException;
-
 public class IncomingServerHello extends AbstractAction {
+
+    private static final Logger logger = LogManager.getLogger(IncomingServerHello.class);
 
     @Override
     public String name() {
@@ -34,7 +38,7 @@ public class IncomingServerHello extends AbstractAction {
         if (tlsPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsPlaintext.getFragment());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: %s", alert));
+            throw new ActionFailed(String.format("received an alert: {}", alert));
         }
 
         if (!tlsPlaintext.containsHandshake()) {
@@ -60,21 +64,21 @@ public class IncomingServerHello extends AbstractAction {
                 .parseServerHello(handshake.getBody());
 
         if (!context.suite().equals(serverHello.cipherSuite())) {
-            output.info("expected cipher suite: %s", context.suite());
-            output.info("received cipher suite: %s", serverHello.cipherSuite());
+            logger.info("expected cipher suite: {}", context.suite());
+            logger.info("received cipher suite: {}", serverHello.cipherSuite());
             throw new ActionFailed("unexpected ciphersuite");
         }
 
         SupportedVersions.ServerHello selected_version = findSupportedVersion(
                 context.factory(), serverHello);
-        output.info("selected version: %s", selected_version);
+        logger.info("selected version: {}", selected_version);
 
         // TODO: we look for only first key share, but there may be multiple key shares
         KeyShare.ServerHello keyShare = findKeyShare(context.factory(), serverHello);
         NamedGroup group = context.negotiator().group();
         if (!group.equals(keyShare.getServerShare().namedGroup())) {
-            output.info("expected groups: %s", group);
-            output.info("received groups: %s", keyShare.getServerShare().namedGroup());
+            logger.info("expected groups: {}", group);
+            logger.info("received groups: {}", keyShare.getServerShare().namedGroup());
             throw new RuntimeException("unexpected groups");
         }
 

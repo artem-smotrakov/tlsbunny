@@ -8,7 +8,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class ProcessingTLSPlaintextWithAlertTest {
 
@@ -26,73 +24,62 @@ public class ProcessingTLSPlaintextWithAlertTest {
     public void basic()
             throws IOException, ActionFailed, AEADException, NegotiatorException {
 
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            ByteBuffer buffer = new GeneratingAlert()
-                    .level(AlertLevel.fatal)
-                    .description(AlertDescription.handshake_failure)
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
+        ByteBuffer buffer = new GeneratingAlert()
+                .level(AlertLevel.fatal)
+                .description(AlertDescription.handshake_failure)
+                .set(context)
 
-            buffer = new WrappingIntoTLSPlaintexts()
-                    .type(alert)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run()
-                    .out();
+                .run()
+                .out();
 
-            ProcessingTLSPlaintextWithAlert ia = new ProcessingTLSPlaintextWithAlert()
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run();
+        buffer = new WrappingIntoTLSPlaintexts()
+                .type(alert)
+                .set(context)
 
-            output.info(ia.name());
+                .in(buffer)
+                .run()
+                .out();
 
-            Alert alert = context.getAlert();
-            assertNotNull(alert);
-            assertEquals(AlertLevel.fatal, alert.getLevel());
-            assertEquals(AlertDescription.handshake_failure, alert.getDescription());
-        }
+        ProcessingTLSPlaintextWithAlert ia = new ProcessingTLSPlaintextWithAlert()
+                .set(context)
+
+                .in(buffer)
+                .run();
+
+        Alert alert = context.getAlert();
+        assertNotNull(alert);
+        assertEquals(AlertLevel.fatal, alert.getLevel());
+        assertEquals(AlertDescription.handshake_failure, alert.getDescription());
     }
 
-    @Test
+    @Test(expected = ActionFailed.class)
     public void notAlert()
-            throws IOException, AEADException, NegotiatorException {
+            throws IOException, AEADException, NegotiatorException, ActionFailed {
 
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            ByteBuffer buffer = new GeneratingAlert()
-                    .level(AlertLevel.fatal)
-                    .description(AlertDescription.handshake_failure)
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
+        ByteBuffer buffer = new GeneratingAlert()
+                .level(AlertLevel.fatal)
+                .description(AlertDescription.handshake_failure)
+                .set(context)
+                .run()
+                .out();
 
-            buffer = new WrappingIntoTLSPlaintexts()
-                    .type(handshake)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run()
-                    .out();
+        buffer = new WrappingIntoTLSPlaintexts()
+                .type(handshake)
+                .set(context)
 
-            new ProcessingTLSPlaintextWithAlert()
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run();
+                .in(buffer)
+                .run()
+                .out();
 
-            fail("no expected exception was thrown!");
-        } catch (ActionFailed e) {
-            // good
-        }
+        new ProcessingTLSPlaintextWithAlert()
+                .set(context)
+
+                .in(buffer)
+                .run();
     }
 
     private static Context context() {

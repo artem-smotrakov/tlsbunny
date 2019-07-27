@@ -3,7 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,17 +15,18 @@ import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 
 public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>> {
 
+    private static final Logger logger = LogManager.getLogger(ExtensionVectorFuzzer.class);
+
     public static ExtensionVectorFuzzer newExtensionVectorFuzzer() {
         return new ExtensionVectorFuzzer();
     }
 
     public ExtensionVectorFuzzer() {
-        this(StructFactory.getDefault(), Output.standard());
+        this(StructFactory.getDefault());
     }
 
-    public ExtensionVectorFuzzer(StructFactory factory,
-                                 Output output) {
-        super(factory, output);
+    public ExtensionVectorFuzzer(StructFactory factory) {
+        super(factory);
         targets(client_hello, server_hello);
     }
 
@@ -45,7 +47,7 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
                 extensions);
 
         if (targeted(client_hello)) {
-            output.info("fuzz extension vector in ClientHello");
+            logger.info("fuzz extension vector in ClientHello");
             Vector<Extension> fuzzed = fuzz(hello.extensions());
             hello.extensions(fuzzed);
         }
@@ -70,7 +72,7 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
                 extensions);
 
         if (targeted(server_hello)) {
-            output.info("fuzz extensions in ServerHello");
+            logger.info("fuzz extensions in ServerHello");
             Vector<Extension> fuzzed = fuzz(hello.extensions());
             hello.extensions(fuzzed);
         }
@@ -85,20 +87,16 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
         try {
             byte[] encoding = extensions.encoding();
             byte[] fuzzed = fuzzedExtensions.encoding();
-            output.info("extensions (original): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(encoding, fuzzed));
-            output.decreaseIndent();
-            output.info("extensions (fuzzed): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(fuzzed, encoding));
-            output.decreaseIndent();
+            logger.info("extensions (original): %n");
+            logger.info("{}%n", printHexDiff(encoding, fuzzed));
+            logger.info("extensions (fuzzed): %n");
+            logger.info("{}%n", printHexDiff(fuzzed, encoding));
 
             if (Vector.equals(fuzzedExtensions, extensions)) {
-                output.important("nothing actually fuzzed");
+                logger.info("nothing actually fuzzed");
             }
         } catch (IOException e) {
-            output.achtung("what the hell?", e);
+            logger.warn("what the hell?", e);
         }
 
         return fuzzedExtensions;

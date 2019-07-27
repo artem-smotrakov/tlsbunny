@@ -3,7 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,16 +15,18 @@ import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 
 public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
 
+    private static final Logger logger = LogManager.getLogger(LegacySessionIdFuzzer.class);
+
     public static LegacySessionIdFuzzer legacySessionIdFuzzer() {
         return new LegacySessionIdFuzzer();
     }
 
     public LegacySessionIdFuzzer() {
-        this(StructFactory.getDefault(), Output.standard());
+        this(StructFactory.getDefault());
     }
 
-    public LegacySessionIdFuzzer(StructFactory factory, Output output) {
-        super(factory, output);
+    public LegacySessionIdFuzzer(StructFactory factory) {
+        super(factory);
         targets(client_hello, server_hello);
     }
 
@@ -44,7 +47,7 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
                 extensions);
 
         if (targeted(client_hello)) {
-            output.info("fuzz legacy session ID in ClientHello");
+            logger.info("fuzz legacy session ID in ClientHello");
             Vector<Byte> fuzzed = fuzz(hello.legacySessionId());
             hello.legacySessionId(fuzzed);
         }
@@ -69,7 +72,7 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
                 extensions);
 
         if (targeted(server_hello)) {
-            output.info("fuzz legacy session ID echo in ServerHello");
+            logger.info("fuzz legacy session ID echo in ServerHello");
             Vector<Byte> fuzzed = fuzz(hello.legacySessionIdEcho());
             hello.legacySessionIdEcho(fuzzed);
         }
@@ -84,20 +87,16 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
         try {
             byte[] encoding = sessionId.encoding();
             byte[] fuzzed = fuzzedSessionId.encoding();
-            output.info("legacy session ID (original): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(encoding, fuzzed));
-            output.decreaseIndent();
-            output.info("legacy session ID (fuzzed): %n");
-            output.increaseIndent();
-            output.info("%s%n", printHexDiff(fuzzed, encoding));
-            output.decreaseIndent();
+            logger.info("legacy session ID (original): %n");
+            logger.info("{}%n", printHexDiff(encoding, fuzzed));
+            logger.info("legacy session ID (fuzzed): %n");
+            logger.info("{}%n", printHexDiff(fuzzed, encoding));
 
             if (Vector.equals(fuzzedSessionId, sessionId)) {
-                output.important("nothing actually fuzzed");
+                logger.info("nothing actually fuzzed");
             }
         } catch (IOException e) {
-            output.achtung("what the hell?", e);
+            logger.warn("what the hell?", e);
         }
 
         return fuzzedSessionId;

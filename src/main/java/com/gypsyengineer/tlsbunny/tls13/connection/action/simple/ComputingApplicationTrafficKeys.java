@@ -19,7 +19,7 @@ public class ComputingApplicationTrafficKeys
 
     @Override
     public String name() {
-        return String.format("computing application traffic keys (%s)", side);
+        return String.format("computing application traffic keys ({})", side);
     }
 
     public ComputingApplicationTrafficKeys side(Side side) {

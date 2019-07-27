@@ -1,25 +1,27 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.ECDHENegotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
-import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
+import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
@@ -27,14 +29,14 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 
 public class ECDHEStrictValidation extends AbstractClient {
 
+    private static final Logger logger = LogManager.getLogger(ECDHEStrictValidation.class);
+
     // TODO: should it be more?
     private int n = 1;
 
     public static void main(String[] args) throws Exception {
-        try (Output output = Output.standardClient();
-             ECDHEStrictValidation client = new ECDHEStrictValidation()) {
-
-            client.set(output).connect();
+        try (ECDHEStrictValidation client = new ECDHEStrictValidation()) {
+            client.connect();
         }
     }
 
@@ -51,13 +53,9 @@ public class ECDHEStrictValidation extends AbstractClient {
     @Override
     public ECDHEStrictValidation connectImpl() throws Exception {
         for (int i = 0; i < n; i++) {
-            sync().start();
-            try {
-                output.info("test #%d", i);
-                engines.add(createEngine().connect().run(checks));
-            } finally {
-                sync().end();
-            }
+            logger.info("test #%d", i);
+            engines.add(createEngine().connect().run(checks));
+
         }
 
         return this;
@@ -70,7 +68,6 @@ public class ECDHEStrictValidation extends AbstractClient {
         return Engine.init()
                 .target(config.host())
                 .target(config.port())
-                .set(output)
                 .set(negotiator)
 
                 // send ClientHello
@@ -110,7 +107,7 @@ public class ECDHEStrictValidation extends AbstractClient {
 
                 // receive session tickets and application data
                 .loop(context -> !context.receivedApplicationData() && !context.hasAlert())
-                    .receive(() -> new IncomingMessages(Side.client));
+                .receive(() -> new IncomingMessages(Side.client));
     }
 
 }

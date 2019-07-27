@@ -8,11 +8,15 @@ import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext;
 import com.gypsyengineer.tlsbunny.tls13.struct.TLSPlaintext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ProcessingTLSCiphertext extends AbstractAction<ProcessingTLSCiphertext> {
+
+    private static final Logger logger = LogManager.getLogger(ProcessingTLSCiphertext.class);
 
     public static final ContentType NO_TYPE_SPECIFIED = null;
     public static final TLSPlaintext NO_TLS_CIPHERTEXT_SPECIFIED = null;
@@ -38,7 +42,7 @@ public class ProcessingTLSCiphertext extends AbstractAction<ProcessingTLSCiphert
 
     @Override
     public String name() {
-        return String.format("processing TLSCiphertext (%s), expect %s",
+        return String.format("processing TLSCiphertext ({}), expect {}",
                 phase, expectedType);
     }
 
@@ -54,7 +58,7 @@ public class ProcessingTLSCiphertext extends AbstractAction<ProcessingTLSCiphert
 
         if (!tlsCiphertext.containsApplicationData()) {
             throw new ActionFailed(String.format(
-                    "expected application_data, but received %s", tlsCiphertext.getType()));
+                    "expected application_data, but received {}", tlsCiphertext.getType()));
         }
 
         AEAD decryptor = getDecryptor();
@@ -69,11 +73,11 @@ public class ProcessingTLSCiphertext extends AbstractAction<ProcessingTLSCiphert
         ContentType type = tlsInnerPlaintext.getType();
         if (expectedType != NO_TYPE_SPECIFIED && !expectedType.equals(type)) {
             throw new IOException(
-                    String.format("expected %s, but found %s", expectedType, type));
+                    String.format("expected {}, but found {}", expectedType, type));
         }
 
         out = ByteBuffer.wrap(tlsInnerPlaintext.getContent());
-        output.info("decrypted a TLSCiphertext");
+        logger.info("decrypted a TLSCiphertext");
 
         return this;
     }

@@ -1,18 +1,15 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.HasOutput;
-import com.gypsyengineer.tlsbunny.output.Output;
-import com.gypsyengineer.tlsbunny.utils.Sync;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-public interface Client extends AutoCloseable, Runnable, HasOutput<Client> {
+public interface Client extends AutoCloseable, Runnable {
 
     enum Status {
         not_started, running, done
@@ -22,10 +19,8 @@ public interface Client extends AutoCloseable, Runnable, HasOutput<Client> {
     Client set(Config config);
     Client set(StructFactory factory);
     Client set(Negotiator negotiator);
-    Client set(Output output);
     Client set(Check... checks);
     Client set(Analyzer analyzer);
-    Client set(Sync sync);
     Client connect() throws Exception;
 
     Status status();
@@ -45,7 +40,7 @@ public interface Client extends AutoCloseable, Runnable, HasOutput<Client> {
      * @return the thread where the client is running
      */
     default Thread start() {
-        String name = String.format("%s-thread", getClass().getSimpleName());
+        String name = String.format("{}-thread", getClass().getSimpleName());
         Thread thread = new Thread(this, name);
         thread.start();
         return thread;

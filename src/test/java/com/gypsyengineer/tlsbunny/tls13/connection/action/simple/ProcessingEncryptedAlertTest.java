@@ -10,7 +10,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.output.Output;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -38,38 +37,34 @@ public class ProcessingEncryptedAlertTest {
     public void encrypted(Phase phase)
             throws IOException, ActionFailed, AEADException, NegotiatorException {
 
-        try (Output output = Output.standard()) {
-            Context context = context();
+        Context context = context();
 
-            ByteBuffer buffer = new GeneratingAlert()
-                    .level(AlertLevel.warning)
-                    .description(AlertDescription.unknown_ca)
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
+        ByteBuffer buffer = new GeneratingAlert()
+                .level(AlertLevel.warning)
+                .description(AlertDescription.unknown_ca)
+                .set(context)
 
-            buffer = new WrappingIntoTLSCiphertext(Phase.application_data)
-                    .type(alert)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run()
-                    .out();
+                .run()
+                .out();
 
-            ProcessingEncryptedAlert ia = new ProcessingEncryptedAlert(phase)
-                    .set(context)
-                    .set(output)
-                    .in(buffer)
-                    .run();
+        buffer = new WrappingIntoTLSCiphertext(Phase.application_data)
+                .type(alert)
+                .set(context)
 
-            output.info(ia.name());
+                .in(buffer)
+                .run()
+                .out();
 
-            Alert alert = context.getAlert();
-            assertNotNull(alert);
-            assertEquals(AlertLevel.warning, alert.getLevel());
-            assertEquals(AlertDescription.unknown_ca, alert.getDescription());
-        }
+        ProcessingEncryptedAlert ia = new ProcessingEncryptedAlert(phase)
+                .set(context)
+
+                .in(buffer)
+                .run();
+
+        Alert alert = context.getAlert();
+        assertNotNull(alert);
+        assertEquals(AlertLevel.warning, alert.getLevel());
+        assertEquals(AlertDescription.unknown_ca, alert.getDescription());
     }
 
     private static Context context() throws AEADException {

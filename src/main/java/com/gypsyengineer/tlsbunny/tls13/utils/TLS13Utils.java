@@ -85,7 +85,7 @@ public class TLS13Utils {
                 return 66;
             default:
                 throw new IllegalArgumentException(
-                        String.format("unknown groups: %s", group));
+                        String.format("unknown groups: {}", group));
         }
     }
 

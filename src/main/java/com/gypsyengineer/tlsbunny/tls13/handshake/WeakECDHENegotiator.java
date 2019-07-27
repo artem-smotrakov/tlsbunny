@@ -7,6 +7,8 @@ import com.gypsyengineer.tlsbunny.tls13.struct.UncompressedPointRepresentation;
 import com.gypsyengineer.tlsbunny.utils.ECException;
 import com.gypsyengineer.tlsbunny.utils.ECUtils;
 import com.gypsyengineer.tlsbunny.utils.MathException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.KeyAgreement;
 import java.io.IOException;
@@ -19,6 +21,8 @@ import static com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils.getCoordinateLen
 import static com.gypsyengineer.tlsbunny.utils.MathUtils.*;
 
 public class WeakECDHENegotiator extends AbstractNegotiator {
+
+    private static final Logger logger = LogManager.getLogger(WeakECDHENegotiator.class);
 
     private final SecpParameters secpParameters;
     private final KeyAgreement keyAgreement;
@@ -89,8 +93,8 @@ public class WeakECDHENegotiator extends AbstractNegotiator {
     @Override
     public void processKeyShareEntry(KeyShareEntry entry) throws NegotiatorException {
         if (!group.equals(entry.namedGroup())) {
-            output.achtung("expected groups: %s", group);
-            output.achtung("received groups: %s", entry.namedGroup());
+            logger.warn("expected groups: {}", group);
+            logger.warn("received groups: {}", entry.namedGroup());
             throw new NegotiatorException("unexpected groups");
         }
 
@@ -153,11 +157,11 @@ public class WeakECDHENegotiator extends AbstractNegotiator {
             BigInteger a = curve.getA();
             BigInteger b = curve.getB();
 
-            output.achtung("p = %s", p.toString());
-            output.info("x = %s", x.toString());
-            output.info("y = %s", y.toString());
-            output.achtung("a = %s", a.toString());
-            output.achtung("b = %s", b.toString());
+            logger.warn("p = {}", p.toString());
+            logger.info("x = {}", x.toString());
+            logger.info("y = {}", y.toString());
+            logger.warn("a = {}", a.toString());
+            logger.warn("b = {}", b.toString());
 
             ECUtils.checkPointOnCurve(point, curve);
         } catch (ECException e) {

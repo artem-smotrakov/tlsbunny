@@ -2,7 +2,8 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
+import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
 import com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class WrappingIntoTLSPlaintexts extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("wrapping into TLSPlaintext (%s, %s)", type, version);
+        return String.format("wrapping into TLSPlaintext ({}, {})", type, version);
     }
 
     @Override

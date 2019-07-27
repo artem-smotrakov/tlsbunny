@@ -5,13 +5,13 @@ import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Converter;
 
+import javax.crypto.KeyAgreement;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHPublicKeySpec;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import javax.crypto.KeyAgreement;
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.DHPublicKeySpec;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
@@ -59,7 +59,7 @@ public class FFDHENegotiator extends AbstractNegotiator {
 
             BigInteger y = ((DHPublicKey) kp.getPublic()).getY();
             if (y.compareTo(BigInteger.ONE) <= 0 || y.compareTo(ffdheParameters.spec.getP()) >= 0) {
-                throw whatTheHell("wrong y! (%s)", y.toString());
+                throw whatTheHell("wrong y! ({})", y.toString());
             }
 
             byte[] publicPart = Converter.leftPadding(
@@ -74,7 +74,7 @@ public class FFDHENegotiator extends AbstractNegotiator {
     @Override
     public void processKeyShareEntry(KeyShareEntry  entry) throws NegotiatorException {
         if (!group.equals(entry.namedGroup())) {
-            throw whatTheHell("expected a key share entry with group %s but received %s",
+            throw whatTheHell("expected a key share entry with group {} but received {}",
                     group, entry.namedGroup());
         }
 

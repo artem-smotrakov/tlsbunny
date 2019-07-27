@@ -1,18 +1,14 @@
 package com.gypsyengineer.tlsbunny.tls13.handshake;
 
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
-import static com.gypsyengineer.tlsbunny.utils.Converter.hex2int;
-import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 import java.math.BigInteger;
-import java.security.spec.ECField;
-import java.security.spec.ECFieldFp;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.EllipticCurve;
+import java.security.spec.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.gypsyengineer.tlsbunny.utils.Converter.hex2int;
+import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 class SecpParameters {
 
@@ -65,7 +61,7 @@ class SecpParameters {
     public static SecpParameters create(NamedGroup.Secp group) {
         SecpParameters parameters = SecpParameters.parameters.get(group);
         if (parameters == null) {
-            throw whatTheHell("we don't support %s", group);
+            throw whatTheHell("we don't support {}", group);
         }
         return parameters;
     }

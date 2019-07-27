@@ -7,12 +7,16 @@ import com.gypsyengineer.tlsbunny.tls13.struct.KeyShare;
 import com.gypsyengineer.tlsbunny.tls13.struct.KeyShareEntry;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.ServerHello;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 import static com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils.findKeyShare;
 
 public class NegotiatingClientDHSecret extends AbstractAction<NegotiatingClientDHSecret> {
+
+    private static final Logger logger = LogManager.getLogger(NegotiatingClientDHSecret.class);
 
     @Override
     public String name() {
@@ -31,8 +35,8 @@ public class NegotiatingClientDHSecret extends AbstractAction<NegotiatingClientD
 
         NamedGroup group = context.negotiator().group();
         if (!group.equals(keyShareEntry.namedGroup())) {
-            output.info("expected groups: %s", group);
-            output.info("received groups: %s", keyShareEntry.namedGroup());
+            logger.info("expected groups: {}", group);
+            logger.info("received groups: {}", keyShareEntry.namedGroup());
             throw new NegotiatorException("unexpected groups");
         }
         context.negotiator().processKeyShareEntry(keyShareEntry);

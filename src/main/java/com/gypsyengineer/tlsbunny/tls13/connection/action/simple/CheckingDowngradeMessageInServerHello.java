@@ -3,6 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.utils.Achtung.achtung;
@@ -11,6 +13,8 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class CheckingDowngradeMessageInServerHello
         extends AbstractAction<CheckingDowngradeMessageInServerHello> {
+
+    private static final Logger logger = LogManager.getLogger(CheckingDowngradeMessageInServerHello.class);
 
     private static final byte[] downgrade_message_tls12 = {
             0x44, 0x4F, 0x57, 0x4E, 0x47, 0x52, 0x44, 0x01
@@ -34,7 +38,7 @@ public class CheckingDowngradeMessageInServerHello
 
     @Override
     public String name() {
-        return String.format("checking a downgrade message in ServerHello, expect: %s",
+        return String.format("checking a downgrade message in ServerHello, expect: {}",
                 expectedVersion);
     }
 
@@ -53,19 +57,19 @@ public class CheckingDowngradeMessageInServerHello
                 throw achtung("found a downgrade message in ServerHello (TLSv11 or below)");
             }
 
-            output.info("no downgrade message found in ServerHello");
+            logger.info("no downgrade message found in ServerHello");
         } else if (ProtocolVersion.TLSv12.equals(expectedVersion)) {
             if (!lastBytesEquals(bytes, downgrade_message_tls12)) {
                 throw achtung("no downgrade message found in ServerHello (TLSv12)");
             }
 
-            output.info("found a downgrade message in ServerHello (TLSv12)");
+            logger.info("found a downgrade message in ServerHello (TLSv12)");
         } else {
             if (!lastBytesEquals(bytes, downgrade_message_tls11_or_below)) {
                 throw achtung("no downgrade message found in ServerHello (TLSv11 or below)");
             }
 
-            output.info("found a downgrade message in ServerHello (TLSv11 or below)");
+            logger.info("found a downgrade message in ServerHello (TLSv11 or below)");
         }
 
         // ignore the rest of the message

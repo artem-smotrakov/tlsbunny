@@ -5,7 +5,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.ProcessingClien
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.ECDHENegotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
-import com.gypsyengineer.tlsbunny.output.Output;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,9 +13,7 @@ import java.nio.ByteBuffer;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class ClientHelloTest {
 
@@ -26,34 +23,32 @@ public class ClientHelloTest {
         context.set(StructFactory.getDefault());
         context.set(ECDHENegotiator.create(
                 NamedGroup.Secp.secp256r1, StructFactory.getDefault())
-                    .strictValidation());
+                .strictValidation());
 
-        try (Output output = Output.standard()) {
-            ByteBuffer buffer = new GeneratingClientHello()
-                    .supportedVersions(TLSv13)
-                    .groups(secp256r1)
-                    .signatureSchemes(ecdsa_secp256r1_sha256)
-                    .keyShareEntries(c -> c.negotiator().createKeyShareEntry())
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
-            assertNotNull(buffer);
+        ByteBuffer buffer = new GeneratingClientHello()
+                .supportedVersions(TLSv13)
+                .groups(secp256r1)
+                .signatureSchemes(ecdsa_secp256r1_sha256)
+                .keyShareEntries(c -> c.negotiator().createKeyShareEntry())
+                .set(context)
 
-            ClientHello secondHello = new ProcessingClientHello()
-                    .set(context)
-                    .in(buffer)
-                    .set(output)
-                    .run()
-                    .get();
+                .run()
+                .out();
+        assertNotNull(buffer);
 
-            buffer.flip();
-            ClientHello firstHello = StructFactory.getDefault().parser().parseClientHello(buffer);
-            assertNotNull(firstHello);
+        ClientHello secondHello = new ProcessingClientHello()
+                .set(context)
+                .in(buffer)
 
-            assertArrayEquals(firstHello.encoding(), secondHello.encoding());
-            assertEquals(firstHello, secondHello);
-        }
+                .run()
+                .get();
+
+        buffer.flip();
+        ClientHello firstHello = StructFactory.getDefault().parser().parseClientHello(buffer);
+        assertNotNull(firstHello);
+
+        assertArrayEquals(firstHello.encoding(), secondHello.encoding());
+        assertEquals(firstHello, secondHello);
     }
 
     @Test
@@ -62,7 +57,7 @@ public class ClientHelloTest {
         context.set(StructFactory.getDefault());
         context.set(ECDHENegotiator.create(
                 NamedGroup.Secp.secp256r1, StructFactory.getDefault())
-                    .strictValidation());
+                .strictValidation());
 
         int n = 30000;
         NamedGroup[] tooManyGroups = new NamedGroup[n];
@@ -70,37 +65,35 @@ public class ClientHelloTest {
             tooManyGroups[i] = secp256r1;
         }
 
-        try (Output output = Output.standard()) {
-            ByteBuffer buffer = new GeneratingClientHello()
-                    .supportedVersions(TLSv13)
-                    .groups(tooManyGroups)
-                    .signatureSchemes(ecdsa_secp256r1_sha256)
-                    .keyShareEntries(c -> c.negotiator().createKeyShareEntry())
-                    .set(context)
-                    .set(output)
-                    .run()
-                    .out();
-            assertNotNull(buffer);
+        ByteBuffer buffer = new GeneratingClientHello()
+                .supportedVersions(TLSv13)
+                .groups(tooManyGroups)
+                .signatureSchemes(ecdsa_secp256r1_sha256)
+                .keyShareEntries(c -> c.negotiator().createKeyShareEntry())
+                .set(context)
 
-            ClientHello secondHello = new ProcessingClientHello()
-                    .set(context)
-                    .in(buffer)
-                    .set(output)
-                    .run()
-                    .get();
+                .run()
+                .out();
+        assertNotNull(buffer);
 
-            buffer.flip();
-            ClientHello firstHello = StructFactory.getDefault().parser().parseClientHello(buffer);
-            assertNotNull(firstHello);
+        ClientHello secondHello = new ProcessingClientHello()
+                .set(context)
+                .in(buffer)
 
-            assertArrayEquals(firstHello.encoding(), secondHello.encoding());
-            assertEquals(firstHello, secondHello);
+                .run()
+                .get();
 
-            TLSPlaintext[] one = wrap(firstHello);
-            TLSPlaintext[] two = wrap(secondHello);
+        buffer.flip();
+        ClientHello firstHello = StructFactory.getDefault().parser().parseClientHello(buffer);
+        assertNotNull(firstHello);
 
-            assertArrayEquals(one, two);
-        }
+        assertArrayEquals(firstHello.encoding(), secondHello.encoding());
+        assertEquals(firstHello, secondHello);
+
+        TLSPlaintext[] one = wrap(firstHello);
+        TLSPlaintext[] two = wrap(secondHello);
+
+        assertArrayEquals(one, two);
     }
 
     private static TLSPlaintext[] wrap(ClientHello hello) throws IOException {

@@ -1,14 +1,14 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.*;
-import com.gypsyengineer.tlsbunny.output.Output;
+import com.gypsyengineer.tlsbunny.utils.Config;
+import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,11 +23,9 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     protected Config config = SystemPropertiesConfig.load();
     protected StructFactory factory = StructFactory.getDefault();
     protected Negotiator negotiator;
-    protected Output output = Output.local();
     protected Analyzer analyzer;
     protected List<Engine> engines = new ArrayList<>();
     protected List<Check> checks = Collections.emptyList();
-    protected Sync sync = Sync.dummy();
 
     protected Status status = Status.not_started;
 
@@ -68,11 +66,6 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     protected abstract Client connectImpl() throws Exception;
 
     @Override
-    public Output output() {
-        return output;
-    }
-
-    @Override
     public Config config() {
         return config;
     }
@@ -96,12 +89,6 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     }
 
     @Override
-    public Client set(Output output) {
-        this.output = output;
-        return this;
-    }
-
-    @Override
     public Client set(Check... checks) {
         this.checks = List.of(checks != null ? checks : no_checks);
         return this;
@@ -114,21 +101,8 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     }
 
     @Override
-    synchronized public Client set(Sync sync) {
-        this.sync = sync;
-        return this;
-    }
-
-    synchronized public Sync sync() {
-        return sync;
-    }
-
-    @Override
     public void close() {
         stop();
-        if (output != null) {
-            output.flush();
-        }
     }
 
     @Override

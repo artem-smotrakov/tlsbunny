@@ -3,7 +3,8 @@ package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.Handshake;
+import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,7 +29,7 @@ public class WrappingIntoHandshake extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("wrapping into Handshake (%s)", type);
+        return String.format("wrapping into Handshake ({})", type);
     }
 
     public WrappingIntoHandshake updateContext(Context.Element element) {

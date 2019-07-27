@@ -13,6 +13,8 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.MaxFragmentLength;
 import com.gypsyengineer.tlsbunny.utils.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -26,6 +28,8 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp
 
 public class InvalidMaxFragmentLength extends StagedHttpsClient {
 
+    private static final Logger logger = LogManager.getLogger(InvalidMaxFragmentLength.class);
+
     private final static int WITHOUT_MAX_FRAGMENT_LENGTH = -1;
 
     @Override
@@ -33,34 +37,25 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
             throws NoSuchAlgorithmException, NegotiatorException,
             EngineException, ActionFailed {
 
-        output.info("connect to %s:%d", config.host(), config.port());
+        logger.info("connect to {}:%d", config.host(), config.port());
 
-        sync().start();
-        try {
-            output.info("send no max_fragment_length extension, " +
-                    "expect a successful connection");
-            configuringGeneratingClientHello(clientHelloStage(WITHOUT_MAX_FRAGMENT_LENGTH));
-            Engine engine = createEngine();
+        logger.info("send no max_fragment_length extension, " +
+                "expect a successful connection");
+        configuringGeneratingClientHello(clientHelloStage(WITHOUT_MAX_FRAGMENT_LENGTH));
+        Engine engine = createEngine();
+        engines.add(engine);
+        engine.connect();
+        engine.run(new SuccessCheck());
+
+        for (int code : MaxFragmentLength.codes()) {
+            logger.info("send valid max_fragment_length extension ({}), " +
+                    "expect successful connection", code);
+            configuringGeneratingClientHello(clientHelloStage(code));
+            engine = createEngine();
             engines.add(engine);
             engine.connect();
             engine.run(new SuccessCheck());
-        } finally {
-            sync().end();
-        }
 
-        for (int code : MaxFragmentLength.codes()) {
-            sync().start();
-            try {
-                output.info("send valid max_fragment_length extension (%d), " +
-                        "expect successful connection", code);
-                configuringGeneratingClientHello(clientHelloStage(code));
-                Engine engine = createEngine();
-                engines.add(engine);
-                engine.connect();
-                engine.run(new SuccessCheck());
-            } finally {
-                sync().end();
-            }
         }
 
         for (int code = 0; code < 256; code++) {
@@ -68,18 +63,13 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
                 continue;
             }
 
-            sync().start();
-            try {
-                output.info("send invalid max_fragment_length extension (%d), " +
-                        "expect connection failure", code);
-                configuringGeneratingClientHello(clientHelloStage(code));
-                Engine engine = createEngine();
-                engines.add(engine);
-                engine.connect();
-                engine.requireOne(new FailureCheck(), new AlertCheck());
-            } finally {
-                sync().end();
-            }
+            logger.info("send invalid max_fragment_length extension ({}), " +
+                    "expect connection failure", code);
+            configuringGeneratingClientHello(clientHelloStage(code));
+            engine = createEngine();
+            engines.add(engine);
+            engine.connect();
+            engine.requireOne(new FailureCheck(), new AlertCheck());
         }
 
         return this;

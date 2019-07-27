@@ -1,12 +1,11 @@
 package com.gypsyengineer.tlsbunny.tls13.handshake;
 
-import com.gypsyengineer.tlsbunny.tls13.client.*;
+import com.gypsyengineer.tlsbunny.tls13.client.HttpsClientAuth;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.NoAlertAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.server.OneConnectionReceived;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -18,25 +17,21 @@ public class ClientAuthTest {
 
     @Test
     public void httpsClient() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
 
         HttpsServer server = httpsServer()
                 .set(secp256r1)
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new OneConnectionReceived());
 
         HttpsClientAuth client = new HttpsClientAuth();
 
-        try (server; clientOutput; serverOutput) {
+        try (server) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load()
                     .port(server.port());
-            client.set(clientConfig).set(clientOutput);
+            client.set(clientConfig);
 
             try (client) {
                 client.connect().engines()[0].apply(new NoAlertAnalyzer());
@@ -51,16 +46,14 @@ public class ClientAuthTest {
 
         boolean success = checkContexts(
                 clientEngines[0].context(),
-                serverEngines[0].context(),
-                clientOutput);
+                serverEngines[0].context());
 
         assertTrue("something went wrong!", success);
     }
 
     private static boolean checkContexts(
-            Context clientContext, Context serverContext, Output output) {
+            Context clientContext, Context serverContext) {
 
-        output.info("check client and server contexts");
         assertNotNull("client context should not be null", clientContext);
         assertNotNull("server context should not be null", serverContext);
 

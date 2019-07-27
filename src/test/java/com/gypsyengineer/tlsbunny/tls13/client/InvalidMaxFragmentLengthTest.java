@@ -1,6 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-import com.gypsyengineer.tlsbunny.output.Output;
+
 import com.gypsyengineer.tlsbunny.tls13.connection.BaseEngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
@@ -26,27 +26,22 @@ public class InvalidMaxFragmentLengthTest {
 
     @Test
     public void run() throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
 
         InvalidMaxFragmentLength client = new InvalidMaxFragmentLength();
 
         SingleThreadServer server = new SingleThreadServer()
                 .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverOutput))
+                        .set(serverConfig))
                 .set(serverConfig)
-                .set(serverOutput)
                 .stopWhen(new NonStop());
 
-        try (client; server; clientOutput; serverOutput) {
+        try (client; server) {
             server.start();
 
             Config clientConfig = SystemPropertiesConfig.load().port(server.port());
 
-            client.set(clientConfig).set(clientOutput).connect();
+            client.set(clientConfig).connect();
         }
     }
 
@@ -72,7 +67,7 @@ public class InvalidMaxFragmentLengthTest {
         private Engine sendAlert() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 
@@ -100,7 +95,7 @@ public class InvalidMaxFragmentLengthTest {
         protected Engine fullHandshake() throws Exception {
             return Engine.init()
                     .set(structFactory)
-                    .set(output)
+
 
                     .receive(new IncomingData())
 

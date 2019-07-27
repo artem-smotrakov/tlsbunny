@@ -3,11 +3,10 @@ package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 import com.gypsyengineer.tlsbunny.TestUtils;
 import com.gypsyengineer.tlsbunny.TestUtils.FakeTestAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClient;
-import com.gypsyengineer.tlsbunny.tls13.connection.*;
+import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.output.Output;
 import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
@@ -78,30 +77,25 @@ public class MutatedClientTest {
     }
 
     public void test(FuzzerConfig fuzzerConfig) throws Exception {
-        Output serverOutput = Output.standard("server");
-        Output clientOutput = Output.standardClient();
-
         Config serverConfig = SystemPropertiesConfig.load();
 
         HttpsServer server = httpsServer()
                 .set(serverConfig)
-                .set(serverOutput)
                 .maxConnections(n);
 
         MutatedClient fuzzyClient = new MutatedClient(
-                new HttpsClient(), clientOutput, fuzzerConfig);
+                new HttpsClient(), fuzzerConfig);
 
         FakeTestAnalyzer analyzer = new FakeTestAnalyzer();
-        analyzer.set(clientOutput);
 
-        try (fuzzyClient; server; clientOutput; serverOutput) {
+        try (fuzzyClient; server) {
             server.start();
 
             fuzzerConfig.port(server.port());
 
             fuzzyClient
                     .set(fuzzerConfig)
-                    .set(clientOutput)
+
                     .set(analyzer)
                     .connect();
         }

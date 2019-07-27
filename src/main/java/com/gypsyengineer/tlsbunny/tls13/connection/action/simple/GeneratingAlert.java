@@ -1,7 +1,9 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
-import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
+import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
+import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,7 +25,7 @@ public class GeneratingAlert extends AbstractAction<GeneratingAlert> {
 
     @Override
     public String name() {
-        return String.format("generating Alert (%s, %s)", level, description);
+        return String.format("generating Alert ({}, {})", level, description);
     }
 
     @Override
