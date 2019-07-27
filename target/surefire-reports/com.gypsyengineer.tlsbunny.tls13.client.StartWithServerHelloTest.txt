@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.gypsyengineer.tlsbunny.tls13.client.StartWithServerHelloTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.118 sec - in com.gypsyengineer.tlsbunny.tls13.client.StartWithServerHelloTest
