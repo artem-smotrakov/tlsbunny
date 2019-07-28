@@ -29,7 +29,7 @@ public class WrappingIntoHandshake extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("wrapping into Handshake ({})", type);
+        return String.format("wrapping into Handshake (%s)", type);
     }
 
     public WrappingIntoHandshake updateContext(Context.Element element) {

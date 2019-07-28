@@ -70,9 +70,9 @@ public class ProtocolVersionImpl implements ProtocolVersion {
         // - "switch" doesn't work because we can't use ProtocolVersion.getMinor() for "case"
         // - creating a map {code, description} doesn't work because standard types in ProtocolVersion
         //   are not initialized at the moment of initializing of the map
-        String template = "protocol version (0x{}{})";
+        String template = "protocol version (0x%s%s)";
         if (SSLv3.getMinor() == minor && SSLv3.getMajor() == major) {
-            template = "SSLv3 (0x{}{})";
+            template = "SSLv3 (0x%s%s)";
         }
         if (TLSv10.getMinor() == minor && TLSv10.getMajor() == major) {
             template = "TLSv10 (0x{}{})";

@@ -135,7 +135,7 @@ public class Utils {
 
     public static <T> T cast(Struct object, Class<T> clazz) {
         if (!clazz.isAssignableFrom(object.getClass())) {
-            throw whatTheHell("expected {} but received {}",
+            throw whatTheHell("expected %s but received %s",
                     clazz.getSimpleName(), object.getClass().getSimpleName());
         }
         return (T) object;

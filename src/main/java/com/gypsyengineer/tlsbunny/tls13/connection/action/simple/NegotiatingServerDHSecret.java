@@ -36,7 +36,7 @@ public class NegotiatingServerDHSecret extends AbstractAction<NegotiatingServerD
 
         if (selectedKeyShareEntry == null) {
             throw new NegotiatorException(
-                    String.format("could not find a key share with {}",
+                    String.format("could not find a key share with %s",
                             context.negotiator().group()));
         }
 

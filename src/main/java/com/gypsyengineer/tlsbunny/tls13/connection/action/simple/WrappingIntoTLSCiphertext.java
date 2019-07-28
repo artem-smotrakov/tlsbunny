@@ -33,7 +33,7 @@ public class WrappingIntoTLSCiphertext extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("wrapping into TLSCiphertext ({})", phase);
+        return String.format("wrapping into TLSCiphertext (%s)", phase);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class WrappingIntoTLSCiphertext extends AbstractAction {
                 encryptor = context.applicationDataEncryptor();
                 break;
             default:
-                throw whatTheHell("unknown phase: {}", phase);
+                throw whatTheHell("unknown phase: %s", phase);
         }
 
         if (encryptor == null) {

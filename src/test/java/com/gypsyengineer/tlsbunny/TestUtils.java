@@ -160,7 +160,7 @@ public class TestUtils {
             }
 
             try {
-                System.out.printf("call {}()%n", method.getName());
+                System.out.printf("call %s()%n", method.getName());
                 method.invoke(object);
                 if (excluded.contains(method.getName())) {
                     continue;

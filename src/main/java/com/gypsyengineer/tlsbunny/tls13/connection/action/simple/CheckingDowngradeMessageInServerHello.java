@@ -38,8 +38,8 @@ public class CheckingDowngradeMessageInServerHello
 
     @Override
     public String name() {
-        return String.format("checking a downgrade message in ServerHello, expect: {}",
-                expectedVersion);
+        return String.format(
+                "checking a downgrade message in ServerHello, expect: %s", expectedVersion);
     }
 
     @Override

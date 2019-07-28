@@ -123,7 +123,7 @@ public abstract class SupportedVersionsImpl implements SupportedVersions {
 
         @Override
         public String toString() {
-            return String.format("SupportedVersion { ServerHello, selected_version: {} }", selected_version);
+            return String.format("SupportedVersion { ServerHello, selected_version: %s }", selected_version);
         }
 
         @Override

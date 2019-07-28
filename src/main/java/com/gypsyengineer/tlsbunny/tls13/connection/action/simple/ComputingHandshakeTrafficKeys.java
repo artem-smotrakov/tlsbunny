@@ -22,7 +22,7 @@ public class ComputingHandshakeTrafficKeys
 
     @Override
     public String name() {
-        return String.format("computing handshake traffic keys ({})", side);
+        return String.format("computing handshake traffic keys (%s)", side);
     }
 
     public ComputingHandshakeTrafficKeys side(Side side) {
