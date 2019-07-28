@@ -1,0 +1,29 @@
+sudo: required
+language: java
+dist: trusty
+
+matrix:
+  include:
+    - env: JDK='OpenJDK 11'
+      install: . ./install-jdk.sh -F 11 -L GPL
+    - env: JDK='OpenJDK 12'
+      install: . ./install-jdk.sh -F 12 -L GPL
+
+script:
+  - mvn clean package
+
+addons:
+  sonarcloud:
+    organization: "artem-smotrakov-github"
+    token:
+      secure: >
+        dluei+0gd66JePCjVlPagI8hrZ56BU5CaQV3SLzskTe2iHyV/Xvspwn5FN4c3lwKtLbr0pQX
+        pbpddKEinqpZ9JUFgvtpl1MoI6fI61vrtBgrZTsAPvWgQYN7OluvKSjaIK6Q4SJAd6KLS1GB
+        GEG55np4rD3W4fKW1jyz+ZaAOvQHxBT5JkOARRZKtLHgL8iN6I8YYF7WGwwp5BtrfALz5jTP
+        KsIcuWXqICLwVmZmnGjWnsqRxZuYxcWX27jcoWuGg8ei+BjUf9yWzevkqVU3896vg/sCWjua
+        +jJzVXXElmrXe3bJXGd0zS8LyjvrSVFwueY4pMy1HYZwtBDJMb2lriDTimeVmb+Bb2YJDfUu
+        q5f2w20Cp/RbWvvCMoYVerosSk3OaqYLPEHFFu+MSI76erHgHDHJX+i9A1MwU0nl7JCivejp
+        qMpho52dGUScqAfWeXE68Kd5/1nKNQr+roMhzyQnFwFTJahD3BVmxXmhcLR4sYT0inqxSGQ+
+        leAfYS0qLztz/2QthZyGvzPhiP/orzhBK2AUnSQjPu3hX2azkH1Pjgm/pW2twdkkURNstQvL
+        j+PboFJZzJjMrmgJ6q00dclKEvHU3hx69ea//9b0l7+wPJnhN17fsTfc84ATpXadtB2K6nCr
+        abGnlxoK0V5RO7MdeYzdMCdsQCqTLry/BbY=

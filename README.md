@@ -1,3 +1,12 @@
+[![Build Status](https://travis-ci.org/artem-smotrakov/tlsbunny.svg?branch=master)](https://travis-ci.org/artem-smotrakov/tlsbunny)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?metric=coverage&project=tlsbunny)](https://sonarcloud.io/component_measures?id=tlsbunny&metric=coverage&view=list)
+[![Lines of code](https://sonarcloud.io/api/project_badges/measure?metric=ncloc&project=tlsbunny)](https://sonarcloud.io/component_measures?id=tlsbunny&metric=ncloc&view=list)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?metric=sqale_rating&project=tlsbunny)](https://sonarcloud.io/component_measures?id=tlsbunny&metric=Maintainability&view=list)
+[![Reliability](https://sonarcloud.io/api/project_badges/measure?metric=sqale_rating&project=tlsbunny)](https://sonarcloud.io/component_measures?id=tlsbunny&metric=Reliability&view=list)
+[![Security](https://sonarcloud.io/api/project_badges/measure?metric=security_rating&project=tlsbunny)](https://sonarcloud.io/component_measures?id=tlsbunny&metric=Security&view=list)
+
 # tlsbunny
 
 This is a framework for building negative tests and fuzzers for TLS 1.3 implementations.
