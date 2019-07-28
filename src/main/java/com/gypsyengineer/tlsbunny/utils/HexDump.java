@@ -65,6 +65,9 @@ public class HexDump {
                     builder.append("   ");
                 }
             }
+            if (rowOffset + width < offset + length) {
+                builder.append("\n");
+            }
         }
 
         return builder.toString();

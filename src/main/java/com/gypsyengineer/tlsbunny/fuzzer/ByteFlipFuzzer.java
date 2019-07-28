@@ -5,12 +5,26 @@ import java.util.Set;
 
 public class ByteFlipFuzzer extends AbstractFlipFuzzer implements Fuzzer<byte[]> {
 
-    public static ByteFlipFuzzer newByteFlipFuzzer() {
-        return new ByteFlipFuzzer();
+    public static ByteFlipFuzzer byteFlipFuzzer() {
+        return new ByteFlipFuzzer(
+                default_min_ratio, default_max_ratio,
+                from_the_beginning, not_specified);
     }
 
-    public ByteFlipFuzzer() {
-        super();
+    public static ByteFlipFuzzer byteFlipFuzzer(double ratio) {
+        return new ByteFlipFuzzer(ratio, ratio, from_the_beginning, not_specified);
+    }
+
+    public static ByteFlipFuzzer byteFlipFuzzer(double minRatio, double maxRatio) {
+        return new ByteFlipFuzzer(minRatio, maxRatio, from_the_beginning, not_specified);
+    }
+
+    public static ByteFlipFuzzer byteFlipFuzzer(double minRatio, double maxRatio, int start, int end) {
+        return new ByteFlipFuzzer(minRatio, maxRatio, start, end);
+    }
+
+    public ByteFlipFuzzer(double ratio) {
+        this(ratio, ratio, from_the_beginning, not_specified);
     }
 
     public ByteFlipFuzzer(double minRatio, double maxRatio, int start, int end) {

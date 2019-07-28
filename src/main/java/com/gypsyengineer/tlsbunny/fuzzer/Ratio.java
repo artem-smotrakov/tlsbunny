@@ -2,19 +2,12 @@ package com.gypsyengineer.tlsbunny.fuzzer;
 
 public class Ratio {
 
-    private final double min;
-    private final double max;
+    public final double from;
+    public final double to;
 
-    public Ratio(double min, double max) {
-        this.min = min;
-        this.max = max;
+    public Ratio(double from, double to) {
+        this.from = from;
+        this.to = to;
     }
 
-    public double min() {
-        return min;
-    }
-
-    public double max() {
-        return max;
-    }
 }

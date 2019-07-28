@@ -13,22 +13,23 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
     static final int from_the_beginning = 0;
     static final int not_specified = -1;
 
-    protected int startIndex;
-    protected int endIndex;
-    protected double minRatio;
-    protected double maxRatio;
-    protected long state = 0;
+    private int startIndex;
+    private int endIndex;
+    double minRatio;
+    double maxRatio;
 
-    protected final Random random;
+    private long state = 0;
+    final Random random;
 
     public AbstractFlipFuzzer() {
         this(default_min_ratio, default_max_ratio, from_the_beginning, not_specified);
     }
 
-    public AbstractFlipFuzzer(double minRatio, double maxRatio,
+    AbstractFlipFuzzer(double minRatio, double maxRatio,
             int startIndex, int endIndex) {
 
         check(minRatio, maxRatio);
+
         this.minRatio = minRatio;
         this.maxRatio = maxRatio;
 
@@ -50,17 +51,17 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         random.setSeed(state);
     }
 
-    public synchronized AbstractFlipFuzzer minRatio(double ratio) {
+    synchronized AbstractFlipFuzzer minRatio(double ratio) {
         minRatio = check(ratio);
         return this;
     }
 
-    public synchronized AbstractFlipFuzzer maxRatio(double ratio) {
+    synchronized AbstractFlipFuzzer maxRatio(double ratio) {
         maxRatio = check(ratio);
         return this;
     }
 
-    public synchronized AbstractFlipFuzzer startIndex(int index) {
+    synchronized AbstractFlipFuzzer startIndex(int index) {
         if (index < 0) {
             throw whatTheHell("start index is negative!");
         }
@@ -73,7 +74,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         return this;
     }
 
-    public synchronized AbstractFlipFuzzer endIndex(int index) {
+    synchronized AbstractFlipFuzzer endIndex(int index) {
         if (index > 0 && index < startIndex) {
             throw whatTheHell("end index should not be less than start index!");
         }
@@ -83,7 +84,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
 
     @Override
     public synchronized String state() {
-        return String.format("%d:%d:%s:%s:%d",
+        return String.format("%d:%d:%f:%f:%d",
                 startIndex, endIndex, minRatio, maxRatio, state);
     }
 
@@ -134,7 +135,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
 
     protected abstract byte[] fuzzImpl(byte[] array);
 
-    protected int getStartIndex() {
+    int getStartIndex() {
         if (startIndex > 0) {
             return startIndex;
         }
@@ -142,7 +143,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         return 0;
     }
 
-    protected int getEndIndex(byte[] array) {
+    int getEndIndex(byte[] array) {
         if (endIndex > 0 && endIndex < array.length) {
             return endIndex;
         }
@@ -150,7 +151,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         return array.length - 1;
     }
 
-    protected double getRatio() {
+    double getRatio() {
         return minRatio + (maxRatio - minRatio) * random.nextDouble();
     }
 

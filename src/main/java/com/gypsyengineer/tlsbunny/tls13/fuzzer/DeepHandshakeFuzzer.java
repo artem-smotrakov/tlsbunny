@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.newByteFlipFuzzer;
+import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.byteFlipFuzzer;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzedStruct.fuzzedHandshakeMessage;
 import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 import static com.gypsyengineer.tlsbunny.utils.Utils.cast;
@@ -24,7 +24,7 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
 
     private static final Logger logger = LogManager.getLogger(DeepHandshakeFuzzer.class);
 
-    private Fuzzer<byte[]> fuzzer = newByteFlipFuzzer();
+    private Fuzzer<byte[]> fuzzer = byteFlipFuzzer();
     private Mode mode;
     private final List<Holder> recorded = new ArrayList<>();
     private int currentHolderIndex = 0;
@@ -56,7 +56,7 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
         return fuzzer;
     }
 
-    public DeepHandshakeFuzzer fuzzer(Fuzzer<byte[]> fuzzer) {
+    public DeepHandshakeFuzzer set(Fuzzer<byte[]> fuzzer) {
         this.fuzzer = fuzzer;
         return this;
     }
@@ -178,10 +178,8 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
     }
 
     private void explain(String what, byte[] encoding, byte[] fuzzed) {
-        logger.info("{} (original):", what);
-        logger.info("{}", printHexDiff(encoding, fuzzed));
-        logger.info("{} (fuzzed):", what);
-        logger.info("{}", printHexDiff(fuzzed, encoding));
+        logger.info("{} (original):\n{}", what, printHexDiff(encoding, fuzzed));
+        logger.info("{} (fuzzed):\n{}", what, printHexDiff(fuzzed, encoding));
 
         if (Arrays.equals(encoding, fuzzed)) {
             logger.info("nothing actually fuzzed");
