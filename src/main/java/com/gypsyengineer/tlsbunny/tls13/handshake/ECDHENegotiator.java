@@ -130,11 +130,11 @@ public class ECDHENegotiator extends AbstractNegotiator {
             BigInteger a = curve.getA();
             BigInteger b = curve.getB();
 
-            logger.info("p = {}", p.toString());
-            logger.info("x = {}", x.toString());
-            logger.info("y = {}", y.toString());
-            logger.info("a = {}", a.toString());
-            logger.info("b = {}", b.toString());
+            logger.debug("p = {}", p);
+            logger.debug("x = {}", x);
+            logger.debug("y = {}", y);
+            logger.debug("a = {}", a);
+            logger.debug("b = {}", b);
 
             ECUtils.checkPointOnCurve(point, curve);
         } catch (ECException e) {
@@ -147,7 +147,7 @@ public class ECDHENegotiator extends AbstractNegotiator {
             throw new NegotiatorException(e);
         }
 
-        logger.warn("{}", e.getMessage());
+        logger.warn("exception: ", e);
     }
     
     public static ECDHENegotiator create(NamedGroup.Secp group, StructFactory factory) 
