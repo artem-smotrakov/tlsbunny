@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.newByteFlipFuzzer;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzedStruct.fuzzedHandshakeMessage;
 import static com.gypsyengineer.tlsbunny.utils.HexDump.printHexDiff;
 import static com.gypsyengineer.tlsbunny.utils.Utils.cast;
@@ -23,10 +24,8 @@ public class DeepHandshakeFuzzer extends StructFactoryWrapper
 
     private static final Logger logger = LogManager.getLogger(DeepHandshakeFuzzer.class);
 
-    private Fuzzer<byte[]> fuzzer;
-
+    private Fuzzer<byte[]> fuzzer = newByteFlipFuzzer();
     private Mode mode;
-
     private final List<Holder> recorded = new ArrayList<>();
     private int currentHolderIndex = 0;
     private int currentPathIndex = 0;
