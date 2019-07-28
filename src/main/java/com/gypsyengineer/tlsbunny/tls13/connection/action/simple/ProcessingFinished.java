@@ -33,7 +33,7 @@ public class ProcessingFinished extends AbstractAction<ProcessingFinished> {
 
     @Override
     public String name() {
-        return String.format("processing Finished ({})", side);
+        return String.format("processing Finished (%s)", side);
     }
 
     public ProcessingFinished side(Side side) {

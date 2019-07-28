@@ -65,7 +65,7 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
         if (tlsPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsPlaintext.getFragment());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: {}", alert));
+            throw new ActionFailed(String.format("received an alert: %s", alert));
         }
 
         if (!tlsPlaintext.containsApplicationData()) {
@@ -77,12 +77,12 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
         if (!expectedType.isAlert() && tlsInnerPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsInnerPlaintext.getContent());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: {}", alert));
+            throw new ActionFailed(String.format("received an alert: %s", alert));
         }
 
         if (!expectedType.equals(tlsInnerPlaintext.getType())) {
             throw new ActionFailed(
-                    String.format("expected %, but received {}",
+                    String.format("expected %s, but received %s",
                             expectedType, tlsInnerPlaintext.getType()));
         }
 

@@ -27,7 +27,7 @@ public class GeneratingFinished extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("generating Finished ({})", side);
+        return String.format("generating Finished (%s)", side);
     }
 
     public GeneratingFinished side(Side side) {

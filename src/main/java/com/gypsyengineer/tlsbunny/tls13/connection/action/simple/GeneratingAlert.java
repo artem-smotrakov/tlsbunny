@@ -25,7 +25,7 @@ public class GeneratingAlert extends AbstractAction<GeneratingAlert> {
 
     @Override
     public String name() {
-        return String.format("generating Alert ({}, {})", level, description);
+        return String.format("generating Alert (%s, %s)", level, description);
     }
 
     @Override

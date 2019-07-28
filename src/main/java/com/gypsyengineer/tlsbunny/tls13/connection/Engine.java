@@ -252,7 +252,7 @@ public class Engine {
                         break;
                     default:
                         throw new IllegalStateException(
-                                String.format("unknown action type: {}", holder.type));
+                                String.format("unknown action type: %s", holder.type));
                 }
 
                 if (context.hasAlert()) {

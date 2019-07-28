@@ -5,6 +5,7 @@
 
 set -x
 
+rm -rf server.log
 cd ws || exit
 touch stop.file
 echo "note: remove $(pwd)/stop.file to stop the server loop"
@@ -16,5 +17,6 @@ do
         -l TLS13-AES128-GCM-SHA256 \
         -d -i -g -b -x \
         -c ../../../../certs/server_cert.pem \
-        -k ../../../../certs/server_key.pem 2>&1
+        -k ../../../../certs/server_key.pem 2>&1 \
+            | tee -a ../server.log
 done

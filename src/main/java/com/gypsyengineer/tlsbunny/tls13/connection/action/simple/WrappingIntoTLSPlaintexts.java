@@ -27,7 +27,7 @@ public class WrappingIntoTLSPlaintexts extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("wrapping into TLSPlaintext ({}, {})", type, version);
+        return String.format("wrapping into TLSPlaintext (%s, %s)", type, version);
     }
 
     @Override

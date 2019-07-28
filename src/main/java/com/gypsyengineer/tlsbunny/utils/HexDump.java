@@ -65,8 +65,6 @@ public class HexDump {
                     builder.append("   ");
                 }
             }
-
-            builder.append(String.format("%n"));
         }
 
         return builder.toString();

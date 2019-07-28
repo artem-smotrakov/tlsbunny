@@ -37,8 +37,7 @@ public interface Client extends AutoCloseable, Runnable {
      * @return the thread where the client is running
      */
     default Thread start() {
-        String name = String.format("{}-thread", getClass().getSimpleName());
-        Thread thread = new Thread(this, name);
+        Thread thread = new Thread(this, "server");
         thread.start();
         return thread;
     }

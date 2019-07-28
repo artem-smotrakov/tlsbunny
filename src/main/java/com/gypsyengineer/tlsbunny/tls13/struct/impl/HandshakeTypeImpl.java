@@ -63,40 +63,40 @@ public class HandshakeTypeImpl implements HandshakeType {
         //   are not initialized at the moment of initializing of the map
         String template = "handshake type (%d)";
         if (client_hello.getValue() == value) {
-            template = "client_hello ({})";
+            template = "client_hello (%s)";
         }
         if (server_hello.getValue() == value) {
-            template = "server_hello ({})";
+            template = "server_hello (%s)";
         }
         if (encrypted_extensions.getValue() == value) {
-            template = "encrypted_extensions ({})";
+            template = "encrypted_extensions (%s)";
         }
         if (certificate.getValue() == value) {
-            template = "certificate ({})";
+            template = "certificate (%s)";
         }
         if (certificate_verify.getValue() == value) {
-            template = "certificate_verify ({})";
+            template = "certificate_verify (%s)";
         }
         if (certificate_request.getValue() == value) {
-            template = "certificate_request ({})";
+            template = "certificate_request (%s)";
         }
         if (finished.getValue() == value) {
-            template = "finished ({})";
+            template = "finished (%s)";
         }
         if (end_of_early_data.getValue() == value) {
-            template = "end_of_early_data ({})";
+            template = "end_of_early_data (%s)";
         }
         if (key_update.getValue() == value) {
-            template = "key_update ({})";
+            template = "key_update (%s)";
         }
         if (hello_retry_request.getValue() == value) {
-            template = "hello_retry_request ({})";
+            template = "hello_retry_request (%s)";
         }
         if (message_hash.getValue() == value) {
-            template = "message_hash ({})";
+            template = "message_hash (%s)";
         }
         if (new_session_ticket.getValue() == value) {
-            template = "new_session_ticket ({})";
+            template = "new_session_ticket (%s)";
         }
         return String.format(template, value);
     }
