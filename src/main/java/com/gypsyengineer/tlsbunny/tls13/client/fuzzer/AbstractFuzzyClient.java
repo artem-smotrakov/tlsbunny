@@ -1,13 +1,13 @@
-package com.gypsyengineer.tlsbunny.tls13.fuzzer;
+package com.gypsyengineer.tlsbunny.tls13.client.fuzzer;
 
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
+import com.gypsyengineer.tlsbunny.utils.Config;
 
 public abstract class AbstractFuzzyClient implements Client, AutoCloseable {
 
     private Status status = Status.not_started;
     private boolean stopped = false;
-
-    protected String state;
+    protected String state = Config.instance.getString("state");
 
     @Override
     public final void run() {

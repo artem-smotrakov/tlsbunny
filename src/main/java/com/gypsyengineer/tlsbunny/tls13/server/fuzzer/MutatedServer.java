@@ -1,12 +1,12 @@
-package com.gypsyengineer.tlsbunny.tls13.fuzzer;
+package com.gypsyengineer.tlsbunny.tls13.server.fuzzer;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
+import com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzyStructFactory;
 import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.server.StopCondition;
-import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,9 +25,9 @@ public class MutatedServer implements Server {
 
     private static final Logger logger = LogManager.getLogger(MutatedServer.class);
 
-    private static final int free_port = 0;
+    private static final int freePort = 0;
 
-    private final ServerSocket ssocket;
+    private final ServerSocket serverSocket;
     private final EngineFactory engineFactory;
     private final List<Engine> engines = Collections.synchronizedList(new ArrayList<>());
 
@@ -46,14 +46,14 @@ public class MutatedServer implements Server {
     }
 
     public static MutatedServer mutatedServer(Server server) throws IOException {
-        ServerSocket socket = new ServerSocket(free_port);
+        ServerSocket socket = new ServerSocket(freePort);
         socket.setReuseAddress(true);
         return new MutatedServer(socket, server);
     }
 
-    private MutatedServer(ServerSocket ssocket, Server server) {
-        this.engineFactory = server.engineFactory();
-        this.ssocket = ssocket;
+    private MutatedServer(ServerSocket ssocket, Server serverSocket) {
+        this.engineFactory = serverSocket.engineFactory();
+        this.serverSocket = ssocket;
     }
 
     @Override
@@ -73,9 +73,9 @@ public class MutatedServer implements Server {
 
     @Override
     public MutatedServer stop() {
-        if (!ssocket.isClosed()) {
+        if (!serverSocket.isClosed()) {
             try {
-                ssocket.close();
+                serverSocket.close();
             } catch (IOException e) {
                 logger.warn("exception occurred while stopping the server", e);
             }
@@ -86,7 +86,7 @@ public class MutatedServer implements Server {
 
     @Override
     public int port() {
-        return ssocket.getLocalPort();
+        return serverSocket.getLocalPort();
     }
 
     @Override
@@ -149,7 +149,7 @@ public class MutatedServer implements Server {
                 synchronized (this) {
                     status = Status.ready;
                 }
-                try (Connection connection = Connection.create(ssocket.accept())) {
+                try (Connection connection = Connection.create(serverSocket.accept())) {
                     synchronized (this) {
                         status = Status.accepted;
                     }
@@ -175,7 +175,7 @@ public class MutatedServer implements Server {
                 test,
                 getClass().getSimpleName(),
                 fuzzyStructFactory.fuzzer().getClass().getSimpleName(),
-                Arrays.stream(fuzzyStructFactory.targets)
+                Arrays.stream(fuzzyStructFactory.targets())
                         .map(Enum::toString)
                         .collect(Collectors.joining(", ")));
         logger.info(message);

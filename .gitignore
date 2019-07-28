@@ -1,3 +1,5 @@
 target
 .idea
 tlsbunny.iml
+vendor/wolfssl/server/ws
+vendor/wolfssl/server/wolfssl-build
