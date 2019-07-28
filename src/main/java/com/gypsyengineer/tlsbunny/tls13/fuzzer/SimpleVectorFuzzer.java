@@ -14,7 +14,7 @@ public class SimpleVectorFuzzer<T> implements Fuzzer<Vector<T>> {
 
     private static final Logger logger = LogManager.getLogger(SimpleVectorFuzzer.class);
 
-    public static SimpleVectorFuzzer simpleVectorFuzzer() {
+    static SimpleVectorFuzzer simpleVectorFuzzer() {
         return new SimpleVectorFuzzer();
     }
 
@@ -23,122 +23,122 @@ public class SimpleVectorFuzzer<T> implements Fuzzer<Vector<T>> {
 
     @Override
     public String toString() {
-        return String.format("{} (generators = %d, state = %d)",
+        return String.format("%s (generators = %d, state = %d)",
                 getClass().getSimpleName(), generators.length, state);
     }
 
     public SimpleVectorFuzzer() {
         generators = new Generator[] {
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, vector.bytes()),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 1, vector.bytes()),
-                (vector) -> new FuzzedVector(vector.lengthBytes(),
+                vector -> new FuzzedVector(vector.lengthBytes(),
                         255, vector.bytes()),
 
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(1, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(100, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(255, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(1, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(100, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(255, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(1, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(100, 0x00)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(255, 0x00)),
 
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(1, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(100, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(255, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(1, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(100, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(255, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(1, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(100, 0x17)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(255, 0x17)),
 
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(1, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(100, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(255, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(1, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(100, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(255, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(1, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(100, 0xFF)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(255, 0xFF)),
 
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(1)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(100)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 0, generateArray(255)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(1)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(100)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 100, generateArray(255)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(1)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(100)),
-                (vector) -> new FuzzedVector(
+                vector -> new FuzzedVector(
                         vector.lengthBytes(), 255, generateArray(255)),
         };
     }
 
     @Override
-    synchronized public String state() {
+    public synchronized String state() {
         return String.valueOf(state);
     }
 
     @Override
-    synchronized public void state(String string) {
+    public synchronized void state(String string) {
         state = check(Integer.parseInt(string));
     }
 
     @Override
-    synchronized public boolean canFuzz() {
+    public synchronized boolean canFuzz() {
         return state <= generators.length - 1;
     }
 
     @Override
-    synchronized public void moveOn() {
-        if (state == Long.MAX_VALUE) {
-            throw new IllegalStateException();
+    public synchronized void moveOn() {
+        if (state == Integer.MAX_VALUE) {
+            throw new IllegalStateException("I can't fuzz any more!");
         }
         state++;
     }
 
     @Override
-    synchronized public final Vector<T> fuzz(Vector<T> vector) {
+    public synchronized final Vector<T> fuzz(Vector<T> vector) {
         if (!canFuzz()) {
             throw whatTheHell("I can't fuzz anymore!");
         }

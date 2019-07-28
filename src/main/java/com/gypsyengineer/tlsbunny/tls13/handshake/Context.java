@@ -540,15 +540,15 @@ public class Context {
         });
     }
 
-    synchronized public boolean hasAlert() {
+    public synchronized boolean hasAlert() {
         return alert != null;
     }
 
-    synchronized public void setAlert(Alert alert) {
+    public synchronized void setAlert(Alert alert) {
         this.alert = alert;
     }
 
-    synchronized public Alert getAlert() {
+    public synchronized Alert getAlert() {
         return alert;
     }
 

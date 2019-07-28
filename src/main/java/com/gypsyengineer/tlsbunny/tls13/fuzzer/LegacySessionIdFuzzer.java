@@ -31,7 +31,7 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
     }
 
     @Override
-    synchronized public ClientHello createClientHello(ProtocolVersion legacy_version,
+    public synchronized ClientHello createClientHello(ProtocolVersion legacy_version,
                                                       Random random,
                                                       byte[] legacy_session_id,
                                                       List<CipherSuite> cipher_suites,
@@ -56,7 +56,7 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
     }
 
     @Override
-    synchronized public ServerHello createServerHello(ProtocolVersion version,
+    public synchronized ServerHello createServerHello(ProtocolVersion version,
                                                       Random random,
                                                       byte[] legacy_session_id_echo,
                                                       CipherSuite cipher_suite,
@@ -81,7 +81,7 @@ public class LegacySessionIdFuzzer extends FuzzyStructFactory<Vector<Byte>> {
     }
 
     @Override
-    synchronized public Vector<Byte> fuzz(Vector<Byte> sessionId) {
+    public synchronized Vector<Byte> fuzz(Vector<Byte> sessionId) {
         Vector<Byte> fuzzedSessionId = fuzzer.fuzz(sessionId);
 
         try {

@@ -50,17 +50,17 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         random.setSeed(state);
     }
 
-    synchronized public AbstractFlipFuzzer minRatio(double ratio) {
+    public synchronized AbstractFlipFuzzer minRatio(double ratio) {
         minRatio = check(ratio);
         return this;
     }
 
-    synchronized public AbstractFlipFuzzer maxRatio(double ratio) {
+    public synchronized AbstractFlipFuzzer maxRatio(double ratio) {
         maxRatio = check(ratio);
         return this;
     }
 
-    synchronized public AbstractFlipFuzzer startIndex(int index) {
+    public synchronized AbstractFlipFuzzer startIndex(int index) {
         if (index < 0) {
             throw whatTheHell("start index is negative!");
         }
@@ -73,7 +73,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
         return this;
     }
 
-    synchronized public AbstractFlipFuzzer endIndex(int index) {
+    public synchronized AbstractFlipFuzzer endIndex(int index) {
         if (index > 0 && index < startIndex) {
             throw whatTheHell("end index should not be less than start index!");
         }
@@ -82,13 +82,13 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
     }
 
     @Override
-    synchronized public String state() {
+    public synchronized String state() {
         return String.format("%d:%d:%s:%s:%d",
                 startIndex, endIndex, minRatio, maxRatio, state);
     }
 
     @Override
-    synchronized public void state(String string) {
+    public synchronized void state(String string) {
         try (Scanner scanner = new Scanner(string)) {
             scanner.useDelimiter(":");
             startIndex = scanner.nextInt();
@@ -104,12 +104,12 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
     }
 
     @Override
-    synchronized public boolean canFuzz() {
+    public synchronized boolean canFuzz() {
         return state < Long.MAX_VALUE;
     }
 
     @Override
-    synchronized public void moveOn() {
+    public synchronized void moveOn() {
         if (state == Long.MAX_VALUE) {
             throw whatTheHell("I can't move on because max state is reached!");
         }
@@ -118,7 +118,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
     }
 
     @Override
-    synchronized public final byte[] fuzz(byte[] array) {
+    public synchronized final byte[] fuzz(byte[] array) {
         random.setSeed(state);
         return fuzzImpl(array);
     }

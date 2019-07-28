@@ -12,18 +12,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext.no_padding;
-
 public class OutgoingClientCertificate extends AbstractAction {
 
-    private byte[] cert_data;
+    private static byte[] no_padding = new byte[0];
+
+    private byte[] certData;
 
     public Action certificate(String path) throws IOException {
         if (path == null || path.trim().isEmpty()) {
             throw  new IllegalArgumentException("no certificate specified");
         }
 
-        cert_data = Files.readAllBytes(Paths.get(path));
+        certData = Files.readAllBytes(Paths.get(path));
 
         return this;
     }
@@ -53,7 +53,7 @@ public class OutgoingClientCertificate extends AbstractAction {
 
         return context.factory().createCertificate(
                 certificate_request_context,
-                context.factory().createX509CertificateEntry(cert_data));
+                context.factory().createX509CertificateEntry(certData));
     }
 
 

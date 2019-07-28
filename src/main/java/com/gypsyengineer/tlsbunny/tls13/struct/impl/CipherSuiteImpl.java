@@ -5,6 +5,8 @@ import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
 
 import java.util.Objects;
 
+import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
+
 public class CipherSuiteImpl implements CipherSuite {
 
     private final int first;
@@ -45,7 +47,7 @@ public class CipherSuiteImpl implements CipherSuite {
             case 0x05:
                 return AEAD.Method.aes_128_ccm_8;
             default:
-                return AEAD.Method.unknown;
+                throw whatTheHell("unsupported cipher");
         }
     }
     
@@ -64,7 +66,7 @@ public class CipherSuiteImpl implements CipherSuite {
             case 0x03:
                 return 32;
             default:
-                return 0;
+                throw whatTheHell("unknown cipher suite");
         }
     }
     
@@ -82,10 +84,10 @@ public class CipherSuiteImpl implements CipherSuite {
             case 0x02:
             case 0x03:
                 // TODO: fix it
-                throw new RuntimeException("I don't know!");
+                throw whatTheHell("I don't know!");
+            default:
+                throw whatTheHell("unsupported cipher suite");
         }
-        
-        return 0;
     }
     
     @Override
@@ -103,7 +105,7 @@ public class CipherSuiteImpl implements CipherSuite {
             case 0x02:
                 return "SHA-384";
             default:
-                return unknown;
+                throw whatTheHell("unsupported cipher suite");
         }
     }
     
@@ -122,7 +124,7 @@ public class CipherSuiteImpl implements CipherSuite {
             case 0x02:
                 return 48;
             default:
-                return 0;
+                throw whatTheHell("unsupported cipher suite");
         }
     }
 
@@ -161,7 +163,7 @@ public class CipherSuiteImpl implements CipherSuite {
 
     private static void check(int value) {
         if (value < 0 || value > 255) {
-            throw new IllegalArgumentException();
+            throw whatTheHell("incorrect cipher suite");
         }
     }
 

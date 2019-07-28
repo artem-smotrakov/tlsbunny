@@ -13,13 +13,11 @@ import com.gypsyengineer.tlsbunny.tls13.utils.TLS13Utils;
 
 import java.io.IOException;
 
-import static com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext.no_padding;
-
 public class OutgoingApplicationData extends AbstractAction {
 
-    public static final byte[] NOTHING = new byte[0];
+    private static byte[] no_padding = new byte[0];
 
-    private byte[] data = NOTHING;
+    private byte[] data;
 
     public OutgoingApplicationData(byte[] data) {
         this.data = data;

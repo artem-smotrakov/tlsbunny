@@ -56,7 +56,7 @@ public class CipherSuitesFuzzer extends FuzzyStructFactory<Vector<CipherSuite>> 
     }
 
     @Override
-    synchronized public Vector<CipherSuite> fuzz(Vector<CipherSuite> cipherSuites) {
+    public synchronized Vector<CipherSuite> fuzz(Vector<CipherSuite> cipherSuites) {
         Vector<CipherSuite> fuzzedCipherSuites = fuzzer.fuzz(cipherSuites);
 
         try {

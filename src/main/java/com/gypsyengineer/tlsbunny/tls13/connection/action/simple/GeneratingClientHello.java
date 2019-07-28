@@ -15,7 +15,7 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
 
     private static byte[] empty_session_id = new byte[0];
 
-    public static final byte[] NO_COOKIE = null;
+    private static final byte[] NO_COOKIE = null;
     public static final MaxFragmentLength NO_MAX_FRAGMENT_LENGTH = null;
 
     private ProtocolVersion legacyVersion = ProtocolVersion.TLSv12;

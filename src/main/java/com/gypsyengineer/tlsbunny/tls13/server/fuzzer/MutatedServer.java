@@ -5,6 +5,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzyStructFactory;
+import com.gypsyengineer.tlsbunny.tls13.server.AbstractServer;
 import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.server.StopCondition;
 import com.gypsyengineer.tlsbunny.utils.Connection;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-public class MutatedServer implements Server {
+public class MutatedServer extends AbstractServer {
 
     private static final Logger logger = LogManager.getLogger(MutatedServer.class);
 
@@ -45,7 +46,7 @@ public class MutatedServer implements Server {
         return mutatedServer(server);
     }
 
-    public static MutatedServer mutatedServer(Server server) throws IOException {
+    private static MutatedServer mutatedServer(Server server) throws IOException {
         ServerSocket socket = new ServerSocket(freePort);
         socket.setReuseAddress(true);
         return new MutatedServer(socket, server);

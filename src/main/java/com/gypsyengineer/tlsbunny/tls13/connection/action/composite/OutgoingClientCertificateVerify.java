@@ -17,14 +17,15 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-import static com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext.no_padding;
-
 public class OutgoingClientCertificateVerify
         extends AbstractAction<OutgoingClientCertificateVerify> {
 
     private static final byte[] CERTIFICATE_VERIFY_PREFIX = new byte[64];
+
+    private static byte[] no_padding = new byte[0];
+
     static {
-        for (int i=0; i<CERTIFICATE_VERIFY_PREFIX.length; i++) {
+        for (int i=0; i < CERTIFICATE_VERIFY_PREFIX.length; i++) {
             CERTIFICATE_VERIFY_PREFIX[i] = 0x20;
         }
     }

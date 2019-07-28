@@ -15,9 +15,10 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.gypsyengineer.tlsbunny.tls13.handshake.Constants.zero_hash_value;
-import static com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext.no_padding;
 
 public class OutgoingFinished extends AbstractAction {
+
+    private static byte[] no_padding = new byte[0];
 
     @Override
     public String name() {
