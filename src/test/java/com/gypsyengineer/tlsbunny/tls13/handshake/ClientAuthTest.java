@@ -5,8 +5,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.NoAlertAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.server.OneConnectionReceived;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.server.HttpsServer.httpsServer;
@@ -17,24 +15,16 @@ public class ClientAuthTest {
 
     @Test
     public void httpsClient() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
-
         HttpsServer server = httpsServer()
                 .set(secp256r1)
-                .set(serverConfig)
                 .stopWhen(new OneConnectionReceived());
 
         HttpsClientAuth client = new HttpsClientAuth();
 
         try (server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load()
-                    .port(server.port());
-            client.set(clientConfig);
-
             try (client) {
-                client.connect().engines()[0].apply(new NoAlertAnalyzer());
+                client.to(server).connect().engines()[0].apply(new NoAlertAnalyzer());
             }
         }
 

@@ -74,7 +74,7 @@ public class InvalidCCS extends AbstractClient {
             }
 
             try {
-                logger.info("try CCS with %d", ccsValue);
+                logger.info("try CCS with {}", ccsValue);
                 Engine engine = createEngine(ccsValue)
                         .connect()
                         .run(checks)
@@ -100,8 +100,8 @@ public class InvalidCCS extends AbstractClient {
             throws NegotiatorException, NoSuchAlgorithmException {
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
 
                 .label(String.format("invalid_ccs:%d", ccsValue))

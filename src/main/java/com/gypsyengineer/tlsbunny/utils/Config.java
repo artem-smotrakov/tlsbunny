@@ -1,40 +1,34 @@
 package com.gypsyengineer.tlsbunny.utils;
 
-public interface Config {
-    String host();
-    int port();
-    double minRatio();
-    double maxRatio();
-    int threads();
-    int parts();
-    long total();
-    String clientCertificate();
-    String clientKey();
-    String serverCertificate();
-    String serverKey();
-    String targetFilter();
-    String state();
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.SystemConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
-    // timeout for reading incoming data (in millis)
-    long readTimeout();
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-    Config host(String host);
-    Config port(int port);
-    Config minRatio(double minRatio);
-    Config maxRatio(double maxRatio);
-    Config total(long n);
-    Config parts(int parts);
-    Config readTimeout(long timeout);
-    Config clientCertificate(String path);
-    Config clientKey(String path);
-    Config serverCertificate(String path);
-    Config serverKey(String path);
-    Config state(String state);
+import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-    boolean hasState();
+public class Config {
 
-    /**
-     * @return a copy of the config
-     */
-    Config copy();
+    private static final String configFileName = "tlsbunny.properties";
+
+    public static final Configuration instance = init();
+
+    private static Configuration init() {
+        Configurations configurations = new Configurations();
+
+        if (Files.exists(Paths.get(configFileName))) {
+            try {
+                return configurations.properties(configFileName);
+            } catch (ConfigurationException e) {
+                throw whatTheHell("could not load configuration", e);
+            }
+        }
+
+        return new SystemConfiguration();
+    }
+
 }

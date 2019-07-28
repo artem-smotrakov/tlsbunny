@@ -9,8 +9,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
@@ -23,24 +21,14 @@ public class StartWithCCSTest {
 
     @Test
     public void test() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new EngineFactoryImpl())
                 .maxConnections(1);
 
         StartWithCCS client = new StartWithCCS();
-
         try (server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig);
-
-            try (client) {
-                client.connect();
-            }
+            client.to(server).connect();
         }
 
         assertNotNull(client.engines()[0].context().getAlert());
@@ -48,16 +36,10 @@ public class StartWithCCSTest {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
-
         @Override
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
 
                     // receive an invalid CCS
                     .receive(new IncomingChangeCipherSpec())

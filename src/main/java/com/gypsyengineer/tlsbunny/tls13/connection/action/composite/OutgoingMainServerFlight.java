@@ -7,13 +7,13 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.utils.Config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.*;
@@ -29,15 +29,14 @@ public class OutgoingMainServerFlight extends AbstractAction<OutgoingMainServerF
 
     private String serverCertificate;
     private String serverKey;
-
     private boolean clientAuthEnabled = false;
-
     private ByteArrayOutputStream os;
 
-    public OutgoingMainServerFlight apply(Config config) {
-        serverCertificate = config.serverCertificate();
-        serverKey = config.serverKey();
-        return this;
+    public OutgoingMainServerFlight(String certificate, String key) {
+        Objects.requireNonNull(certificate, "hey! certificate can't be null!");
+        Objects.requireNonNull(key, "hey! key can't be null!");
+        serverCertificate = certificate;
+        serverKey = key;
     }
 
     public OutgoingMainServerFlight clientAuth() {

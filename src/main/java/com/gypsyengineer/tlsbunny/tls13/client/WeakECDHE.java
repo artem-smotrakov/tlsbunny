@@ -59,8 +59,8 @@ public class WeakECDHE extends AbstractClient {
                 NamedGroup.Secp.secp256r1, StructFactory.getDefault());
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
 
                 .set(negotiator)
 

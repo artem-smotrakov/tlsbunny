@@ -12,6 +12,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
+import com.gypsyengineer.tlsbunny.utils.Config;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +27,9 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 
 public class HttpsClientAuth extends SingleConnectionClient {
+
+    private String clientCertificate = Config.instance.getString("client.certificate.path");
+    private String clientKey = Config.instance.getString("client.key.path");
 
     public static void main(String[] args) throws Exception {
         try (HttpsClientAuth client = new HttpsClientAuth()) {
@@ -49,8 +53,8 @@ public class HttpsClientAuth extends SingleConnectionClient {
             throws NegotiatorException, NoSuchAlgorithmException, IOException {
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
                 .set(negotiator)
 
@@ -78,9 +82,9 @@ public class HttpsClientAuth extends SingleConnectionClient {
                     .receive(() -> new IncomingMessages(Side.client))
 
                 .send(new OutgoingClientCertificate()
-                        .certificate(config.clientCertificate()))
+                        .certificate(clientCertificate))
                 .send(new OutgoingClientCertificateVerify()
-                        .key(config.clientKey()))
+                        .key(clientKey))
 
                 // send Finished
                 .run(new GeneratingFinished())

@@ -6,7 +6,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.util.List;
 
@@ -14,9 +13,7 @@ public class AnotherHttpsClient extends SingleConnectionClient {
 
     public static void main(String... args) throws Exception {
         try (AnotherHttpsClient client = new AnotherHttpsClient()) {
-            client.set(SystemPropertiesConfig.load())
-                    .set(StructFactory.getDefault())
-                    .connect();
+            client.set(StructFactory.getDefault()).connect();
         }
     }
 
@@ -30,8 +27,8 @@ public class AnotherHttpsClient extends SingleConnectionClient {
     @Override
     protected Engine createEngine() throws Exception {
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
                 .set(negotiator)
 

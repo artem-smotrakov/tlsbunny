@@ -1,6 +1,5 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
-
 import com.gypsyengineer.tlsbunny.tls13.connection.BaseEngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
@@ -14,7 +13,6 @@ import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
@@ -26,33 +24,23 @@ public class InvalidMaxFragmentLengthTest {
 
     @Test
     public void run() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
-
         InvalidMaxFragmentLength client = new InvalidMaxFragmentLength();
 
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new EngineFactoryImpl())
                 .stopWhen(new NonStop());
 
         try (client; server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-
-            client.set(clientConfig).connect();
+            client.to(server).connect();
         }
     }
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
+        private final String certificate = Config.instance.getString("server.certificate.path");
+        private final String key = Config.instance.getString("server.key.path");
         private int counter = 0;
-
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
 
         @Override
         protected Engine createImpl() throws Exception {
@@ -92,11 +80,9 @@ public class InvalidMaxFragmentLengthTest {
                     .send(new OutgoingData());
         }
 
-        protected Engine fullHandshake() throws Exception {
+        Engine fullHandshake() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
-
                     .receive(new IncomingData())
 
                     // process ClientHello
@@ -104,8 +90,7 @@ public class InvalidMaxFragmentLengthTest {
                     .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
-                    .send(new OutgoingMainServerFlight()
-                            .apply(config))
+                    .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
                     .loop(context -> !context.receivedApplicationData() && !context.hasAlert())

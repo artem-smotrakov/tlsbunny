@@ -66,8 +66,8 @@ public class ECDHEStrictValidation extends AbstractClient {
                 NamedGroup.Secp.secp256r1, StructFactory.getDefault()).strictValidation();
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(negotiator)
 
                 // send ClientHello

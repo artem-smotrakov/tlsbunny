@@ -37,7 +37,7 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
             throws NoSuchAlgorithmException, NegotiatorException,
             EngineException, ActionFailed {
 
-        logger.info("connect to {}:%d", config.host(), config.port());
+        logger.info("connect to {}:{}", host, port);
 
         logger.info("send no max_fragment_length extension, " +
                 "expect a successful connection");

@@ -38,7 +38,7 @@ public class IncomingServerHello extends AbstractAction {
         if (tlsPlaintext.containsAlert()) {
             Alert alert = context.factory().parser().parseAlert(tlsPlaintext.getFragment());
             context.setAlert(alert);
-            throw new ActionFailed(String.format("received an alert: {}", alert));
+            throw new ActionFailed(String.format("received an alert: %s", alert));
         }
 
         if (!tlsPlaintext.containsHandshake()) {

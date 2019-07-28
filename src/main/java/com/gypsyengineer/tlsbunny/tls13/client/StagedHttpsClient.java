@@ -84,7 +84,7 @@ public class StagedHttpsClient extends AbstractClient {
 
     @Override
     public StagedHttpsClient connectImpl() throws Exception {
-            logger.info("connect to {}:%d", config.host(), config.port());
+            logger.info("connect to {}:%d", host, port);
             Engine engine = createEngine();
             engines.add(engine);
             engine.connect();
@@ -96,8 +96,8 @@ public class StagedHttpsClient extends AbstractClient {
             throws NegotiatorException, NoSuchAlgorithmException {
 
         Engine engine = Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
                 .set(negotiator)
                 ;

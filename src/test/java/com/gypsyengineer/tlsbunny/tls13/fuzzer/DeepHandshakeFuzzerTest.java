@@ -16,7 +16,6 @@ import com.gypsyengineer.tlsbunny.tls13.server.OneConnectionReceived;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -191,27 +190,19 @@ public class DeepHandshakeFuzzerTest {
 
     @Test
     public void handshake() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig)
-                        .set(serverConfig))
-                        .stopWhen(new OneConnectionReceived());
+                .set(new EngineFactoryImpl())
+                .stopWhen(new OneConnectionReceived());
 
         HttpsClientAuth client = new HttpsClientAuth();
 
         DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer();
         fuzzer.recording();
 
-        try (server) {
+        try (client; server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(fuzzer).set(clientConfig);
-
-            try (client) {
-                client.connect().engines()[0].apply(new NoAlertAnalyzer());
-            }
+            client.set(fuzzer);
+            client.to(server).connect().engines()[0].apply(new NoAlertAnalyzer());
         }
 
         assertArrayEquals(
@@ -300,12 +291,8 @@ public class DeepHandshakeFuzzerTest {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
-        private Config config;
-
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
+        private String serverCertificate = Config.instance.getString("server.certificate.path");
+        private String serverKey = Config.instance.getString("server.key.path");
 
         @Override
         protected Engine createImpl() throws Exception {
@@ -366,7 +353,7 @@ public class DeepHandshakeFuzzerTest {
 
                     // send Certificate
                     .run(new GeneratingCertificate()
-                            .certificate(config.serverCertificate()))
+                            .certificate(serverCertificate))
                     .run(new WrappingIntoHandshake()
                             .type(certificate)
                             .updateContext(Context.Element.server_certificate))
@@ -376,7 +363,7 @@ public class DeepHandshakeFuzzerTest {
                     // send CertificateVerify
                     .run(new GeneratingCertificateVerify()
                             .server()
-                            .key(config.serverKey()))
+                            .key(serverKey))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_verify)
                             .updateContext(Context.Element.server_certificate_verify))

@@ -7,8 +7,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.server.StopCondition;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
-import com.gypsyengineer.tlsbunny.utils.Config;
 import com.gypsyengineer.tlsbunny.utils.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,64 +34,26 @@ public class MutatedServer implements Server {
     // TODO: synchronization
     private Status status = Status.not_started;
     private boolean failed = false;
-    private FuzzerConfig[] fuzzerConfigs;
 
     private long test = 0;
+
+    private String state;
+    private FuzzyStructFactory fuzzer;
+    private int total = 0;
 
     public static MutatedServer from(Server server) throws IOException {
         return mutatedServer(server);
     }
 
-    public static MutatedServer from(Server server, FuzzerConfig... fuzzerConfigs)
-            throws IOException {
-
-        return mutatedServer(server, fuzzerConfigs);
-    }
-
-    public static MutatedServer mutatedServer(
-            Server server, FuzzerConfig... fuzzerConfigs) throws IOException {
-
+    public static MutatedServer mutatedServer(Server server) throws IOException {
         ServerSocket socket = new ServerSocket(free_port);
         socket.setReuseAddress(true);
-        return new MutatedServer(socket, server, fuzzerConfigs);
+        return new MutatedServer(socket, server);
     }
 
-    private MutatedServer(ServerSocket ssocket,
-                          Server server, FuzzerConfig... fuzzerConfigs) {
-
+    private MutatedServer(ServerSocket ssocket, Server server) {
         this.engineFactory = server.engineFactory();
-        this.fuzzerConfigs = check(fuzzerConfigs);
         this.ssocket = ssocket;
-    }
-
-    public MutatedServer set(FuzzerConfig... fuzzerConfigs) {
-        this.fuzzerConfigs = check(fuzzerConfigs);
-        return this;
-    }
-
-    private FuzzerConfig[] check(FuzzerConfig... fuzzerConfigs) {
-        for (FuzzerConfig fuzzerConfig : fuzzerConfigs) {
-            if (fuzzerConfig.noFactory()) {
-                throw whatTheHell("no factory specified!");
-            }
-
-            StructFactory factory = fuzzerConfig.factory();
-            if (factory instanceof FuzzyStructFactory == false) {
-                throw whatTheHell("expected {}",
-                        FuzzyStructFactory.class.getSimpleName());
-            }
-        }
-
-        return fuzzerConfigs;
-    }
-
-    @Override
-    public MutatedServer set(Config config) {
-        if (config instanceof FuzzerConfig == false) {
-            throw whatTheHell("expected FuzzerConfig!");
-        }
-        this.fuzzerConfigs = new FuzzerConfig[] { (FuzzerConfig) config };
-        return this;
     }
 
     @Override
@@ -158,18 +118,17 @@ public class MutatedServer implements Server {
 
     @Override
     public void run() {
-        for (FuzzerConfig fuzzerConfig : fuzzerConfigs) {
-            run(fuzzerConfig);
+        if (fuzzer == null) {
+            throw whatTheHell("fuzzer is null!");
         }
-    }
-
-    private void run(FuzzerConfig fuzzerConfig) {
-        FuzzyStructFactory fuzzer = (FuzzyStructFactory) fuzzerConfig.factory();
-
         engineFactory.set(fuzzer);
 
-        if (fuzzerConfig.hasState()) {
-            fuzzer.state(fuzzerConfig.state());
+        if (total <= 0) {
+            throw whatTheHell("total is not correct!");
+        }
+
+        if (state != null && !state.isEmpty()) {
+            fuzzer.state(state);
         }
 
         logger.info("run fuzzer config:");
@@ -179,14 +138,14 @@ public class MutatedServer implements Server {
                         .collect(Collectors.joining(", ")));
         logger.info("fuzzer      = {}",
                 fuzzer.fuzzer() != null ? fuzzer.fuzzer().toString() : "null");
-        logger.info("total tests = {}", fuzzerConfig.total());
+        logger.info("total tests = {}", total);
         logger.info("state       = {}",
-                fuzzerConfig.hasState() ? fuzzerConfig.state() : "not specified");
+                state != null ? state : "not specified");
 
         try {
             test = 0;
-            logger.info("started on port %d", port());
-            while (shouldRun(fuzzer, fuzzerConfig)) {
+            logger.info("started on port {}", port());
+            while (shouldRun(fuzzer)) {
                 synchronized (this) {
                     status = Status.ready;
                 }
@@ -228,9 +187,7 @@ public class MutatedServer implements Server {
         engines.add(engine);
     }
 
-    private boolean shouldRun(
-            FuzzyStructFactory mutatedStructFactory, FuzzerConfig fuzzerConfig) {
-
-        return mutatedStructFactory.canFuzz() && test < fuzzerConfig.total();
+    private boolean shouldRun(FuzzyStructFactory mutatedStructFactory) {
+        return mutatedStructFactory.canFuzz() && test < total;
     }
 }

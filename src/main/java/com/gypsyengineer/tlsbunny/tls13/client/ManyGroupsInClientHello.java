@@ -48,8 +48,8 @@ public class ManyGroupsInClientHello extends SingleConnectionClient {
         }
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
 
 

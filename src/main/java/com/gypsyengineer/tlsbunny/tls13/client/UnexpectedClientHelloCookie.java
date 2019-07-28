@@ -8,7 +8,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.util.List;
 
@@ -27,8 +26,7 @@ public class UnexpectedClientHelloCookie extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
         try (Client client = new UnexpectedClientHelloCookie()) {
-            client.set(SystemPropertiesConfig.load())
-                    .set(StructFactory.getDefault())
+            client.set(StructFactory.getDefault())
                     .connect();
         }
     }
@@ -40,8 +38,8 @@ public class UnexpectedClientHelloCookie extends SingleConnectionClient {
     @Override
     protected Engine createEngine() throws Exception {
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
 
 

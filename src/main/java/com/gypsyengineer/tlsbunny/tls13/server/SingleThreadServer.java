@@ -9,9 +9,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingIntoTLS
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
-import com.gypsyengineer.tlsbunny.utils.Config;
 import com.gypsyengineer.tlsbunny.utils.Connection;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,12 +34,12 @@ public class SingleThreadServer implements Server {
     private ServerSocket serverSocket;
 
     // TODO: add synchronization
-    private Config config = SystemPropertiesConfig.load();
     private EngineFactory factory;
     private StopCondition stopCondition = new NonStop();
     private Check check;
     private boolean failed = false;
     private Status status = Status.not_started;
+    private int port = 0;
 
     private final List<Engine> engines = Collections.synchronizedList(new ArrayList<>());
 
@@ -50,17 +48,11 @@ public class SingleThreadServer implements Server {
     }
 
     public SingleThreadServer(int n) {
-        config.port(n);
+        port = n;
     }
 
     public SingleThreadServer maxConnections(int n) {
         stopCondition = new NConnectionsReceived(n);
-        return this;
-    }
-
-    @Override
-    public SingleThreadServer set(Config config) {
-        this.config = config;
         return this;
     }
 
@@ -94,7 +86,7 @@ public class SingleThreadServer implements Server {
 
     @Override
     public int port() {
-        return serverSocket.getLocalPort();
+        return port;
     }
 
     @Override
@@ -115,8 +107,9 @@ public class SingleThreadServer implements Server {
             throw whatTheHell("engine factory is not set! (null)");
         }
 
-        try (ServerSocket socket = new ServerSocket(config.port())) {
+        try (ServerSocket socket = new ServerSocket(port)) {
             serverSocket = socket;
+            port = serverSocket.getLocalPort();
             logger.info("started on port {}", port());
             while (shouldRun()) {
                 accept(socket);
@@ -170,6 +163,7 @@ public class SingleThreadServer implements Server {
             try {
                 engine.connect(); // TODO: rename connect -> run
             } catch (Exception e) {
+                logger.warn("unexpected exception, sending alert", e);
                 connection.send(generateAlert(engine));
                 failed = true;
             }

@@ -9,8 +9,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.tls13.utils.FuzzerConfig;
-import com.gypsyengineer.tlsbunny.utils.Config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,8 +29,9 @@ public class MutatedClient extends AbstractFuzzyClient {
     private Client client;
     private Analyzer analyzer;
     private Check[] checks;
-    private FuzzerConfig fuzzerConfig;
     private long test = 0;
+    private FuzzyStructFactory fuzzer;
+    private int total = 0;
 
     public static MutatedClient mutatedClient() {
         return new MutatedClient();
@@ -40,27 +39,12 @@ public class MutatedClient extends AbstractFuzzyClient {
 
     private MutatedClient() {}
 
-    public MutatedClient(Client client, FuzzerConfig fuzzerConfig) {
+    public MutatedClient(Client client) {
         this.client = client;
-        this.fuzzerConfig = fuzzerConfig;
     }
 
     public MutatedClient from(Client client) {
         this.client = client;
-        return this;
-    }
-
-    @Override
-    public Config config() {
-        return fuzzerConfig;
-    }
-
-    @Override
-    public MutatedClient set(Config config) {
-        if (config instanceof FuzzerConfig == false) {
-            throw whatTheHell("expected FuzzerConfig!");
-        }
-        this.fuzzerConfig = (FuzzerConfig) config;
         return this;
     }
 
@@ -104,22 +88,17 @@ public class MutatedClient extends AbstractFuzzyClient {
 
     @Override
     protected void runImpl() {
-        if (fuzzerConfig.noFactory()) {
+        if (fuzzer == null) {
             throw whatTheHell("no fuzzy set specified!");
         }
 
-        StructFactory factory = fuzzerConfig.factory();
-        if (factory instanceof FuzzyStructFactory == false) {
-            throw whatTheHell("expected FuzzyStructFactory!");
+        if (total <= 0) {
+            throw whatTheHell("no total!");
         }
-
-        FuzzyStructFactory fuzzyStructFactory = (FuzzyStructFactory) factory;
 
         try {
             logger.info("run a smoke test before fuzzing");
             client.set(StructFactory.getDefault())
-                    .set(fuzzerConfig)
-
                     .set(analyzer)
                     .set(new SuccessCheck())
                     .set(new NoAlertCheck())
@@ -130,36 +109,34 @@ public class MutatedClient extends AbstractFuzzyClient {
             throw whatTheHell("smoke test failed", e);
         }
 
-        if (fuzzerConfig.hasState()) {
-            fuzzyStructFactory.state(fuzzerConfig.state());
+        if (state != null && !state.isEmpty()) {
+            fuzzer.state(state);
         }
 
         logger.info("run fuzzer config:");
         logger.info("  targets     = {}",
-                Arrays.stream(fuzzyStructFactory.targets())
+                Arrays.stream(fuzzer.targets())
                         .map(Object::toString)
                         .collect(Collectors.joining(", ")));
         logger.info("  fuzzer      = {}",
-                fuzzyStructFactory.fuzzer() != null
-                        ? fuzzyStructFactory.fuzzer().toString()
+                fuzzer.fuzzer() != null
+                        ? fuzzer.fuzzer().toString()
                         : "null");
-        logger.info("  total tests = {}", fuzzerConfig.total());
+        logger.info("  total tests = {}", total);
         logger.info("  state       = {}",
-                fuzzerConfig.hasState() ? fuzzerConfig.state() : "not specified");
+                state != null ? state : "not specified");
 
-        client.set(fuzzyStructFactory)
-                .set(fuzzerConfig)
-
+        client.set(fuzzer)
                 .set(analyzer)
                 .set(checks);
 
         try {
             test = 0;
-            while (shouldRun(fuzzyStructFactory)) {
+            while (shouldRun(fuzzer)) {
                 try {
-                    run(fuzzyStructFactory);
+                    run(fuzzer);
                 } finally {
-                    fuzzyStructFactory.moveOn();
+                    fuzzer.moveOn();
                     test++;
                 }
             }
@@ -169,7 +146,7 @@ public class MutatedClient extends AbstractFuzzyClient {
     }
 
     private void run(FuzzyStructFactory fuzzyStructFactory) throws Exception {
-        String message = String.format("test #%d, {}/{}, targets: [{}]",
+        String message = String.format("test #%d, %s/%s, targets: [%s]",
                 test,
                 getClass().getSimpleName(),
                 fuzzyStructFactory.fuzzer().getClass().getSimpleName(),
@@ -210,7 +187,7 @@ public class MutatedClient extends AbstractFuzzyClient {
     }
 
     private boolean shouldRun(FuzzyStructFactory fuzzyStructFactory) {
-        return fuzzyStructFactory.canFuzz() && test < fuzzerConfig.total();
+        return fuzzyStructFactory.canFuzz() && test < total;
     }
 
 }

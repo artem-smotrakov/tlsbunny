@@ -15,7 +15,6 @@ import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import com.gypsyengineer.tlsbunny.utils.Utils;
 import org.junit.Test;
 
@@ -26,25 +25,14 @@ public class SendAlertAfterHelloTest {
 
     @Test
     public void test() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new EngineFactoryImpl())
                 .set(new AlertCheck())
                 .maxConnections(1);
 
-        SendAlertAfterHello client = new SendAlertAfterHello();
-
-        try (server) {
+        try (server; SendAlertAfterHello client = new SendAlertAfterHello()) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig);
-
-            try (client) {
-                client.connect();
-            }
+            client.to(server).connect();
         }
 
         Utils.waitStop(server);
@@ -55,10 +43,8 @@ public class SendAlertAfterHelloTest {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
+        private final String certificate = Config.instance.getString("server.certificate.path");
+        private final String key = Config.instance.getString("server.key.path");
 
         @Override
         protected Engine createImpl() throws Exception {
@@ -71,14 +57,14 @@ public class SendAlertAfterHelloTest {
 
                     // process ClientHello
                     .loop(context -> !context.hasFirstClientHello() && !context.hasAlert())
-                        .receive(() -> new IncomingMessages(Side.server))
+                    .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
-                    .send(new OutgoingMainServerFlight().apply(config))
+                    .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
                     .loop(context -> !context.receivedApplicationData() && !context.hasAlert())
-                        .receive(() -> new IncomingMessages(Side.server))
+                    .receive(() -> new IncomingMessages(Side.server))
 
                     // send application data
                     .run(new PreparingHttpResponse())

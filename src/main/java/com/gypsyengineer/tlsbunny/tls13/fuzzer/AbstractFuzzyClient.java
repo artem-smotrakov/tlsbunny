@@ -7,6 +7,8 @@ public abstract class AbstractFuzzyClient implements Client, AutoCloseable {
     private Status status = Status.not_started;
     private boolean stopped = false;
 
+    protected String state;
+
     @Override
     public final void run() {
         synchronized (this) {

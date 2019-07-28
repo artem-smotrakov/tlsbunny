@@ -9,8 +9,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +30,6 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
     private ContentType type = handshake;
 
     public static void main(String[] args) throws Exception {
-        Config config = SystemPropertiesConfig.load();
         StructFactory factory = StructFactory.getDefault();
 
         try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
@@ -46,9 +43,7 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
              *  https://tools.ietf.org/html/draft-ietf-tls-tls13-28#section-5
              */
             client.set(change_cipher_spec)
-                    .set(config)
                     .set(factory)
-
                     .connect();
         }
 
@@ -66,27 +61,21 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
              *  after sending an empty TLSPlaintext message of handshake type?
              */
             client.set(handshake)
-                    .set(config)
                     .set(factory)
-
                     .connect();
         }
 
         try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             client.set(application_data)
-                    .set(config)
                     .set(factory)
-
                     .connect();
         }
 
         try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
 
             client.set(alert)
-                    .set(config)
                     .set(factory)
-
                     .connect();
         }
     }
@@ -106,10 +95,9 @@ public class StartWithEmptyTLSPlaintext extends SingleConnectionClient {
         logger.info("test: start handshake with an empty TLSPlaintext ({})", type);
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
-
 
                 .run(new GeneratingEmptyTLSPlaintext()
                         .type(type)

@@ -34,10 +34,9 @@ public class StartWithCCS extends SingleConnectionClient {
     @Override
     protected Engine createEngine() throws Exception {
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
-
 
                 .send(new OutgoingChangeCipherSpec())
 

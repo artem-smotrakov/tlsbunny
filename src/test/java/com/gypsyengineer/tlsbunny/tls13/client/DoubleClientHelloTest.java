@@ -13,7 +13,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.Alert;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.*;
@@ -28,19 +27,15 @@ public class DoubleClientHelloTest {
 
     @Test
     public void expectedAlertReceived() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new CorrectServerEngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new CorrectServerEngineFactoryImpl())
                 .stopWhen(new OneConnectionReceived());
 
         DoubleClientHello client = new DoubleClientHello();
 
         try (client; server) {
             server.start();
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).connect();
+            client.to(server).connect();
         }
 
         Engine[] engines = client.engines();
@@ -55,19 +50,15 @@ public class DoubleClientHelloTest {
 
     @Test
     public void noExpectedAlertReceived() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new IncorrectServerEngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new IncorrectServerEngineFactoryImpl())
                 .stopWhen(new OneConnectionReceived());
 
         DoubleClientHello client = new DoubleClientHello();
 
         try (client; server) {
             server.start();
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).connect();
+            client.to(server).connect();
 
             fail("expected ActionFailed");
         } catch (ActionFailed e) {
@@ -85,19 +76,13 @@ public class DoubleClientHelloTest {
     // sends an alert after receiving an unexpected ClientHello
     private static class CorrectServerEngineFactoryImpl extends BaseEngineFactory {
 
-        private Config config;
-
-        public CorrectServerEngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
+        private String serverCertificate = Config.instance.getString("server.certificate.path");
+        private String serverKey = Config.instance.getString("server.key.path");
 
         @Override
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
-
                     .receive(new IncomingData())
 
                     // process ClientHello
@@ -140,7 +125,7 @@ public class DoubleClientHelloTest {
 
                     // send Certificate
                     .run(new GeneratingCertificate()
-                            .certificate(config.serverCertificate()))
+                            .certificate(serverCertificate))
                     .run(new WrappingIntoHandshake()
                             .type(certificate)
                             .updateContext(Context.Element.server_certificate))
@@ -150,7 +135,7 @@ public class DoubleClientHelloTest {
                     // send CertificateVerify
                     .run(new GeneratingCertificateVerify()
                             .server()
-                            .key(config.serverKey()))
+                            .key(serverKey))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_verify)
                             .updateContext(Context.Element.server_certificate_verify))
@@ -199,12 +184,8 @@ public class DoubleClientHelloTest {
     // don't send an alert after receiving an unexpected ClientHello
     private static class IncorrectServerEngineFactoryImpl extends BaseEngineFactory {
 
-        private Config config;
-
-        public IncorrectServerEngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
+        private String serverCertificate = Config.instance.getString("server.certificate.path");
+        private String serverKey = Config.instance.getString("server.key.path");
 
         @Override
         protected Engine createImpl() throws Exception {
@@ -254,7 +235,7 @@ public class DoubleClientHelloTest {
 
                     // send Certificate
                     .run(new GeneratingCertificate()
-                            .certificate(config.serverCertificate()))
+                            .certificate(serverCertificate))
                     .run(new WrappingIntoHandshake()
                             .type(certificate)
                             .updateContext(Context.Element.server_certificate))
@@ -264,7 +245,7 @@ public class DoubleClientHelloTest {
                     // send CertificateVerify
                     .run(new GeneratingCertificateVerify()
                             .server()
-                            .key(config.serverKey()))
+                            .key(serverKey))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_verify)
                             .updateContext(Context.Element.server_certificate_verify))

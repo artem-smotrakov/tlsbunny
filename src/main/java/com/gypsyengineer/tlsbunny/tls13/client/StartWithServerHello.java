@@ -37,8 +37,8 @@ public class StartWithServerHello extends SingleConnectionClient {
             throws NegotiatorException, NoSuchAlgorithmException {
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
 
 

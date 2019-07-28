@@ -7,8 +7,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.NoAlertAnalyzer;
 import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.server.HttpsServer.httpsServer;
@@ -53,26 +51,16 @@ public class BasicTest {
         test(new ECDHEStrictValidation().connections(10), NamedGroup.secp256r1, 10);
     }
 
-    private static void test(Client client, NamedGroup group, int n) throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
-        serverConfig.serverCertificate(serverCertificatePath);
-        serverConfig.serverKey(serverKeyPath);
-
+    private static void test(AbstractClient client, NamedGroup group, int n) throws Exception {
         HttpsServer server = httpsServer()
                 .set(factory)
                 .set(group)
-                .set(serverConfig)
                 .maxConnections(n);
 
         try (server; client) {
-            new Thread(server).start();
-            Thread.sleep(delay);
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(Negotiator.create(group, factory))
-                    .set(clientConfig);
-
-            client.connect();
+            server.start();
+            client.set(Negotiator.create(group, factory));
+            client.to(server).connect();
         }
 
         Engine[] clientEngines = client.engines();

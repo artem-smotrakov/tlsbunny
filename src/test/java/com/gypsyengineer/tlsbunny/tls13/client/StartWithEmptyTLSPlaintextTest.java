@@ -15,7 +15,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 import com.gypsyengineer.tlsbunny.tls13.struct.ContentType;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.*;
@@ -30,39 +29,33 @@ public class StartWithEmptyTLSPlaintextTest {
 
     @Test
     public void expectedAlertReceived() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
-        CorrectServerEngineFactoryImpl serverEngineFactory =
-                (CorrectServerEngineFactoryImpl) new CorrectServerEngineFactoryImpl()
-                        .set(serverConfig);
+        CorrectServerEngineFactoryImpl serverEngineFactory
+                = new CorrectServerEngineFactoryImpl();
 
         SingleThreadServer server = new SingleThreadServer()
                 .set(serverEngineFactory)
-                .set(serverConfig)
                 .stopWhen(new NConnectionsReceived(4));
 
         try (server) {
             server.start();
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
 
             serverEngineFactory.set(handshake);
-            test(clientConfig, handshake);
+            test(handshake, server.port());
 
             serverEngineFactory.set(change_cipher_spec);
-            test(clientConfig, change_cipher_spec);
+            test(change_cipher_spec, server.port());
 
             serverEngineFactory.set(application_data);
-            test(clientConfig, application_data);
+            test(application_data, server.port());
 
             serverEngineFactory.set(alert);
-            test(clientConfig, alert);
+            test(alert, server.port());
         }
     }
 
-    private static void test(Config config, ContentType type)
-            throws Exception {
-
+    private static void test(ContentType type, int port) throws Exception {
         try (StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext()) {
-            client.set(type).set(config).connect();
+            client.set(type).to(port).connect();
 
             Alert alert = client.engines()[0].context().getAlert();
             assertNotNull(alert);
@@ -73,19 +66,15 @@ public class StartWithEmptyTLSPlaintextTest {
 
     @Test
     public void noExpectedAlertReceived() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new IncorrectServerEngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new IncorrectServerEngineFactoryImpl())
                 .stopWhen(new OneConnectionReceived());
 
         StartWithEmptyTLSPlaintext client = new StartWithEmptyTLSPlaintext();
 
         try (client; server) {
             server.start();
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig).connect();
+            client.to(server).connect();
 
             fail("expected ActionFailed");
         } catch (ActionFailed e) {
@@ -133,12 +122,8 @@ public class StartWithEmptyTLSPlaintextTest {
     // don't send an alert after receiving an empty TLSPlaintext
     private static class IncorrectServerEngineFactoryImpl extends BaseEngineFactory {
 
-        private Config config;
-
-        public IncorrectServerEngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
+        private String serverCertificate = Config.instance.getString("server.certificate.path");
+        private String serverKey = Config.instance.getString("server.key.path");
 
         @Override
         protected Engine createImpl() throws Exception {
@@ -191,7 +176,7 @@ public class StartWithEmptyTLSPlaintextTest {
 
                     // send Certificate
                     .run(new GeneratingCertificate()
-                            .certificate(config.serverCertificate()))
+                            .certificate(serverCertificate))
                     .run(new WrappingIntoHandshake()
                             .type(certificate)
                             .updateContext(Context.Element.server_certificate))
@@ -201,7 +186,7 @@ public class StartWithEmptyTLSPlaintextTest {
                     // send CertificateVerify
                     .run(new GeneratingCertificateVerify()
                             .server()
-                            .key(config.serverKey()))
+                            .key(serverKey))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_verify)
                             .updateContext(Context.Element.server_certificate_verify))

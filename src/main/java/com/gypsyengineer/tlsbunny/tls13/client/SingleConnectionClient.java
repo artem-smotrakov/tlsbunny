@@ -10,12 +10,12 @@ public abstract class SingleConnectionClient extends AbstractClient {
 
     @Override
     public final Client connectImpl() throws Exception {
-            logger.info("connect to {}:%d", config.host(), config.port());
-            Engine engine = createEngine();
-            engines.add(engine);
-            engine.connect();
-            engine.run(checks);
-            return this;
+        logger.info("connect to {}:{}", host, port);
+        Engine engine = createEngine();
+        engines.add(engine);
+        engine.connect();
+        engine.run(checks);
+        return this;
     }
 
     protected abstract Engine createEngine() throws Exception;

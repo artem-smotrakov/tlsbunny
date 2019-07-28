@@ -8,8 +8,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import org.junit.Test;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
@@ -25,24 +23,15 @@ public class StartWithServerHelloTest {
 
     @Test
     public void test() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new EngineFactoryImpl())
                 .maxConnections(1);
 
         StartWithServerHello client = new StartWithServerHello();
 
         try (server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-            client.set(clientConfig);
-
-            try (client) {
-                client.connect();
-            }
+            client.to(server).connect();
         }
 
         assertNotNull(client.engines()[0].context().getAlert());
@@ -50,16 +39,10 @@ public class StartWithServerHelloTest {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
-
         @Override
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
 
                     // generate a ClientHello message to initialize the negotiator
                     .run(new GeneratingClientHello()

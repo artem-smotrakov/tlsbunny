@@ -10,7 +10,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.AlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -27,9 +26,7 @@ public class CCSAfterHandshake extends SingleConnectionClient {
 
     public static void main(String[] args) throws Exception {
         try (CCSAfterHandshake client = new CCSAfterHandshake()) {
-            client.set(SystemPropertiesConfig.load())
-                    .set(StructFactory.getDefault())
-                    .connect();
+            client.set(StructFactory.getDefault()).connect();
         }
     }
 
@@ -42,8 +39,8 @@ public class CCSAfterHandshake extends SingleConnectionClient {
             throws NegotiatorException, NoSuchAlgorithmException {
 
         return Engine.init()
-                .target(config.host())
-                .target(config.port())
+                .target(host)
+                .target(port)
                 .set(factory)
 
 

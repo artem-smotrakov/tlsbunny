@@ -5,10 +5,10 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
+import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,21 +20,41 @@ public abstract class AbstractClient implements Client, AutoCloseable {
 
     private static final Check[] no_checks = new Check[0];
 
-    protected Config config = SystemPropertiesConfig.load();
     protected StructFactory factory = StructFactory.getDefault();
     protected Negotiator negotiator;
     protected Analyzer analyzer;
     protected List<Engine> engines = new ArrayList<>();
     protected List<Check> checks = Collections.emptyList();
-
     protected Status status = Status.not_started;
+    protected String host = Config.instance.getString("target.host", "localhost");
+    protected int port = Config.instance.getInt("target.port", 433);
 
-    public AbstractClient() {
+    protected AbstractClient() {
         try {
             negotiator = Negotiator.create(NamedGroup.secp256r1, StructFactory.getDefault());
         } catch (NegotiatorException e) {
             throw whatTheHell("could not create a negotiator!", e);
         }
+    }
+
+    public AbstractClient to(Server server) {
+        this.port = server.port();
+        return this;
+    }
+
+    public AbstractClient to(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public AbstractClient host(String host) {
+        this.host = host;
+        return this;
+    }
+
+    public AbstractClient port(int n) {
+        port = n;
+        return this;
     }
 
     @Override
@@ -64,17 +84,6 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     }
 
     protected abstract Client connectImpl() throws Exception;
-
-    @Override
-    public Config config() {
-        return config;
-    }
-
-    @Override
-    public Client set(Config config) {
-        this.config = config;
-        return this;
-    }
 
     @Override
     public Client set(StructFactory factory) {

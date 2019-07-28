@@ -13,7 +13,7 @@ public class IncomingData extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("incoming data");
+        return "incoming data";
     }
 
     @Override
@@ -21,7 +21,7 @@ public class IncomingData extends AbstractAction {
         out = ByteBuffer.allocate(in.remaining());
         out.put(in);
         out.position(0);
-        logger.info("received %d bytes", out.remaining());
+        logger.info("received {} bytes", out.remaining());
 
         return this;
     }

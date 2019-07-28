@@ -85,7 +85,7 @@ public class AlertImpl implements Alert {
 
     @Override
     public String toString() {
-        return String.format("alert ({}, {})", level, description);
+        return String.format("alert (%s, %s)", level, description);
     }
 
 }

@@ -4,7 +4,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineFactory;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
-import com.gypsyengineer.tlsbunny.utils.Config;
 
 public interface Server extends Runnable, AutoCloseable {
 
@@ -12,7 +11,6 @@ public interface Server extends Runnable, AutoCloseable {
         not_started, ready, accepted, done
     }
 
-    Server set(Config config);
     Server set(EngineFactory engineFactory);
 
     // TODO it should accept multiple checks
@@ -70,7 +68,7 @@ public interface Server extends Runnable, AutoCloseable {
      */
     // TODO: move this method to an abstract class
     default Thread start() {
-        String name = String.format("%s-thread", getClass().getSimpleName());
+        String name = String.format("server", getClass().getSimpleName());
         Thread thread = new Thread(this, name);
         thread.start();
 

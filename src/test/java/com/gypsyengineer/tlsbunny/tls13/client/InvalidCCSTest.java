@@ -9,8 +9,6 @@ import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 import com.gypsyengineer.tlsbunny.tls13.server.SingleThreadServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
-import com.gypsyengineer.tlsbunny.utils.Config;
-import com.gypsyengineer.tlsbunny.utils.SystemPropertiesConfig;
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 import org.junit.Test;
 
@@ -33,8 +31,6 @@ public class InvalidCCSTest {
 
     @Test
     public void run() throws Exception {
-        Config serverConfig = SystemPropertiesConfig.load();
-
         InvalidCCS client = new InvalidCCS();
 
         int start = 10;
@@ -42,19 +38,12 @@ public class InvalidCCSTest {
         int n = end - start + 1;
 
         SingleThreadServer server = new SingleThreadServer()
-                .set(new EngineFactoryImpl()
-                        .set(serverConfig))
-                .set(serverConfig)
+                .set(new EngineFactoryImpl())
                 .maxConnections(n);
 
         try (client; server) {
             server.start();
-
-            Config clientConfig = SystemPropertiesConfig.load().port(server.port());
-
-            client.startWith(start).endWith(end)
-                    .set(clientConfig)
-                    .connect();
+            client.startWith(start).endWith(end).to(server).connect();
         }
 
         assertEquals(n, client.engines().length);
@@ -68,17 +57,10 @@ public class InvalidCCSTest {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
-        public EngineFactoryImpl set(Config config) {
-            this.config = config;
-            return this;
-        }
-
         @Override
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
-
                     .receive(new IncomingData())
 
                     // process ClientHello

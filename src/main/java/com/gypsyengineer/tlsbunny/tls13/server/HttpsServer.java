@@ -17,6 +17,8 @@ import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
 
+import java.lang.module.Configuration;
+
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
@@ -41,13 +43,6 @@ public class HttpsServer implements Server {
         this.engineFactory = engineFactory;
         this.server = server;
         server.set(engineFactory);
-    }
-
-    @Override
-    public HttpsServer set(Config config) {
-        engineFactory.set(config);
-        server.set(config);
-        return this;
     }
 
     @Override
@@ -135,6 +130,8 @@ public class HttpsServer implements Server {
 
     private static class EngineFactoryImpl extends BaseEngineFactory {
 
+        private final String certificate = Config.instance.getString("server.certificate.path");
+        private final String key = Config.instance.getString("server.key.path");
         private Negotiator negotiator;
 
         public EngineFactoryImpl set(NamedGroup group) throws NegotiatorException {
@@ -153,7 +150,6 @@ public class HttpsServer implements Server {
         protected Engine createImpl() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
                     .set(negotiator)
 
                     .receive(new IncomingData())
@@ -163,8 +159,7 @@ public class HttpsServer implements Server {
                         .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
-                    .send(new OutgoingMainServerFlight()
-                            .apply(config))
+                    .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
                     .loop(context -> !context.receivedApplicationData() && !context.hasAlert())
