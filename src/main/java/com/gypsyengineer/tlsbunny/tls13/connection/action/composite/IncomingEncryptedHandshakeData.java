@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class IncomingEncryptedHandshakeData extends AbstractAction<IncomingEncryptedHandshakeData> {
+public class IncomingEncryptedHandshakeData
+        extends AbstractAction<IncomingEncryptedHandshakeData> {
 
     private static final Logger logger = LogManager.getLogger(IncomingEncryptedHandshakeData.class);
 
@@ -35,7 +36,7 @@ public class IncomingEncryptedHandshakeData extends AbstractAction<IncomingEncry
 
         out = ByteBuffer.wrap(tlsInnerPlaintext.getContent());
 
-        logger.info("received encrypted handshake data (%d bytes)",
+        logger.info("received encrypted handshake data ({} bytes)",
                 tlsInnerPlaintext.getContent().length);
 
         return this;

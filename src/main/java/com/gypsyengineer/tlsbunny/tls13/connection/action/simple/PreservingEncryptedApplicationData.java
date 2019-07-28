@@ -20,7 +20,7 @@ public class PreservingEncryptedApplicationData extends AbstractAction<Preservin
         byte[] data = new byte[in.remaining()];
         in.get(data);
         applicationDataOut = ByteBuffer.wrap(data);
-        logger.info("preserved %d bytes of encrypted application data", data.length);
+        logger.info("preserved {} bytes of encrypted application data", data.length);
 
         return this;
     }

@@ -25,7 +25,7 @@ public class RestoringEncryptedApplicationData
         byte[] data = new byte[applicationDataIn.remaining()];
         applicationDataIn.get(data);
         out = ByteBuffer.wrap(data);
-        logger.info("restored %d bytes of encrypted application data", data.length);
+        logger.info("restored {} bytes of encrypted application data", data.length);
 
         return this;
     }

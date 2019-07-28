@@ -353,7 +353,7 @@ public class Engine {
         buffer.get(data);
         storedData.add(data);
         buffer = nothing;
-        logger.info("stored %d bytes", data.length);
+        logger.info("stored {} bytes", data.length);
     }
 
     private void restoreImpl() {
@@ -375,7 +375,7 @@ public class Engine {
         buffer.put(data);
         buffer.flip();
 
-        logger.info("restored %d bytes", n);
+        logger.info("restored {} bytes", n);
     }
 
     private void combineData(Action action) {

@@ -40,7 +40,7 @@ public class NoAlertAnalyzer implements Analyzer {
         } else if (count == 1) {
             logger.info("found 1 connection which didn't result to an alert");
         } else {
-            logger.info("found %d connections which didn't result to an alert", count);
+            logger.info("found {} connections which didn't result to an alert", count);
         }
 
         return this;
