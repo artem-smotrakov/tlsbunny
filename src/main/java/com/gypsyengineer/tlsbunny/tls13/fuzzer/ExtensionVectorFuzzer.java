@@ -31,7 +31,7 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
     }
 
     @Override
-    synchronized public ClientHello createClientHello(ProtocolVersion legacy_version,
+    public synchronized ClientHello createClientHello(ProtocolVersion legacy_version,
                                                       Random random,
                                                       byte[] legacy_session_id,
                                                       List<CipherSuite> cipher_suites,
@@ -56,7 +56,7 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
     }
 
     @Override
-    synchronized public ServerHello createServerHello(ProtocolVersion version,
+    public synchronized ServerHello createServerHello(ProtocolVersion version,
                                                       Random random,
                                                       byte[] legacy_session_id_echo,
                                                       CipherSuite cipher_suite,
@@ -81,7 +81,7 @@ public class ExtensionVectorFuzzer extends FuzzyStructFactory<Vector<Extension>>
     }
 
     @Override
-    synchronized public Vector<Extension> fuzz(Vector<Extension> extensions) {
+    public synchronized Vector<Extension> fuzz(Vector<Extension> extensions) {
         Vector<Extension> fuzzedExtensions = fuzzer.fuzz(extensions);
 
         try {

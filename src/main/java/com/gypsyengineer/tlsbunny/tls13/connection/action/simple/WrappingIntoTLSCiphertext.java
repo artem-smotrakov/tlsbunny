@@ -14,10 +14,11 @@ import java.io.IOException;
 
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.application_data;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
-import static com.gypsyengineer.tlsbunny.tls13.struct.TLSInnerPlaintext.no_padding;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class WrappingIntoTLSCiphertext extends AbstractAction {
+
+    private static byte[] no_padding = new byte[0];
 
     private final Phase phase;
     private ContentType type;

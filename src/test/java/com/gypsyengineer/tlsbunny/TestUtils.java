@@ -200,7 +200,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
     }
@@ -216,7 +216,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public Vector fuzz(Vector object) {
+        public synchronized Vector fuzz(Vector object) {
             count++;
             return object;
         }
@@ -237,7 +237,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
     }
@@ -254,7 +254,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public Vector<CompressionMethod> fuzz(Vector<CompressionMethod> object) {
+        public synchronized Vector<CompressionMethod> fuzz(Vector<CompressionMethod> object) {
             count++;
             return object;
         }
@@ -275,7 +275,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
     }
@@ -292,7 +292,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public Vector<CipherSuite> fuzz(Vector<CipherSuite> object) {
+        public synchronized Vector<CipherSuite> fuzz(Vector<CipherSuite> object) {
             count++;
             return object;
         }
@@ -313,7 +313,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
     }
@@ -330,7 +330,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public Vector<Extension> fuzz(Vector<Extension> object) {
+        public synchronized Vector<Extension> fuzz(Vector<Extension> object) {
             count++;
             return object;
         }
@@ -351,7 +351,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
     }
@@ -368,7 +368,7 @@ public class TestUtils {
         }
 
         @Override
-        synchronized public int count() {
+        public synchronized int count() {
             return count;
         }
 

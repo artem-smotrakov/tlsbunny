@@ -57,7 +57,7 @@ public class LegacyCompressionMethodsFuzzer
     }
 
     @Override
-    synchronized public Vector<CompressionMethod> fuzz(
+    public synchronized Vector<CompressionMethod> fuzz(
             Vector<CompressionMethod> compressionMethods) {
 
         Vector<CompressionMethod> fuzzedCompressionMethods = fuzzer.fuzz(compressionMethods);

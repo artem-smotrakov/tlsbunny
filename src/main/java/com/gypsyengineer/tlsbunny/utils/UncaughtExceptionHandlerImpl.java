@@ -5,15 +5,15 @@ public class UncaughtExceptionHandlerImpl implements Thread.UncaughtExceptionHan
     private Throwable exception;
 
     @Override
-    synchronized public void uncaughtException(Thread thread, Throwable exception) {
+    public synchronized void uncaughtException(Thread thread, Throwable exception) {
         this.exception = exception;
     }
 
-    synchronized public Throwable exception() {
+    public synchronized Throwable exception() {
         return exception;
     }
 
-    synchronized public boolean knowsSomething() {
+    public synchronized boolean knowsSomething() {
         return exception != null;
     }
 }

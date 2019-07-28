@@ -19,6 +19,7 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
+import static org.junit.Assert.assertEquals;
 
 public class InvalidMaxFragmentLengthTest {
 
@@ -33,6 +34,8 @@ public class InvalidMaxFragmentLengthTest {
         try (client; server) {
             server.start();
             client.to(server).connect();
+
+            assertEquals(257, client.engines().length);
         }
     }
 
@@ -55,8 +58,6 @@ public class InvalidMaxFragmentLengthTest {
         private Engine sendAlert() throws Exception {
             return Engine.init()
                     .set(structFactory)
-
-
                     .receive(new IncomingData())
 
                     // receive an invalid ClientHello

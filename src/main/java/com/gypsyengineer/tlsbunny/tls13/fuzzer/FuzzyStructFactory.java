@@ -27,12 +27,12 @@ public abstract class FuzzyStructFactory<T> extends StructFactoryWrapper
                 fuzzer.getClass().getSimpleName());
     }
 
-    synchronized public FuzzyStructFactory targets(Target... targets) {
+    public synchronized FuzzyStructFactory targets(Target... targets) {
         this.targets = targets.clone();
         return this;
     }
 
-    synchronized public FuzzyStructFactory targets(String... targets) {
+    public synchronized FuzzyStructFactory targets(String... targets) {
         this.targets = new Target[targets.length];
         for (int i = 0; i < targets.length; i++) {
             this.targets[i] = Target.valueOf(targets[i]);
@@ -40,23 +40,23 @@ public abstract class FuzzyStructFactory<T> extends StructFactoryWrapper
         return this;
     }
 
-    synchronized public Target[] targets() {
+    public synchronized Target[] targets() {
         return targets.clone();
     }
 
-    synchronized public FuzzyStructFactory<T> fuzzer(Fuzzer<T> fuzzer) {
+    public synchronized FuzzyStructFactory<T> fuzzer(Fuzzer<T> fuzzer) {
         this.fuzzer = fuzzer;
         return this;
     }
 
-    synchronized public Fuzzer<T> fuzzer() {
+    public synchronized Fuzzer<T> fuzzer() {
         return fuzzer;
     }
 
     // implement methods from Fuzzer
 
     @Override
-    synchronized public String state() {
+    public synchronized String state() {
         return String.format("%s:%s",
                 Arrays.stream(targets)
                         .map(Enum::toString)
@@ -65,7 +65,7 @@ public abstract class FuzzyStructFactory<T> extends StructFactoryWrapper
     }
 
     @Override
-    synchronized public void state(String string) {
+    public synchronized void state(String string) {
         try (Scanner scanner = new Scanner(string)) {
             scanner.useDelimiter(":");
             targets(scanner.next().split("-"));
@@ -75,12 +75,12 @@ public abstract class FuzzyStructFactory<T> extends StructFactoryWrapper
     }
 
     @Override
-    synchronized public boolean canFuzz() {
+    public synchronized boolean canFuzz() {
         return fuzzer.canFuzz();
     }
 
     @Override
-    synchronized public void moveOn() {
+    public synchronized void moveOn() {
         fuzzer.moveOn();
     }
 

@@ -22,7 +22,7 @@ import java.lang.module.Configuration;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-public class HttpsServer implements Server {
+public class HttpsServer extends AbstractServer {
 
     private final EngineFactoryImpl engineFactory;
     private final SingleThreadServer server;

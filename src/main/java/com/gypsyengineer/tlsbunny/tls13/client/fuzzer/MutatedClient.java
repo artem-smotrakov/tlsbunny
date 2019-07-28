@@ -84,7 +84,7 @@ public class MutatedClient extends AbstractFuzzyClient {
 
     @Override
     public void close() {
-
+        // nothing to close
     }
 
     @Override

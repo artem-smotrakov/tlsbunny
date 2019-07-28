@@ -4,17 +4,19 @@ import com.gypsyengineer.tlsbunny.tls13.server.HttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class AnotherHttpsClientTest {
 
     @Test
     public void main() throws Exception {
-        try (HttpsServer server = HttpsServer.httpsServer()) {
-            server.maxConnections(1).start();
+        try (HttpsServer server = HttpsServer.httpsServer();
+             AnotherHttpsClient client = new AnotherHttpsClient()) {
 
-            try (AnotherHttpsClient client = new AnotherHttpsClient()) {
-                client.port(server.port())
-                        .set(StructFactory.getDefault()).connect();
-            }
+            server.maxConnections(1).start();
+            client.to(server).set(StructFactory.getDefault()).connect();
+
+            assertEquals(1, client.engines().length);
         }
     }
 }

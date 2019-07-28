@@ -25,7 +25,7 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel.fatal;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.alert;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-public class SingleThreadServer implements Server {
+public class SingleThreadServer extends AbstractServer {
 
     private static final Logger logger = LogManager.getLogger(SingleThreadServer.class);
 

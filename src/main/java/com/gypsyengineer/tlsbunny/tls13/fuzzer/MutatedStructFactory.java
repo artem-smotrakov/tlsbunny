@@ -30,7 +30,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public TLSPlaintext[] createTLSPlaintexts(
+    public synchronized TLSPlaintext[] createTLSPlaintexts(
             ContentType type, ProtocolVersion version, byte[] content) {
 
         TLSPlaintext[] tlsPlaintexts = factory.createTLSPlaintexts(
@@ -53,7 +53,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public TLSPlaintext createTLSPlaintext(
+    public synchronized TLSPlaintext createTLSPlaintext(
             ContentType type, ProtocolVersion version, byte[] content) {
 
         TLSPlaintext tlsPlaintext = factory.createTLSPlaintext(
@@ -72,7 +72,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public Handshake createHandshake(HandshakeType type, byte[] content) {
+    public synchronized Handshake createHandshake(HandshakeType type, byte[] content) {
         Handshake handshake = factory.createHandshake(type, content);
 
         if (targeted(Target.handshake)) {
@@ -88,7 +88,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public ClientHello createClientHello(
+    public synchronized ClientHello createClientHello(
             ProtocolVersion legacy_version,
             Random random,
             byte[] legacy_session_id,
@@ -159,7 +159,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public Finished createFinished(byte[] verify_data) {
+    public synchronized Finished createFinished(byte[] verify_data) {
         Finished finished = factory.createFinished(verify_data);
 
         if (targeted(Target.finished)) {
@@ -177,7 +177,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public Certificate createCertificate(
+    public synchronized Certificate createCertificate(
             byte[] certificate_request_context, CertificateEntry... certificate_list) {
 
         Certificate certificate = factory.createCertificate(
@@ -198,7 +198,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public CertificateVerify createCertificateVerify(
+    public synchronized CertificateVerify createCertificateVerify(
             SignatureScheme algorithm, byte[] signature) {
 
         CertificateVerify certificateVerify = factory.createCertificateVerify(
@@ -219,7 +219,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public ChangeCipherSpec createChangeCipherSpec(int value) {
+    public synchronized ChangeCipherSpec createChangeCipherSpec(int value) {
         ChangeCipherSpec ccs = factory.createChangeCipherSpec(value);
 
         if (targeted(Target.ccs)) {
@@ -236,7 +236,7 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
     }
 
     @Override
-    synchronized public byte[] fuzz(byte[] encoding) {
+    public synchronized byte[] fuzz(byte[] encoding) {
         byte[] fuzzed = fuzzer.fuzz(encoding);
 
         logger.info("original:");

@@ -66,20 +66,7 @@ public interface Server extends Runnable, AutoCloseable {
      *
      * @return the thread where the server is running
      */
-    // TODO: move this method to an abstract class
-    default Thread start() {
-        String name = String.format("server", getClass().getSimpleName());
-        Thread thread = new Thread(this, name);
-        thread.start();
-
-        try {
-            Thread.sleep(1000); // one second
-        } catch (InterruptedException e) {
-            // ignore
-        }
-
-        return thread;
-    }
+    Thread start();
 
     /**
      * Applies an analyzer to all engines in the server.
