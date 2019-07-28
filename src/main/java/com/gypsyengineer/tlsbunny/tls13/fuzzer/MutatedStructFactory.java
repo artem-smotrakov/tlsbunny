@@ -40,11 +40,11 @@ public class MutatedStructFactory extends FuzzyStructFactory<byte[]> {
             int index = 0;
             try {
                 byte[] encoding = tlsPlaintexts[index].encoding();
-                logger.info("fuzz TLSPlaintext[%d] (total is %d)",
+                logger.info("fuzz TLSPlaintext[{}] (total is {})",
                         index, tlsPlaintexts.length);
                 tlsPlaintexts[index] = new MutatedStruct(fuzz(encoding));
             } catch (IOException e) {
-                logger.warn("I couldn't fuzz TLSPlaintext[%d]: {}",
+                logger.warn("I couldn't fuzz TLSPlaintext[{}]: {}",
                         e.getMessage(), index);
             }
         }

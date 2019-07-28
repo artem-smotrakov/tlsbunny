@@ -207,7 +207,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
                 attempt++;
 
                 logger.info("connection failed: {} ", cause.getMessage());
-                logger.info("let's wait a bit and try again (attempt %d)", attempt);
+                logger.info("let's wait a bit and try again (attempt {})", attempt);
                 Utils.sleep(delay);
             }
         }

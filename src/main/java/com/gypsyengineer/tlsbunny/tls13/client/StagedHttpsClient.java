@@ -84,7 +84,7 @@ public class StagedHttpsClient extends AbstractClient {
 
     @Override
     public StagedHttpsClient connectImpl() throws Exception {
-            logger.info("connect to {}:%d", host, port);
+            logger.info("connect to {}:{}", host, port);
             Engine engine = createEngine();
             engines.add(engine);
             engine.connect();

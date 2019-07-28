@@ -23,7 +23,7 @@ public class IncomingApplicationData extends AbstractAction {
     public Action run() throws AEADException, ActionFailed, IOException {
         byte[] data = processEncrypted(
                 context.applicationDataDecryptor(), ContentType.application_data);
-        logger.info("received data (%d bytes)%n{}", data.length, new String(data));
+        logger.info("received data ({} bytes): {}", data.length, new String(data));
 
         return this;
     }

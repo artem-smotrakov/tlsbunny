@@ -53,7 +53,7 @@ public class ECDHEStrictValidation extends AbstractClient {
     @Override
     public ECDHEStrictValidation connectImpl() throws Exception {
         for (int i = 0; i < n; i++) {
-            logger.info("test #%d", i);
+            logger.info("test #{}", i);
             engines.add(createEngine().connect().run(checks));
 
         }

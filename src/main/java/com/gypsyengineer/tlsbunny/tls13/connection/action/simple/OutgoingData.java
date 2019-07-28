@@ -13,7 +13,7 @@ public class OutgoingData extends AbstractAction {
 
     @Override
     public String name() {
-        return String.format("outgoing data");
+        return "outgoing data";
     }
 
     @Override
@@ -21,7 +21,7 @@ public class OutgoingData extends AbstractAction {
         out = ByteBuffer.allocate(in.remaining());
         out.put(in);
         out.position(0);
-        logger.info("sent %d bytes", out.remaining());
+        logger.info("sent {} bytes", out.remaining());
 
         return this;
     }
