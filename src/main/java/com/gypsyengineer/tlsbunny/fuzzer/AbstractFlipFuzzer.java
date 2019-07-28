@@ -84,7 +84,7 @@ public abstract class AbstractFlipFuzzer implements Fuzzer<byte[]> {
 
     @Override
     public synchronized String state() {
-        return String.format("%d:%d:%f:%f:%d",
+        return String.format("%d:%d:%s:%s:%d",
                 startIndex, endIndex, minRatio, maxRatio, state);
     }
 

@@ -247,7 +247,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         }
     }
 
-    private static final double minRatio = 0.01;
+    private static final double minRatio = 0.05;
     private static final double maxRatio = 0.5;
     private static final double ratioStep = 0.05;
 
