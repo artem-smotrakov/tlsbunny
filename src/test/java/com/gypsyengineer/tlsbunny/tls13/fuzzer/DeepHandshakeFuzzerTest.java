@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.gypsyengineer.tlsbunny.TestUtils.expectWhatTheHell;
-import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.newByteFlipFuzzer;
+import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.byteFlipFuzzer;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.*;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.application_data;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
@@ -40,7 +40,7 @@ public class DeepHandshakeFuzzerTest {
 
     @Test
     public void fuzzing() throws IOException {
-        DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer().fuzzer(new TestUtils.ZeroFuzzer());
+        DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer().set(new TestUtils.ZeroFuzzer());
         fuzzer.recording();
         ClientHello hello = createClientHello(
                 fuzzer,
@@ -108,7 +108,7 @@ public class DeepHandshakeFuzzerTest {
 
     @Test
     public void recording() {
-        DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer().fuzzer(newByteFlipFuzzer());
+        DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer().set(byteFlipFuzzer());
         assertTrue(fuzzer.targeted().length == 0);
 
         // check that recording is not enabled by default

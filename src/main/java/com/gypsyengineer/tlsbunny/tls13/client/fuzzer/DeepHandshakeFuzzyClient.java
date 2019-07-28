@@ -1,6 +1,11 @@
 package com.gypsyengineer.tlsbunny.tls13.client.fuzzer;
 
+import com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer;
+import com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer;
+import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
+import com.gypsyengineer.tlsbunny.tls13.client.HttpsClient;
+import com.gypsyengineer.tlsbunny.tls13.client.HttpsClientAuth;
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
@@ -18,6 +23,8 @@ import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer.bitFlipFuzzer;
+import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.byteFlipFuzzer;
 import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
 import static com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck.successCheck;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.deepHandshakeFuzzer;
@@ -47,6 +54,10 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
      */
     private DeepHandshakeFuzzyClient(Client client) {
         this.client = client;
+    }
+
+    public DeepHandshakeFuzzer fuzzer() {
+        return fuzzer;
     }
 
     @Override
@@ -147,9 +158,10 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         logger.info("fuzzer config:");
         logger.info("targets     = {}", targets);
         logger.info("fuzzer      = {}",
-                fuzzer.fuzzer() != null ? fuzzer.fuzzer() : "null");
+                () -> fuzzer.fuzzer() != null ? fuzzer.fuzzer() : "null");
         logger.info("total tests = {}", total);
-        logger.info("state       = {}", state != null ? state : "not specified");
+        logger.info("state       = {}",
+                () -> state != null ? state : "not specified");
 
         try {
             fuzzer.fuzzing();
@@ -220,9 +232,30 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     public static void main(String... args) {
-        try (DeepHandshakeFuzzyClient client = from(httpsClient())) {
-            client.connect();
+        fuzz(ByteFlipFuzzer::new, HttpsClient::new);
+        fuzz(BitFlipFuzzer::new, HttpsClient::new);
+        fuzz(ByteFlipFuzzer::new, HttpsClientAuth::new);
+        fuzz(BitFlipFuzzer::new, HttpsClientAuth::new);
+    }
+
+    private static void fuzz(FuzzerFactory fuzzerFactory, ClientFactory clientFactory) {
+        for (double ratio = minRatio; ratio <= maxRatio; ratio += ratioStep) {
+            try (DeepHandshakeFuzzyClient client = DeepHandshakeFuzzyClient.from(clientFactory.create())) {
+                client.fuzzer().set(fuzzerFactory.create(ratio));
+                client.connect();
+            }
         }
     }
 
+    private static final double minRatio = 0.01;
+    private static final double maxRatio = 0.5;
+    private static final double ratioStep = 0.05;
+
+    private interface FuzzerFactory {
+        Fuzzer<byte[]> create(double ratio);
+    }
+
+    private interface ClientFactory {
+        Client create();
+    }
 }

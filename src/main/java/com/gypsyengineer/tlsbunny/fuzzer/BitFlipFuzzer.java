@@ -6,16 +6,18 @@ import java.util.Set;
 
 public class BitFlipFuzzer extends AbstractFlipFuzzer {
 
-    public static BitFlipFuzzer newBitFlipFuzzer() {
-        return new BitFlipFuzzer();
+    public static BitFlipFuzzer bitFlipFuzzer() {
+        return new BitFlipFuzzer(
+                default_min_ratio, default_max_ratio,
+                from_the_beginning, not_specified);
     }
 
-    public BitFlipFuzzer() {
-        this(default_min_ratio, default_max_ratio);
+    public static BitFlipFuzzer bitFlipFuzzer(double ratio) {
+        return new BitFlipFuzzer(ratio, ratio, from_the_beginning, not_specified);
     }
 
-    public BitFlipFuzzer(double minRatio, double maxRatio) {
-        this(minRatio, maxRatio, from_the_beginning, not_specified);
+    public BitFlipFuzzer(double ratio) {
+        super(ratio, ratio, from_the_beginning, not_specified);
     }
 
     public BitFlipFuzzer(double minRatio, double maxRatio, int start, int end) {

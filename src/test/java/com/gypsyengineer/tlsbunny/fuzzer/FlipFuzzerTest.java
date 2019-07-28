@@ -1,45 +1,44 @@
 package com.gypsyengineer.tlsbunny.fuzzer;
 
-
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer.newBitFlipFuzzer;
-import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.newByteFlipFuzzer;
+import static com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer.bitFlipFuzzer;
+import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.byteFlipFuzzer;
 import static org.junit.Assert.*;
 
 public class FlipFuzzerTest {
 
     @Test
     public void byteFlipWrongParameters() {
-        checkWhatTheHell(() -> newByteFlipFuzzer().minRatio(0));
-        checkWhatTheHell(() -> newByteFlipFuzzer().minRatio(1.1));
-        checkWhatTheHell(() -> newByteFlipFuzzer()
+        checkWhatTheHell(() -> byteFlipFuzzer().minRatio(0));
+        checkWhatTheHell(() -> byteFlipFuzzer().minRatio(1.1));
+        checkWhatTheHell(() -> byteFlipFuzzer()
                 .minRatio(0.5).maxRatio(0.3).fuzz(new byte[10]));
-        checkWhatTheHell(() -> newByteFlipFuzzer().startIndex(-1));
-        checkWhatTheHell(() -> newByteFlipFuzzer().endIndex(10).startIndex(15));
-        checkWhatTheHell(() -> newByteFlipFuzzer().startIndex(15).endIndex(10));
-        checkWhatTheHell(() -> new ByteFlipFuzzer(0.5, 0.4, 0, 10));
-        checkWhatTheHell(() -> new ByteFlipFuzzer(0.4, 0.5, 10, 5));
-        checkWhatTheHell(() -> new ByteFlipFuzzer(0.4, 0.5, 0, 0));
-        checkWhatTheHell(() -> new ByteFlipFuzzer(0.4, 0.5, 5, 5));
+        checkWhatTheHell(() -> byteFlipFuzzer().startIndex(-1));
+        checkWhatTheHell(() -> byteFlipFuzzer().endIndex(10).startIndex(15));
+        checkWhatTheHell(() -> byteFlipFuzzer().startIndex(15).endIndex(10));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.5, 0.4, 0, 10));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 10, 5));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 0, 0));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 5, 5));
     }
 
     @Test
     public void bitFlipWrongParameters() {
-        checkWhatTheHell(() -> newBitFlipFuzzer().minRatio(0));
-        checkWhatTheHell(() -> newBitFlipFuzzer().minRatio(1.1));
-        checkWhatTheHell(() -> newBitFlipFuzzer()
+        checkWhatTheHell(() -> bitFlipFuzzer().minRatio(0));
+        checkWhatTheHell(() -> bitFlipFuzzer().minRatio(1.1));
+        checkWhatTheHell(() -> bitFlipFuzzer()
                 .minRatio(0.5).maxRatio(0.3).fuzz(new byte[10]));
-        checkWhatTheHell(() -> newBitFlipFuzzer().startIndex(-1));
-        checkWhatTheHell(() -> newBitFlipFuzzer().endIndex(10).startIndex(15));
-        checkWhatTheHell(() -> newBitFlipFuzzer().startIndex(15).endIndex(10));
-        checkWhatTheHell(() -> new BitFlipFuzzer(0.5, 0.4, 0, 10));
-        checkWhatTheHell(() -> new BitFlipFuzzer(0.4, 0.5, 10, 5));
-        checkWhatTheHell(() -> new BitFlipFuzzer(0.4, 0.5, 0, 0));
-        checkWhatTheHell(() -> new BitFlipFuzzer(0.4, 0.5, 5, 5));
+        checkWhatTheHell(() -> bitFlipFuzzer().startIndex(-1));
+        checkWhatTheHell(() -> bitFlipFuzzer().endIndex(10).startIndex(15));
+        checkWhatTheHell(() -> bitFlipFuzzer().startIndex(15).endIndex(10));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.5, 0.4, 0, 10));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 10, 5));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 0, 0));
+        checkWhatTheHell(() -> byteFlipFuzzer(0.4, 0.5, 5, 5));
     }
 
     private void checkWhatTheHell(Runnable test) {
@@ -53,7 +52,7 @@ public class FlipFuzzerTest {
 
     @Test
     public void byteFlitFuzzerRatio() {
-        ByteFlipFuzzer fuzzer = newByteFlipFuzzer();
+        ByteFlipFuzzer fuzzer = byteFlipFuzzer();
 
         testRatios(fuzzer, 100, 0.01, 0.02);
         testRatios(fuzzer, 100, 0.01, 0.05);
@@ -98,42 +97,42 @@ public class FlipFuzzerTest {
 
     @Test
     public void iterateBitFlipFuzzer() {
-        iterate(newBitFlipFuzzer());
+        iterate(bitFlipFuzzer());
     }
 
     @Test
     public void consistencyOfBitFlipFuzzer() {
-        consistencyOf(newBitFlipFuzzer(), newBitFlipFuzzer());
+        consistencyOf(bitFlipFuzzer(), bitFlipFuzzer());
     }
 
     @Test
     public void setTestInBitFlipFuzzer() {
-        setTestIn(newBitFlipFuzzer());
+        setTestIn(bitFlipFuzzer());
     }
 
     @Test
     public void iterateByteFlipFuzzer() {
-        iterate(newByteFlipFuzzer());
+        iterate(byteFlipFuzzer());
     }
 
     @Test
     public void consistencyOfByteFlipFuzzer() {
-        consistencyOf(newByteFlipFuzzer(), newByteFlipFuzzer());
+        consistencyOf(byteFlipFuzzer(), byteFlipFuzzer());
     }
 
     @Test
     public void setTestInByteFlipFuzzer() {
-        setTestIn(newByteFlipFuzzer());
+        setTestIn(byteFlipFuzzer());
     }
 
     @Test
     public void oneByteArrayWithBitFlipFuzzer() {
-        oneByteArray(newBitFlipFuzzer());
+        oneByteArray(bitFlipFuzzer());
     }
 
     @Test
     public void oneByteArrayWithByteFlipFuzzer() {
-        oneByteArray(newByteFlipFuzzer());
+        oneByteArray(byteFlipFuzzer());
     }
 
     private static void iterate(Fuzzer<byte[]> fuzzer) {
