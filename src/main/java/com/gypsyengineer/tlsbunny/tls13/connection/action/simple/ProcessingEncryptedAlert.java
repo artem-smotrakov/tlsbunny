@@ -26,7 +26,7 @@ public class ProcessingEncryptedAlert extends AbstractAction<ProcessingEncrypted
 
     @Override
     public String name() {
-        return String.format("encrypted alert ({})", phase);
+        return String.format("encrypted alert (%s)", phase);
     }
 
     @Override

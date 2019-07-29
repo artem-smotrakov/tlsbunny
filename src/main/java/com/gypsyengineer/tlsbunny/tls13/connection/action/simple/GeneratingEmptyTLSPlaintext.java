@@ -26,7 +26,7 @@ public class GeneratingEmptyTLSPlaintext extends AbstractAction<GeneratingEmptyT
 
     @Override
     public String name() {
-        return String.format("generating am empty TLSPlaintext ({}, {})", type, version);
+        return String.format("generating am empty TLSPlaintext (%s, %s)", type, version);
     }
 
     @Override

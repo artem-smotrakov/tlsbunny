@@ -42,7 +42,7 @@ public class ProcessingTLSCiphertext extends AbstractAction<ProcessingTLSCiphert
 
     @Override
     public String name() {
-        return String.format("processing TLSCiphertext ({}), expect {}",
+        return String.format("processing TLSCiphertext (%s), expect %s",
                 phase, expectedType);
     }
 
