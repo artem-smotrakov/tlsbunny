@@ -12,6 +12,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
+import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
 import com.gypsyengineer.tlsbunny.utils.Utils;
@@ -21,11 +22,9 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer.bitFlipFuzzer;
-import static com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer.byteFlipFuzzer;
-import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
 import static com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck.successCheck;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.deepHandshakeFuzzer;
 import static com.gypsyengineer.tlsbunny.utils.Achtung.achtung;
@@ -53,6 +52,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
      * Private constructor. Use factory methods to create an instance.
      */
     private DeepHandshakeFuzzyClient(Client client) {
+        Objects.requireNonNull(client, "what the hell! client can't be null!");
         this.client = client;
     }
 
@@ -61,8 +61,24 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     @Override
+    public Client to(int port) {
+        client.to(port);
+        return this;
+    }
+
+    @Override
+    public Client to(Server server) {
+        client.to(server);
+        return this;
+    }
+
+    @Override
     public DeepHandshakeFuzzyClient set(StructFactory factory) {
-        throw new UnsupportedOperationException("no factories for you!");
+        if (factory instanceof DeepHandshakeFuzzer == false) {
+            throw whatTheHell("Hey! Give me an instance of DeepHandshakeFuzzer");
+        }
+        set((DeepHandshakeFuzzer) factory);
+        return this;
     }
 
     @Override

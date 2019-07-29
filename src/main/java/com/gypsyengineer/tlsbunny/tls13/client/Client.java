@@ -4,6 +4,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
+import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
@@ -14,6 +15,8 @@ public interface Client extends AutoCloseable, Runnable {
         not_started, running, done
     }
 
+    Client to(int port);
+    Client to(Server server);
     Client set(StructFactory factory);
     Client set(Negotiator negotiator);
     Client set(Check... checks);

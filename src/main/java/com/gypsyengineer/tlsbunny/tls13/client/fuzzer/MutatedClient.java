@@ -9,6 +9,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzyStructFactory;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
+import com.gypsyengineer.tlsbunny.tls13.server.Server;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
@@ -27,25 +29,31 @@ public class MutatedClient extends AbstractFuzzyClient {
     private static final int max_attempts = 3;
     private static final int delay = 3000; // in millis
 
-    private Client client;
+    private final Client client;
     private Analyzer analyzer;
     private Check[] checks;
     private long test = 0;
     private FuzzyStructFactory fuzzer;
     private int total = 0;
 
-    public static MutatedClient mutatedClient() {
-        return new MutatedClient();
+    public static MutatedClient from(Client client) {
+        return new MutatedClient(client);
     }
 
-    private MutatedClient() {}
-
-    public MutatedClient(Client client) {
+    private MutatedClient(Client client) {
+        Objects.requireNonNull(client, "what the hell! client can't be null!");
         this.client = client;
     }
 
-    public MutatedClient from(Client client) {
-        this.client = client;
+    @Override
+    public Client to(int port) {
+        client.to(port);
+        return this;
+    }
+
+    @Override
+    public Client to(Server server) {
+        client.to(server);
         return this;
     }
 
