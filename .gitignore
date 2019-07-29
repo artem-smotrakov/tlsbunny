@@ -6,3 +6,5 @@ vendor/wolfssl/server/wolfssl-build
 vendor/wolfssl/server/fuzzer.log
 vendor/wolfssl/server/server.log
 vendor/wolfssl/server/poc
+vendor/jsse/server/fuzzer.log
+vendor/jsse/server/server.log

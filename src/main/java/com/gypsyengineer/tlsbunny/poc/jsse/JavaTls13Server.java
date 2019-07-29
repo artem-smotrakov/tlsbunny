@@ -20,8 +20,12 @@ public class JavaTls13Server {
             "Connection: Closed\n\n%s", message.length(), message).getBytes();
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("javax.net.ssl.keyStore", "certs/keystore");
-        System.setProperty("javax.net.ssl.keyStorePassword", "passphrase");
+        if (System.getProperty("javax.net.ssl.keyStore") == null) {
+            System.setProperty("javax.net.ssl.keyStore", "certs/keystore");
+        }
+        if (System.getProperty("javax.net.ssl.keyStorePassword") == null) {
+            System.setProperty("javax.net.ssl.keyStorePassword", "passphrase");
+        }
 
         try (HttpsServer server = HttpsServer.create(port)) {
             server.run();
