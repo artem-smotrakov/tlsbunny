@@ -10,13 +10,15 @@ public class SuccessCheck extends AbstractCheck {
 
     @Override
     public Check run() {
-        failed = engine.status() != Engine.Status.success;
+        if (engine.status() != Engine.Status.success) {
+            markFailed();
+        }
         return this;
     }
 
     @Override
     public String name() {
-        return "check if a connection succeeded";
+        return "check if the connection succeeded";
     }
 
 }

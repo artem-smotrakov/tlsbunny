@@ -4,13 +4,15 @@ public class NoExceptionCheck extends AbstractCheck {
 
     @Override
     public Check run() {
-        failed = engine.exception() != null;
+        if (engine.exception() != null) {
+            markFailed();
+        }
         return this;
     }
 
     @Override
     public String name() {
-        return "no exception received";
+        return "if no exception received";
     }
 
 }

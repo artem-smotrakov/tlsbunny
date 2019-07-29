@@ -17,16 +17,18 @@ public class ExceptionCheck extends AbstractCheck {
 
     @Override
     public Check run() {
-        failed = runImpl();
+        if (exceptionOccurred()) {
+            markFailed();
+        }
         return this;
     }
 
     @Override
     public String name() {
-        return "no exception received";
+        return "no exception occurred";
     }
 
-    private boolean runImpl() {
+    private boolean exceptionOccurred() {
         Throwable exception = engine.exception();
         if (exception == null) {
             return true;

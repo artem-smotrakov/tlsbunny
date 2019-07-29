@@ -17,7 +17,7 @@ public class PrintingData extends AbstractAction<PrintingData> {
     public PrintingData run() {
         byte[] data = new byte[in.remaining()];
         in.get(data);
-        logger.info("received application data:%n{}", new String(data));
+        logger.info("received application data:\n{}", new String(data));
 
         return this;
     }

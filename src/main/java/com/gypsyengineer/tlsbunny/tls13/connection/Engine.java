@@ -294,7 +294,6 @@ public class Engine {
     public Engine requireOne(List<Check> checks) throws ActionFailed {
         for (Check check : checks) {
             check.set(this);
-            check.set(context);
 
             check.run();
             if (!check.failed()) {
@@ -311,7 +310,6 @@ public class Engine {
     public Engine run(List<Check> checks) throws ActionFailed {
         for (Check check : checks) {
             check.set(this);
-            check.set(context);
 
             check.run();
             if (check.failed()) {

@@ -3,7 +3,7 @@ package com.gypsyengineer.tlsbunny.tls13.client;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
@@ -36,7 +36,7 @@ public class WeakECDHE extends AbstractClient {
 
     public WeakECDHE() {
         checks = List.of(
-                new NoAlertCheck(), new SuccessCheck(), new NoExceptionCheck());
+                new NoFatalAlertCheck(), new SuccessCheck(), new NoExceptionCheck());
     }
 
     public WeakECDHE connections(int n) {
