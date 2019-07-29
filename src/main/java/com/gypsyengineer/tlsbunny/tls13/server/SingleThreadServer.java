@@ -171,7 +171,6 @@ public class SingleThreadServer extends AbstractServer {
             if (check != null) {
                 logger.info("run check: {}", check.name());
                 check.set(engine);
-                check.set(engine.context());
                 check.run();
                 failed &= check.failed();
             }

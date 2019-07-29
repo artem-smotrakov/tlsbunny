@@ -1,26 +1,17 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.check;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
-import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 
 import java.util.Objects;
 
 public abstract class AbstractCheck implements Check {
 
     protected Engine engine;
-    protected Context context;
-
-    protected boolean failed = true;
+    private boolean failed = false;
 
     @Override
     public Check set(Engine engine) {
         this.engine = engine;
-        return this;
-    }
-
-    @Override
-    public Check set(Context context) {
-        this.context = context;
         return this;
     }
 
@@ -39,12 +30,15 @@ public abstract class AbstractCheck implements Check {
         }
         AbstractCheck that = (AbstractCheck) o;
         return failed == that.failed &&
-                Objects.equals(engine, that.engine) &&
-                Objects.equals(context, that.context);
+                Objects.equals(engine, that.engine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(engine, context, failed);
+        return Objects.hash(engine, failed);
+    }
+
+    void markFailed() {
+        failed = true;
     }
 }

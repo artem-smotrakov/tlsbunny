@@ -7,7 +7,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChan
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificate;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificateVerify;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
@@ -43,7 +43,7 @@ public class HttpsClientAuth extends SingleConnectionClient {
 
     public HttpsClientAuth() {
         checks = List.of(
-                new NoAlertCheck(),
+                new NoFatalAlertCheck(),
                 new SuccessCheck(),
                 new NoExceptionCheck());
     }

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.gypsyengineer.tlsbunny.tls13.connection.check.ApplicationDataCheck.applicationDataCheck;
 import static com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck.successCheck;
 import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.deepHandshakeFuzzer;
 import static com.gypsyengineer.tlsbunny.utils.Achtung.achtung;
@@ -74,26 +75,28 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
 
     @Override
     public DeepHandshakeFuzzyClient set(StructFactory factory) {
-        if (factory instanceof DeepHandshakeFuzzer == false) {
-            throw whatTheHell("Hey! Give me an instance of DeepHandshakeFuzzer");
+        if (factory instanceof DeepHandshakeFuzzer) {
+            set((DeepHandshakeFuzzer) factory);
+            return this;
         }
-        set((DeepHandshakeFuzzer) factory);
-        return this;
+        throw whatTheHell("Hey! Give me an instance of DeepHandshakeFuzzer");
     }
 
     @Override
     public DeepHandshakeFuzzyClient set(Negotiator negotiator) {
-        throw new UnsupportedOperationException("no negotiators for you!");
+        client.set(negotiator);
+        return this;
     }
 
     @Override
     public DeepHandshakeFuzzyClient set(Check... checks) {
-        this.checks = checks;
+        client.set(checks);
         return this;
     }
 
     @Override
     public DeepHandshakeFuzzyClient set(Analyzer analyzer) {
+        client.set(analyzer);
         this.analyzer = analyzer;
         return this;
     }
@@ -106,11 +109,12 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
 
     @Override
     public Engine[] engines() {
-        throw new UnsupportedOperationException("no engines for you!");
+        return client.engines();
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
+        client.close();
         stop();
     }
 
@@ -152,6 +156,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
 
             for (Engine engine : engines) {
                 engine.run(successCheck());
+                engine.run(applicationDataCheck());
             }
 
             logger.info("smoke test passed, start fuzzing");
@@ -247,14 +252,16 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         }
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         fuzz(ByteFlipFuzzer::new, HttpsClient::new);
         fuzz(BitFlipFuzzer::new, HttpsClient::new);
         fuzz(ByteFlipFuzzer::new, HttpsClientAuth::new);
         fuzz(BitFlipFuzzer::new, HttpsClientAuth::new);
     }
 
-    private static void fuzz(FuzzerFactory fuzzerFactory, ClientFactory clientFactory) {
+    private static void fuzz(FuzzerFactory fuzzerFactory, ClientFactory clientFactory)
+            throws Exception {
+
         for (double ratio = minRatio; ratio <= maxRatio; ratio += ratioStep) {
             try (DeepHandshakeFuzzyClient client = DeepHandshakeFuzzyClient.from(clientFactory.create())) {
                 client.fuzzer().set(fuzzerFactory.create(ratio));

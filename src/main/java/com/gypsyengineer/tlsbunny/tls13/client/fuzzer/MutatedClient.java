@@ -5,7 +5,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.fuzzer.FuzzyStructFactory;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
@@ -110,7 +110,7 @@ public class MutatedClient extends AbstractFuzzyClient {
             client.set(StructFactory.getDefault())
                     .set(analyzer)
                     .set(new SuccessCheck())
-                    .set(new NoAlertCheck())
+                    .set(new NoFatalAlertCheck())
                     .connect();
 
             logger.info("smoke test passed, start fuzzing");

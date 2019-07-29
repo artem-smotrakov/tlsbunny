@@ -6,7 +6,7 @@ import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoAlertCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class MultipleCCS extends SingleConnectionClient {
     }
 
     public MultipleCCS() {
-        checks = List.of(new NoAlertCheck());
+        checks = List.of(new NoFatalAlertCheck());
     }
 
     @Override

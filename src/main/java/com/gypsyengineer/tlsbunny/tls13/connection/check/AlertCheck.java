@@ -4,13 +4,15 @@ public class AlertCheck extends AbstractCheck {
 
     @Override
     public Check run() {
-        failed = !context.hasAlert();
+        if (!engine.context().hasAlert()) {
+            markFailed();
+        }
         return this;
     }
 
     @Override
     public String name() {
-        return "alert received";
+        return "if an alert received";
     }
 
 }

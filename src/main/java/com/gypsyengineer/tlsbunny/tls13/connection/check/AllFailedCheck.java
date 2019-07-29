@@ -1,7 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.check;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
-import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +23,6 @@ public class AllFailedCheck implements Check {
     public Check set(Engine engine) {
         for (Check check : checks) {
             check.set(engine);
-        }
-
-        return this;
-    }
-
-    @Override
-    public Check set(Context context) {
-        for (Check check : checks) {
-            check.set(context);
         }
 
         return this;
