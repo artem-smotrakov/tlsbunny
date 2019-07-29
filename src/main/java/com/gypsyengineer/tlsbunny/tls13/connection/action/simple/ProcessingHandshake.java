@@ -45,7 +45,7 @@ public class ProcessingHandshake extends AbstractAction<ProcessingHandshake> {
         HandshakeType type = handshake.getMessageType();
         if (expectedType != NO_TYPE_SPECIFIED && !expectedType.equals(type)) {
             throw new ActionFailed(
-                    String.format("expected {}, but found {}", expectedType, type));
+                    String.format("expected %s, but found %s", expectedType, type));
         }
 
         if (contextUpdater != NOT_SPECIFIED) {
