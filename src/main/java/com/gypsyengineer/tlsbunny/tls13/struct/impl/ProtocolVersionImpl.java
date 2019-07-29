@@ -75,16 +75,16 @@ public class ProtocolVersionImpl implements ProtocolVersion {
             template = "SSLv3 (0x%s%s)";
         }
         if (TLSv10.getMinor() == minor && TLSv10.getMajor() == major) {
-            template = "TLSv10 (0x{}{})";
+            template = "TLSv10 (0x%s%s)";
         }
         if (TLSv11.getMinor() == minor && TLSv11.getMajor() == major) {
-            template = "TLSv11 (0x{}{})";
+            template = "TLSv11 (0x%s%s)";
         }
         if (TLSv12.getMinor() == minor && TLSv12.getMajor() == major) {
-            template = "TLSv12 (0x{}{})";
+            template = "TLSv12 (0x%s%s)";
         }
         if (TLSv13.getMinor() == minor && TLSv13.getMajor() == major) {
-            template = "TLSv13 (0x{}{})";
+            template = "TLSv13 (0x%s%s)";
         }
 
         return String.format(template, Integer.toHexString(major), Integer.toHexString(minor));
