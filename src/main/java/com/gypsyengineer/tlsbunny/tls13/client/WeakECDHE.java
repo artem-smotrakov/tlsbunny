@@ -72,7 +72,7 @@ public class WeakECDHE extends AbstractClient {
                         .keyShareEntries(context -> context.negotiator().createKeyShareEntry()))
                 .run(new WrappingIntoHandshake()
                         .type(client_hello)
-                        .updateContext(Context.Element.first_client_hello))
+                        .update(Context.Element.first_client_hello))
                 .run(new WrappingIntoTLSPlaintexts()
                         .type(handshake)
                         .version(TLSv12))

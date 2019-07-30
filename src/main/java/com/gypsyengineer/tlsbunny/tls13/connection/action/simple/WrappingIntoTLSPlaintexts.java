@@ -15,6 +15,10 @@ public class WrappingIntoTLSPlaintexts extends AbstractAction {
     private ContentType type;
     private ProtocolVersion version = ProtocolVersion.TLSv12;
 
+    public static WrappingIntoTLSPlaintexts wrappingIntoTLSPlaintexts() {
+        return new WrappingIntoTLSPlaintexts();
+    }
+
     public WrappingIntoTLSPlaintexts type(ContentType type) {
         this.type = type;
         return this;

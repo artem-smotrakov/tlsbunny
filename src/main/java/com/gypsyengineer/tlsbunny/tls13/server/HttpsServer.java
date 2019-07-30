@@ -17,8 +17,6 @@ import com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 import com.gypsyengineer.tlsbunny.utils.Config;
 
-import java.lang.module.Configuration;
-
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
@@ -155,14 +153,14 @@ public class HttpsServer extends AbstractServer {
                     .receive(new IncomingData())
 
                     // process ClientHello
-                    .loop(context -> !context.hasFirstClientHello() && !context.hasAlert())
+                    .till(context -> !context.hasFirstClientHello() && !context.hasAlert())
                         .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
                     .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
-                    .loop(context -> !context.receivedApplicationData() && !context.hasAlert())
+                    .till(context -> !context.receivedApplicationData() && !context.hasAlert())
                         .receive(() -> new IncomingMessages(Side.server))
 
                     // send application data

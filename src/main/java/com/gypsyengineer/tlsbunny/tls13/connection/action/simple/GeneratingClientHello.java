@@ -28,6 +28,10 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
     private MaxFragmentLength maxFragmentLength = NO_MAX_FRAGMENT_LENGTH;
     private CipherSuite[] cipherSuites = { CipherSuite.TLS_AES_128_GCM_SHA256 };
 
+    public static GeneratingClientHello generatingClientHello() {
+        return new GeneratingClientHello();
+    }
+
     @Override
     public String name() {
         return "generating ClientHello";
