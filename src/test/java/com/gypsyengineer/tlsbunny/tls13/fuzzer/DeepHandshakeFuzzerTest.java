@@ -320,7 +320,7 @@ public class DeepHandshakeFuzzerTest {
                             .keyShareEntry(context -> context.negotiator().createKeyShareEntry()))
                     .run(new WrappingIntoHandshake()
                             .type(server_hello)
-                            .updateContext(Context.Element.server_hello))
+                            .update(Context.Element.server_hello))
                     .run(new WrappingIntoTLSPlaintexts()
                             .type(handshake)
                             .version(TLSv12))
@@ -338,7 +338,7 @@ public class DeepHandshakeFuzzerTest {
                     .run(new GeneratingEncryptedExtensions())
                     .run(new WrappingIntoHandshake()
                             .type(encrypted_extensions)
-                            .updateContext(Context.Element.encrypted_extensions))
+                            .update(Context.Element.encrypted_extensions))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext())
                     .store()
 
@@ -347,7 +347,7 @@ public class DeepHandshakeFuzzerTest {
                             .signatures(rsa_pkcs1_sha256))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_request)
-                            .updateContext(Context.Element.server_certificate_request))
+                            .update(Context.Element.server_certificate_request))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext())
                     .store()
 
@@ -356,7 +356,7 @@ public class DeepHandshakeFuzzerTest {
                             .certificate(serverCertificate))
                     .run(new WrappingIntoHandshake()
                             .type(certificate)
-                            .updateContext(Context.Element.server_certificate))
+                            .update(Context.Element.server_certificate))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext())
                     .store()
 
@@ -366,14 +366,14 @@ public class DeepHandshakeFuzzerTest {
                             .key(serverKey))
                     .run(new WrappingIntoHandshake()
                             .type(certificate_verify)
-                            .updateContext(Context.Element.server_certificate_verify))
+                            .update(Context.Element.server_certificate_verify))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext())
                     .store()
 
                     .run(new GeneratingFinished(Side.server))
                     .run(new WrappingIntoHandshake()
                             .type(finished)
-                            .updateContext(Context.Element.server_finished))
+                            .update(Context.Element.server_finished))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext())
                     .store()
 

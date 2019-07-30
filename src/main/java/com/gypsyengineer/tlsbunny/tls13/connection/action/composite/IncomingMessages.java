@@ -25,6 +25,10 @@ public class IncomingMessages extends AbstractAction<IncomingMessages> {
 
     private Side side;
 
+    public static IncomingMessages fromServer() {
+        return new IncomingMessages(Side.client);
+    }
+
     public IncomingMessages(Side side) {
         this.side = side;
     }

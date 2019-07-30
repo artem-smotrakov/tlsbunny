@@ -26,4 +26,10 @@ public interface Negotiator {
         throw new IllegalArgumentException();
     }
 
+    public static KeyShareEntry createKeyShareEntry(Context context)
+            throws NegotiatorException {
+
+        return context.negotiator().createKeyShareEntry();
+    }
+
 }

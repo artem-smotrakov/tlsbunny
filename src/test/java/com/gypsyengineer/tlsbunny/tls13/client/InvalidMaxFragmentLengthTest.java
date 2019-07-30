@@ -87,14 +87,14 @@ public class InvalidMaxFragmentLengthTest {
                     .receive(new IncomingData())
 
                     // process ClientHello
-                    .loop(context -> !context.hasFirstClientHello() && !context.hasAlert())
+                    .till(context -> !context.hasFirstClientHello() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
                     .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
-                    .loop(context -> !context.receivedApplicationData() && !context.hasAlert())
+                    .till(context -> !context.receivedApplicationData() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.server))
 
                     // send application data

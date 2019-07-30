@@ -2,6 +2,7 @@ package com.gypsyengineer.tlsbunny.tls13.connection;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.ActionFailed;
+import com.gypsyengineer.tlsbunny.tls13.connection.action.EmptyAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.tls13.crypto.HKDF;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
@@ -22,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gypsyengineer.tlsbunny.utils.Utils.cantDoThat;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class Engine {
@@ -32,7 +32,7 @@ public class Engine {
     private static final ByteBuffer nothing = ByteBuffer.allocate(0);
 
     private enum ActionType {
-        run, send, receive, store, restore, receive_while
+        run, send, receive, store, restore, receive_till
     }
 
     public enum Status {
@@ -130,24 +130,24 @@ public class Engine {
 
     public Engine store() {
         actions.add(new ActionHolder()
-                .engine(this)
-                .factory(EmptyAction::new)
+                .set(this)
+                .set(EmptyAction::new)
                 .type(ActionType.store));
         return this;
     }
 
     public Engine restore() {
         actions.add(new ActionHolder()
-                .engine(this)
-                .factory(EmptyAction::new)
+                .set(this)
+                .set(EmptyAction::new)
                 .type(ActionType.restore));
         return this;
     }
 
     public Engine send(Action action) {
         actions.add(new ActionHolder()
-                .engine(this)
-                .factory(() -> action)
+                .set(this)
+                .set(() -> action)
                 .type(ActionType.send));
         return this;
     }
@@ -159,29 +159,45 @@ public class Engine {
         return this;
     }
 
+    public Engine send(ActionFactory factory) {
+        actions.add(new ActionHolder()
+                .set(this)
+                .set(factory)
+                .type(ActionType.send));
+        return this;
+    }
+
     public Engine receive(Action action) {
         actions.add(new ActionHolder()
-                .engine(this)
-                .factory(() -> action)
+                .set(this)
+                .set(() -> action)
                 .type(ActionType.receive));
         return this;
     }
 
     public ActionHolder receive(ActionFactory factory) {
-        return new ActionHolder().engine(this).factory(factory);
+        return new ActionHolder().set(this).set(factory);
     }
 
-    public ActionHolder loop(Condition condition) {
+    public ActionHolder till(Condition condition) {
         return new ActionHolder()
-                .engine(this)
-                .type(ActionType.receive_while)
-                .condition(condition);
+                .set(this)
+                .type(ActionType.receive_till)
+                .set(condition);
+    }
+
+    public Engine run(ActionFactory factory) {
+        actions.add(new ActionHolder()
+                .set(this)
+                .set(factory)
+                .type(ActionType.run));
+        return this;
     }
 
     public Engine run(Action action) {
         actions.add(new ActionHolder()
-                .engine(this)
-                .factory(() -> action)
+                .set(this)
+                .set(() -> action)
                 .type(ActionType.run));
         return this;
     }
@@ -225,7 +241,7 @@ public class Engine {
                         init(action).run();
                         combineData(action);
                         break;
-                    case receive_while:
+                    case receive_till:
                         action = actionFactory.create();
                         while (holder.condition.met(context)) {
                             logger.info("receive (conditional): {}", action.name());
@@ -315,7 +331,7 @@ public class Engine {
             if (check.failed()) {
                 throw new ActionFailed(String.format("check failed: %s", check.name()));
             }
-            logger.info(String.format("check passed: {}", check.name()));
+            logger.info("check passed: {}", check.name());
         }
 
         return this;
@@ -443,10 +459,6 @@ public class Engine {
         throw whatTheHell("connection can't be initialized!");
     }
 
-    public interface Condition {
-        boolean met(Context context);
-    }
-
     public interface ActionFactory {
         Action create();
     }
@@ -459,17 +471,17 @@ public class Engine {
         private Condition condition;
 
         public Engine receive(ActionFactory factory) {
-            factory(factory);
+            set(factory);
             engine.actions.add(this);
             return engine;
         }
 
-        private ActionHolder engine(Engine engine) {
+        private ActionHolder set(Engine engine) {
             this.engine = engine;
             return this;
         }
 
-        private ActionHolder factory(ActionFactory factory) {
+        private ActionHolder set(ActionFactory factory) {
             this.factory = factory;
             return this;
         }
@@ -479,53 +491,9 @@ public class Engine {
             return this;
         }
 
-        private ActionHolder condition(Condition condition) {
+        private ActionHolder set(Condition condition) {
             this.condition = condition;
             return this;
-        }
-    }
-
-    // this is an action that does nothing
-    private static class EmptyAction implements Action {
-
-        @Override
-        public String name() {
-            return "I am a fake action, you're probably not supposed to call this method!";
-        }
-
-        @Override
-        public Action set(Context context) {
-            return this;
-        }
-
-        @Override
-        public Action run() {
-            return this;
-        }
-
-        @Override
-        public Action in(byte[] bytes) {
-            return this;
-        }
-
-        @Override
-        public Action in(ByteBuffer buffer) {
-            throw cantDoThat();
-        }
-
-        @Override
-        public ByteBuffer out() {
-            throw cantDoThat();
-        }
-
-        @Override
-        public Action applicationData(ByteBuffer buffer) {
-            return this;
-        }
-
-        @Override
-        public ByteBuffer applicationData() {
-            throw cantDoThat();
         }
     }
 

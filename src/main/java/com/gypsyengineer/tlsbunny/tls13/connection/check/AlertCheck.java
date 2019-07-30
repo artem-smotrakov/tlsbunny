@@ -12,7 +12,7 @@ public class AlertCheck extends AbstractCheck {
 
     @Override
     public String name() {
-        return "if an alert received";
+        return "alert received";
     }
 
 }

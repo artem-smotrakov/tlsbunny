@@ -44,7 +44,7 @@ public class StagedHttpsClient extends AbstractClient {
                         .keyShareEntries(context -> context.negotiator().createKeyShareEntry()))
                 .run(new WrappingIntoHandshake()
                         .type(client_hello)
-                        .updateContext(Context.Element.first_client_hello))
+                        .update(Context.Element.first_client_hello))
                 .run(new WrappingIntoTLSPlaintexts()
                         .type(handshake)
                         .version(TLSv12));
@@ -56,14 +56,14 @@ public class StagedHttpsClient extends AbstractClient {
                             .version(TLSv12));
 
     private Stage configuringReceivingSecondFlight = engine ->
-            engine.loop(context -> !context.receivedServerFinished() && !context.hasAlert())
+            engine.till(context -> !context.receivedServerFinished() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client));
 
     private Stage configuringGeneratingFinished = engine ->
             engine.run(new GeneratingFinished())
                     .run(new WrappingIntoHandshake()
                             .type(finished)
-                            .updateContext(Context.Element.client_finished))
+                            .update(Context.Element.client_finished))
                     .run(new WrappingHandshakeDataIntoTLSCiphertext());
 
     private Stage configuringSendingApplicationData = engine ->
@@ -71,7 +71,7 @@ public class StagedHttpsClient extends AbstractClient {
                     .run(new WrappingApplicationDataIntoTLSCiphertext());
 
     private Stage configureReceivingApplicationData = engine ->
-            engine.loop(context -> !context.receivedApplicationData() && !context.hasAlert())
+            engine.till(context -> !context.receivedApplicationData() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client));
 
     public StagedHttpsClient() {
