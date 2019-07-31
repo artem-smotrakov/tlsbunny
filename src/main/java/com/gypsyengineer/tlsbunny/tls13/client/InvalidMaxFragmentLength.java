@@ -44,8 +44,8 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
         configuringGeneratingClientHello(clientHelloStage(WITHOUT_MAX_FRAGMENT_LENGTH));
         Engine engine = createEngine();
         engines.add(engine);
-        engine.connect();
-        engine.run(new SuccessCheck());
+        engine.run();
+        engine.require(new SuccessCheck());
 
         for (int code : MaxFragmentLength.codes()) {
             logger.info("send valid max_fragment_length extension ({}), " +
@@ -53,8 +53,8 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
             configuringGeneratingClientHello(clientHelloStage(code));
             engine = createEngine();
             engines.add(engine);
-            engine.connect();
-            engine.run(new SuccessCheck());
+            engine.run();
+            engine.require(new SuccessCheck());
 
         }
 
@@ -68,7 +68,7 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
             configuringGeneratingClientHello(clientHelloStage(code));
             engine = createEngine();
             engines.add(engine);
-            engine.connect();
+            engine.run();
             engine.requireOne(new FailureCheck(), new AlertCheck());
         }
 

@@ -76,8 +76,8 @@ public class InvalidCCS extends AbstractClient {
             try {
                 logger.info("try CCS with {}", ccsValue);
                 Engine engine = createEngine(ccsValue)
-                        .connect()
-                        .run(checks)
+                        .run()
+                        .require(checks)
                         .apply(analyzer);
                 engines.add(engine);
             } catch (EngineException e) {

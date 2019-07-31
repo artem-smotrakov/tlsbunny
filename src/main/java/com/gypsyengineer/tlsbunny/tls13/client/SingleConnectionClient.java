@@ -13,8 +13,8 @@ public abstract class SingleConnectionClient extends AbstractClient {
         logger.info("connect to {}:{}", host, port);
         Engine engine = createEngine();
         engines.add(engine);
-        engine.connect();
-        engine.run(checks);
+        engine.run();
+        engine.require(checks);
         return this;
     }
 

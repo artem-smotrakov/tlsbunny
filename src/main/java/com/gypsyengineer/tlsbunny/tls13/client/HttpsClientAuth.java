@@ -1,16 +1,15 @@
 package com.gypsyengineer.tlsbunny.tls13.client;
 
+import com.gypsyengineer.tlsbunny.tls13.connection.Condition;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.Side;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingChangeCipherSpec;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificate;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificateVerify;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
+import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.handshake.NegotiatorException;
 import com.gypsyengineer.tlsbunny.utils.Config;
 
@@ -18,6 +17,11 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificate.outgoingClientCertificate;
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.composite.OutgoingClientCertificateVerify.outgoingClientCertificateVerify;
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.GeneratingClientHello.generatingClientHello;
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingIntoHandshake.wrappingIntoHandshake;
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.WrappingIntoTLSPlaintexts.wrappingIntoTLSPlaintexts;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
@@ -53,55 +57,57 @@ public class HttpsClientAuth extends SingleConnectionClient {
             throws NegotiatorException, NoSuchAlgorithmException, IOException {
 
         return Engine.init()
-                .target(host)
-                .target(port)
+                .set(host, port)
                 .set(factory)
                 .set(negotiator)
 
-
                 // send ClientHello
-                .run(new GeneratingClientHello()
+                .run(generatingClientHello()
                         .supportedVersions(TLSv13)
                         .groups(secp256r1)
                         .signatureSchemes(ecdsa_secp256r1_sha256)
-                        .keyShareEntries(context -> context.negotiator().createKeyShareEntry()))
-                .run(new WrappingIntoHandshake()
+                        .keyShareEntries(Negotiator::createKeyShareEntry))
+                .run(wrappingIntoHandshake()
                         .type(client_hello)
                         .update(Context.Element.first_client_hello))
-                .run(new WrappingIntoTLSPlaintexts()
+                .run(wrappingIntoTLSPlaintexts()
                         .type(handshake)
                         .version(TLSv12))
-                .send(new OutgoingData())
+                .send(OutgoingData::new)
 
-                .send(new OutgoingChangeCipherSpec())
+                .send(OutgoingChangeCipherSpec::new)
 
-                // receive a ServerHello, EncryptedExtensions, Certificate,
-                // CertificateVerify and Finished messages
-                // TODO: how can we make it more readable?
-                .till(context -> !context.receivedServerFinished() && !context.hasAlert())
-                    .receive(() -> new IncomingMessages(Side.client))
+                /* receive ServerHello
+                 *         EncryptedExtensions
+                 *         Certificate,
+                 *         CertificateVerify
+                 *         Finished
+                 * or an alert
+                 */
+                .till(Condition::serverNotDone)
+                .receive(IncomingMessages::fromServer)
 
-                .send(new OutgoingClientCertificate()
-                        .certificate(clientCertificate))
-                .send(new OutgoingClientCertificateVerify()
-                        .key(clientKey))
+                .send(outgoingClientCertificate()
+                        .with(clientCertificate))
+                .send(outgoingClientCertificateVerify()
+                        .with(clientKey))
 
                 // send Finished
-                .run(new GeneratingFinished())
-                .run(new WrappingIntoHandshake()
+                .run(GeneratingFinished::new)
+                .run(wrappingIntoHandshake()
                         .type(finished)
                         .update(Context.Element.client_finished))
-                .run(new WrappingHandshakeDataIntoTLSCiphertext())
-                .send(new OutgoingData())
+                .run(WrappingHandshakeDataIntoTLSCiphertext::new)
+                .send(OutgoingData::new)
 
                 // send application data
-                .run(new PreparingHttpGetRequest())
-                .run(new WrappingApplicationDataIntoTLSCiphertext())
-                .send(new OutgoingData())
+                .run(PreparingHttpGetRequest::new)
+                .run(WrappingApplicationDataIntoTLSCiphertext::new)
+                .send(OutgoingData::new)
 
                 // receive session tickets and application data
-                .till(context -> !context.receivedApplicationData() && !context.hasAlert())
-                    .receive(() -> new IncomingMessages(Side.client));
+                .till(Condition::applicationDataNotReceived)
+                .receive(IncomingMessages::fromServer);
     }
 
 }

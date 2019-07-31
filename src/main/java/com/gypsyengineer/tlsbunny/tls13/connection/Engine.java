@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
@@ -77,12 +78,23 @@ public class Engine {
         return context;
     }
 
+    public Engine set(String host, int port) {
+        return target(host).target(port);
+    }
+
     public Engine target(String host) {
+        Objects.requireNonNull(host, "Hey! Host can't be null!");
+        if (host.isEmpty()) {
+            throw whatTheHell("Hey! Host can't be empty!");
+        }
         this.host = host;
         return this;
     }
 
     public Engine target(int port) {
+        if (port < 0 || port > 65535) {
+            throw whatTheHell("Hey! Give me a valid port number but not %d!", port);
+        }
         this.port = port;
         return this;
     }
@@ -202,7 +214,7 @@ public class Engine {
         return this;
     }
 
-    public Engine connect() throws EngineException {
+    public Engine run() throws EngineException {
         context.negotiator().set(context.factory());
         status = Status.running;
 
@@ -323,7 +335,7 @@ public class Engine {
         throw new ActionFailed("all checks failed");
     }
 
-    public Engine run(List<Check> checks) throws ActionFailed {
+    public Engine require(List<Check> checks) throws ActionFailed {
         for (Check check : checks) {
             check.set(this);
 
@@ -337,8 +349,8 @@ public class Engine {
         return this;
     }
 
-    public Engine run(Check... checks) throws ActionFailed {
-        return run(List.of(checks));
+    public Engine require(Check... checks) throws ActionFailed {
+        return require(List.of(checks));
     }
 
     public Engine apply(Analyzer analyzer) {

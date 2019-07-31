@@ -54,7 +54,7 @@ public class ECDHEStrictValidation extends AbstractClient {
     public ECDHEStrictValidation connectImpl() throws Exception {
         for (int i = 0; i < n; i++) {
             logger.info("test #{}", i);
-            engines.add(createEngine().connect().run(checks));
+            engines.add(createEngine().run().require(checks));
 
         }
 

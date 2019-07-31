@@ -58,8 +58,7 @@ public class HttpsClient extends SingleConnectionClient {
             throws NegotiatorException, NoSuchAlgorithmException {
 
         return Engine.init()
-                .target(host)
-                .target(port)
+                .set(host, port)
                 .set(factory)
                 .set(negotiator)
 
