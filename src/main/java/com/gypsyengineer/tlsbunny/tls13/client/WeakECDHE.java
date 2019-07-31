@@ -48,7 +48,7 @@ public class WeakECDHE extends AbstractClient {
     public WeakECDHE connectImpl() throws Exception {
         for (int i = 0; i < n; i++) {
             logger.info("test #{}", i);
-            engines.add(createEngine().connect().run(checks));
+            engines.add(createEngine().run().require(checks));
         }
 
         return this;

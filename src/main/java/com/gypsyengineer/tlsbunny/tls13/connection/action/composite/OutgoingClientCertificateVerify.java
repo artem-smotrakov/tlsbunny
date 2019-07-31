@@ -35,6 +35,10 @@ public class OutgoingClientCertificateVerify
 
     private byte[] key_data;
 
+    public static OutgoingClientCertificateVerify outgoingClientCertificateVerify() {
+        return new OutgoingClientCertificateVerify();
+    }
+
     public OutgoingClientCertificateVerify key(String path) throws IOException {
         if (path == null || path.trim().isEmpty()) {
             throw  new IllegalArgumentException("no certificate key specified");
@@ -45,9 +49,13 @@ public class OutgoingClientCertificateVerify
         return this;
     }
 
+    public OutgoingClientCertificateVerify with(String pathToKey) throws IOException {
+        return key(pathToKey);
+    }
+
     @Override
     public String name() {
-        return "CertificateVerify";
+        return "outgoing CertificateVerify";
     }
 
     @Override

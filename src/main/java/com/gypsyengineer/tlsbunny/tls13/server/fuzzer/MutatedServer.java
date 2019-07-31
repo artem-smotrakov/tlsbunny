@@ -183,7 +183,7 @@ public class MutatedServer extends AbstractServer {
 
         Engine engine = engineFactory.create()
                 .set(connection)
-                .connect();
+                .run();
 
         engines.add(engine);
     }

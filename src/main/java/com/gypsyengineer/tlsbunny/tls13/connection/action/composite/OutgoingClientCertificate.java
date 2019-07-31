@@ -1,7 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.composite;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
-import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AesGcm;
@@ -18,7 +17,11 @@ public class OutgoingClientCertificate extends AbstractAction {
 
     private byte[] certData;
 
-    public Action certificate(String path) throws IOException {
+    public static OutgoingClientCertificate outgoingClientCertificate() {
+        return new OutgoingClientCertificate();
+    }
+
+    public OutgoingClientCertificate certificate(String path) throws IOException {
         if (path == null || path.trim().isEmpty()) {
             throw  new IllegalArgumentException("no certificate specified");
         }
@@ -28,13 +31,17 @@ public class OutgoingClientCertificate extends AbstractAction {
         return this;
     }
 
-    @Override
-    public String name() {
-        return "Certificate";
+    public OutgoingClientCertificate with(String pathToCertificate) throws IOException {
+        return certificate(pathToCertificate);
     }
 
     @Override
-    public Action run() throws IOException, AEADException {
+    public String name() {
+        return "outgoing Certificate";
+    }
+
+    @Override
+    public OutgoingClientCertificate run() throws IOException, AEADException {
         Certificate certificate = createCertificate();
         Handshake handshake = toHandshake(certificate);
         context.setClientCertificate(handshake);

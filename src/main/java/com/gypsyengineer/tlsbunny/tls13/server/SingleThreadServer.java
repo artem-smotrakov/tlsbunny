@@ -161,7 +161,7 @@ public class SingleThreadServer extends AbstractServer {
             engine.set(connection);
 
             try {
-                engine.connect(); // TODO: rename connect -> run
+                engine.run(); // TODO: rename connect -> run
             } catch (Exception e) {
                 logger.warn("unexpected exception, sending alert", e);
                 connection.send(generateAlert(engine));
