@@ -8,7 +8,7 @@ prefix=$(pwd)/wolfssl-build
 mkdir -p "${prefix}"
 
 cd ws || exit
-git pull
+git pull origin master && echo repository updated ... || exit 1
 
 export CFLAGS="-fsanitize=address -fno-omit-frame-pointer -fprofile-arcs -ftest-coverage"
 export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer -fprofile-arcs -ftest-coverage"
