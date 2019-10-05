@@ -1,0 +1,20 @@
+diff --git a/src/serv.c b/src/serv.c
+index bc490ee..2a41eb5 100644
+--- a/src/serv.c
++++ b/src/serv.c
+@@ -1421,6 +1421,7 @@ static void tcp_server(const char *name, int port)
+ /* core operation */
+ 		tv.tv_sec = 10;
+ 		tv.tv_usec = 0;
++		fprintf(stderr, "server is ready to accept\n");
+ 		n = select(n + 1, &rd, &wr, NULL, &tv);
+ 		if (n == -1 && errno == EINTR)
+ 			continue;
+@@ -1431,7 +1432,6 @@ static void tcp_server(const char *name, int port)
+
+ /* read or write to each connection as indicated by select()'s return argument */
+ 		lloopstart(listener_list, j) {
+-
+ 			/* a new connection has arrived */
+ 			if (FD_ISSET(j->fd, &rd) && j->listen_socket) {
+ 				calen = sizeof(client_address);
