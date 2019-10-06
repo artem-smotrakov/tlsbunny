@@ -1,26 +1,17 @@
 package com.gypsyengineer.tlsbunny;
 
 import com.gypsyengineer.tlsbunny.fuzzer.AbstractFlipFuzzer;
-import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
 import com.gypsyengineer.tlsbunny.tls.Random;
-import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,43 +22,7 @@ public class TestUtils {
         void run() throws Exception;
     }
 
-    public static Path createTempDirectory() throws IOException {
-        Path dir = Files.createTempDirectory("tlsbunny_test");
-        assertTrue(Files.exists(dir));
-        assertTrue(Files.isDirectory(dir));
-
-        return dir;
-    }
-
-    public static List<String> findFiles(Path dir, String prefix) throws IOException {
-        try (Stream<Path> walk = Files.walk(dir)) {
-            return walk.map(Path::toFile)
-                    .filter(f -> f.getName().startsWith(prefix))
-                    .map(File::toString)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public static boolean searchInFile(String filename, String string) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filename));
-        for (String line : lines) {
-            if (line.contains(string)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static void removeDirectory(Path path) throws IOException {
-        Files.walk(path)
-                .filter(Files::isRegularFile)
-                .map(Path::toFile)
-                .forEach(File::delete);
-
-        Files.delete(path);
-    }
-
+    @SafeVarargs
     public static <T> void assertContains(T object, T... array) {
         Objects.requireNonNull(object);
         Objects.requireNonNull(array);
@@ -116,8 +71,8 @@ public class TestUtils {
             fail("expected an exception");
         } catch (Throwable t) {
             if (!t.getClass().equals(expected)) {
-                t.printStackTrace();
-                fail(String.format("expected {} but caught {}",
+                t.printStackTrace(System.err);
+                fail(String.format("expected %s but caught %s",
                         expected.getSimpleName(), t.getClass().getSimpleName()));
             }
         }
@@ -143,7 +98,7 @@ public class TestUtils {
 
     // check if methods without parameters throw UnsupportedOperationException
     // TODO: test all methods
-    public static void expectUnsupportedMethods(
+    private static void expectUnsupportedMethods(
             Object object, List<String> excluded) throws Exception {
 
         for (Method method : object.getClass().getDeclaredMethods()) {
@@ -171,7 +126,7 @@ public class TestUtils {
                     fail("unexpected UnsupportedOperationException");
                 }
             } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof UnsupportedOperationException == false) {
+                if (UnsupportedOperationException.class.equals(e.getCause().getClass())) {
                     fail("unexpected cause");
                 }
             }
@@ -186,174 +141,6 @@ public class TestUtils {
 
     public interface FakeFuzzer {
         int count();
-    }
-
-    public static class FakeFlipFuzzer extends AbstractFlipFuzzer implements FakeFuzzer {
-
-        private int count = 0;
-
-        @Override
-        synchronized protected byte[] fuzzImpl(byte[] array) {
-            // do nothing
-            count++;
-            return array;
-        }
-
-        @Override
-        public synchronized int count() {
-            return count;
-        }
-    }
-
-    public static class FakeVectorFuzzer implements Fuzzer<Vector<Byte>>, FakeFuzzer {
-
-        private int count = 0;
-        private long test = 0;
-
-        @Override
-        public boolean canFuzz() {
-            return true;
-        }
-
-        @Override
-        public synchronized Vector fuzz(Vector object) {
-            count++;
-            return object;
-        }
-
-        @Override
-        public void moveOn() {
-            test++;
-        }
-
-        @Override
-        public String state() {
-            return String.valueOf(test);
-        }
-
-        @Override
-        public void state(String string) {
-            test = Integer.parseInt(string);
-        }
-
-        @Override
-        public synchronized int count() {
-            return count;
-        }
-    }
-
-    public static class FakeCompressionMethodFuzzer
-            implements Fuzzer<Vector<CompressionMethod>>, FakeFuzzer {
-
-        private int count = 0;
-        private long test = 0;
-
-        @Override
-        public boolean canFuzz() {
-            return true;
-        }
-
-        @Override
-        public synchronized Vector<CompressionMethod> fuzz(Vector<CompressionMethod> object) {
-            count++;
-            return object;
-        }
-
-        @Override
-        public void moveOn() {
-            test++;
-        }
-
-        @Override
-        public String state() {
-            return String.valueOf(test);
-        }
-
-        @Override
-        public void state(String string) {
-            test = Integer.parseInt(string);
-        }
-
-        @Override
-        public synchronized int count() {
-            return count;
-        }
-    }
-
-    public static class FakeCipherSuitesFuzzer
-            implements Fuzzer<Vector<CipherSuite>>, FakeFuzzer {
-
-        private int count = 0;
-        private long test = 0;
-
-        @Override
-        public boolean canFuzz() {
-            return true;
-        }
-
-        @Override
-        public synchronized Vector<CipherSuite> fuzz(Vector<CipherSuite> object) {
-            count++;
-            return object;
-        }
-
-        @Override
-        public void moveOn() {
-            test++;
-        }
-
-        @Override
-        public String state() {
-            return String.valueOf(test);
-        }
-
-        @Override
-        public void state(String string) {
-            test = Integer.parseInt(string);
-        }
-
-        @Override
-        public synchronized int count() {
-            return count;
-        }
-    }
-
-    public static class FakeExtensionVectorFuzzer
-            implements Fuzzer<Vector<Extension>>, FakeFuzzer {
-
-        private int count = 0;
-        private long test = 0;
-
-        @Override
-        public boolean canFuzz() {
-            return true;
-        }
-
-        @Override
-        public synchronized Vector<Extension> fuzz(Vector<Extension> object) {
-            count++;
-            return object;
-        }
-
-        @Override
-        public void moveOn() {
-            test++;
-        }
-
-        @Override
-        public String state() {
-            return String.valueOf(test);
-        }
-
-        @Override
-        public void state(String string) {
-            test = Integer.parseInt(string);
-        }
-
-        @Override
-        public synchronized int count() {
-            return count;
-        }
     }
 
     // the fuzzer just sets all bytes of encoding to zeroes
