@@ -12,6 +12,10 @@ public interface Negotiator {
     void processKeyShareEntry(KeyShareEntry entry) throws NegotiatorException;
     byte[] generateSecret() throws NegotiatorException;
 
+    static Negotiator create(NamedGroup group) throws NegotiatorException {
+        return create(group, StructFactory.getDefault());
+    }
+
     static Negotiator create(NamedGroup group, StructFactory factory)
             throws NegotiatorException {
         
@@ -26,7 +30,7 @@ public interface Negotiator {
         throw new IllegalArgumentException();
     }
 
-    public static KeyShareEntry createKeyShareEntry(Context context)
+    static KeyShareEntry createKeyShareEntry(Context context)
             throws NegotiatorException {
 
         return context.negotiator().createKeyShareEntry();

@@ -37,9 +37,9 @@ Here is what a simple HTTPS client looks like:
 
 ```java
 Engine.init()
-    .set(host, port)
-    .set(factory)
-    .set(negotiator)
+    .set("localhost", 433)
+    .set(StructFactory.getDefault())
+    .set(Negotiator.create(NamedGroup.secp256r1))
 
     .run(generatingClientHello()
             .supportedVersions(protocolVersion)
