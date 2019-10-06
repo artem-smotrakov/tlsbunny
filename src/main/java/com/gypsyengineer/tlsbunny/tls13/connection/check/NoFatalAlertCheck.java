@@ -8,6 +8,10 @@ import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
  */
 public class NoFatalAlertCheck extends AbstractCheck {
 
+    public static NoFatalAlertCheck noFatalAlert() {
+        return new NoFatalAlertCheck();
+    }
+
     @Override
     public Check run() {
         Context context = engine.context();

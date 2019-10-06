@@ -7,28 +7,34 @@
 # tlsbunny
 
 This is a framework for building negative tests and fuzzers for TLS 1.3 implementations.
-The idea is to split the handshake process and data exchange to simple steps which are easy to configure and re-use.
-The framework provides a set of basic steps which can be used in TLS 1.3 communication, for example:
+The idea is to split the TLS handshake and application data exchange to simple steps 
+which can be easily configured and re-used in various TLS clients and servers.
 
-- generating a ClientHello message
-- wrapping a handshake message into a Handshake structure
-- wrapping a handshake message into a TLSPlaintext structure
-- key exchange and generating symmetric keys
-- receiving incoming data
-- parsing a TLSCiphertext message
-- decrypting a TLSCiphertext message and so on
+The framework provides a set of basic steps which can be used in a TLS connection, 
+for example:
 
-These basic blocks allow to control and test each step in TLS 1.3 connection.
+- Generating a `ClientHello` message
+- Wrapping a handshake message into a `Handshake` structure
+- Wrapping a handshake message into a `TLSPlaintext` structure
+- Key exchange and deriving symmetric keys
+- Receiving incoming encrypted data
+- Parsing a `TLSCiphertext` message
+- Decrypting a `TLSCiphertext` message
+- and so on
 
-The framework also provides an engine which runs specified actions. The engine supports adding checks and analyzers which run after a connection finishes.
+These basic blocks allow to control and test each step in a TLS 1.3 connection.
+
+The framework also provides an engine which runs specified actions.
+The engine allows adding checks which can be run after a connection finishes.
+The checks can examine the established connection, and detect potential issues.
 
 ## Supported features
 
 - [TLS 1.3 protocol defined in RFC 8446](https://tools.ietf.org/html/rfc8446) 
-- Client and server
-- Client and server authentication
-- Key exchange with ECDHE and `secp256r1` curve
-- `ecdsa_secp256r1_sha256` signatures
+- Client and server modes
+- Key exchange with `ECDHE` mechanism and `secp256r1` curve
+- Signatures with `ecdsa_secp256r1_sha256`
+- Both client and server authentication
 - AES-GCM cipher with 128-bit key
 
 ## Example
@@ -72,21 +78,35 @@ Engine.init()
 
     .until(Condition::applicationDataReceived)
     .receive(IncomingMessages::fromServer)
-    .run();
+    .run()
+    .require(noFatalAlert());
 ```
 
 ## Fuzzing
 
-tlsbunny provides several fuzzers for TLS 1.3 sturctures such as TLSPlaintext, Handshake, ClientHello and Finished.
-Fuzzers based on the framework can generate fuzzed messages and feed a target application via stdin, files or network sockets.
+tlsbunny provides several fuzzers for TLS 1.3 structures 
+such as `TLSPlaintext`, `Handshake`, `ClientHello`, `Finished` and so on.
 
-On the one hand, such a fuzzer is not going to be as fast as LibFuzzer. On the other hand, the fuzzer can be easily re-used with multiple TLS implementations written in different languages (not only C/C++). 
+On the one hand, such a fuzzer is not going to be as fast as, for example, LibFuzzer.
+On the other hand, the fuzzer can be easily re-used with multiple TLS implementations 
+written in any language (not only C/C++). 
 
-Traditionally, fuzzing is used for testing applications written in C/C++ to uncover memory corruption issues which most likely may have security implications. But fuzzing techniques can also be used for testing applications written in other languages even if those languages prevent using memory directly like Java. See for example [AFL-based Java fuzzers and the Java Security Manager](https://www.modzero.ch/modlog/archives/2018/09/20/java_bugs_with_and_without_fuzzing/index.html).
+Traditionally, fuzzing is used for testing applications written in C/C++ 
+to uncover memory corruption issues which most likely may have security implications. 
+However, fuzzing can also be also used for testing applications written in other languages 
+even if those languages, like Java, prevent using memory directly. 
+See for example [AFL-based Java fuzzers and the Java Security Manager](https://www.modzero.ch/modlog/archives/2018/09/20/java_bugs_with_and_without_fuzzing/index.html).
 
-No matter which language is used, a good TLS implementation should properly handle incorrect data and react with an expected action, for example, by thowing a documented exception. An unexpected behavior in processing incorrect data may still have security implications.
+No matter which programming language is used, 
+a good TLS implementation should properly handle incorrect data 
+and react in an expected way, for example, by throwing a documented exception. 
+An unexpected behavior while processing incorrect data may still have security implications.
+even it the TLS implementation is written in a memory-safe programming language.
 
 ## Similar projects
 
-- [tlsfuzzer](https://github.com/tomato42/tlsfuzzer): SSL and TLS protocol test suite and fuzzer (python)
-- [TLS-Attacker](https://github.com/RUB-NDS/TLS-Attacker): TLS-Attacker is a Java-based framework for analyzing TLS libraries. It is developed by the Ruhr University Bochum and the Hackmanit GmbH.
+- [tlsfuzzer](https://github.com/tomato42/tlsfuzzer): 
+  SSL and TLS protocol test suite and fuzzer (python)
+- [TLS-Attacker](https://github.com/RUB-NDS/TLS-Attacker): 
+  TLS-Attacker is a Java-based framework for analyzing TLS libraries. 
+  It is developed by the Ruhr University Bochum and the Hackmanit GmbH.
