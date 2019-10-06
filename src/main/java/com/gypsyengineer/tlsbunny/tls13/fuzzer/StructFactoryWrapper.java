@@ -1,6 +1,8 @@
 package com.gypsyengineer.tlsbunny.tls13.fuzzer;
 
 import com.gypsyengineer.tlsbunny.tls.Random;
+import com.gypsyengineer.tlsbunny.tls.UInt16;
+import com.gypsyengineer.tlsbunny.tls.UInt32;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 
@@ -265,6 +267,31 @@ public class StructFactoryWrapper implements StructFactory {
     public CertificateStatusRequest createCertificateStatusRequest(CertificateStatusType status_type,
                                                                    OCSPStatusRequest request) {
         return factory.createCertificateStatusRequest(status_type, request);
+    }
+
+    @Override
+    public PreSharedKeyExtension.ClientHello createPreSharedKeyExtensionForClientHello(OfferedPsks offeredPsks) {
+        return factory.createPreSharedKeyExtensionForClientHello(offeredPsks);
+    }
+
+    @Override
+    public PreSharedKeyExtension.ServerHello createPreSharedKeyExtensionForServerHello(UInt16 selected_identity) {
+        return factory.createPreSharedKeyExtensionForServerHello(selected_identity);
+    }
+
+    @Override
+    public OfferedPsks createOfferedPsks(Vector<PskIdentity> identities, Vector<PskBinderEntry> binders) {
+        return factory.createOfferedPsks(identities, binders);
+    }
+
+    @Override
+    public PskIdentity createPskIdentity(Vector<Byte> identity, UInt32 obfuscated_ticket_age) {
+        return factory.createPskIdentity(identity, obfuscated_ticket_age);
+    }
+
+    @Override
+    public PskBinderEntry createPskBinderEntry(Vector<Byte> content) {
+        return factory.createPskBinderEntry(content);
     }
 
     @Override

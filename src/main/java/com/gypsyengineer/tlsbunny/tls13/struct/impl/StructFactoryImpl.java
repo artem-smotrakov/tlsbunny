@@ -321,6 +321,35 @@ public class StructFactoryImpl implements StructFactory {
     }
 
     @Override
+    public PreSharedKeyExtension.ClientHello createPreSharedKeyExtensionForClientHello(
+            OfferedPsks offeredPsks) {
+        return new PreSharedKeyExtensionImpl.ClientHelloImpl(offeredPsks);
+    }
+
+    @Override
+    public PreSharedKeyExtension.ServerHello createPreSharedKeyExtensionForServerHello(
+            UInt16 selected_identity) {
+        return createPreSharedKeyExtensionForServerHello(selected_identity);
+    }
+
+    @Override
+    public OfferedPsks createOfferedPsks(Vector<PskIdentity> identities,
+                                         Vector<PskBinderEntry> binders) {
+        return new OfferedPsksImpl(identities, binders);
+    }
+
+    @Override
+    public PskIdentity createPskIdentity(Vector<Byte> identity,
+                                         UInt32 obfuscated_ticket_age) {
+        return new PskIdentityImpl(identity, obfuscated_ticket_age);
+    }
+
+    @Override
+    public PskBinderEntry createPskBinderEntry(Vector<Byte> content) {
+        return new PskBinderEntryImpl(content);
+    }
+
+    @Override
     public CertificateEntry.X509 createX509CertificateEntry(byte[] bytes) {
         return new CertificateEntryImpl.X509Impl(
                     Vector.wrap(CertificateEntry.X509.length_bytes, bytes),

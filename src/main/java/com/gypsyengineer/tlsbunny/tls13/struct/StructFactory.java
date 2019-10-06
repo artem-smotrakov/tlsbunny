@@ -1,7 +1,11 @@
 package com.gypsyengineer.tlsbunny.tls13.struct;
 
 import com.gypsyengineer.tlsbunny.tls.Random;
+import com.gypsyengineer.tlsbunny.tls.UInt16;
+import com.gypsyengineer.tlsbunny.tls.UInt32;
 import com.gypsyengineer.tlsbunny.tls.Vector;
+import com.gypsyengineer.tlsbunny.tls13.struct.impl.OfferedPsksImpl;
+import com.gypsyengineer.tlsbunny.tls13.struct.impl.PskIdentityImpl;
 import com.gypsyengineer.tlsbunny.tls13.struct.impl.StructFactoryImpl;
 
 import java.util.List;
@@ -92,6 +96,12 @@ public interface StructFactory {
                                               Vector<Byte> extensions);
     CertificateStatusRequest createCertificateStatusRequest(CertificateStatusType status_type,
                                                             OCSPStatusRequest request);
-    
+    PreSharedKeyExtension.ClientHello createPreSharedKeyExtensionForClientHello(OfferedPsks offeredPsks);
+    PreSharedKeyExtension.ServerHello createPreSharedKeyExtensionForServerHello(UInt16 selected_identity);
+    OfferedPsks createOfferedPsks(Vector<PskIdentity> identities,
+                                          Vector<PskBinderEntry> binders);
+    PskIdentity createPskIdentity(Vector<Byte> identity, UInt32 obfuscated_ticket_age);
+    PskBinderEntry createPskBinderEntry(Vector<Byte> content);
+
     StructParser parser();
 }

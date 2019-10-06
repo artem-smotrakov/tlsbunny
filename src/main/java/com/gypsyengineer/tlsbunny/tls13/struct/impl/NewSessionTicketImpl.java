@@ -31,6 +31,11 @@ public class NewSessionTicketImpl implements NewSessionTicket {
     }
 
     @Override
+    public Vector<Byte> ticket() {
+        return ticket;
+    }
+
+    @Override
     public int encodingLength() {
         return Utils.getEncodingLength(
                 ticket_lifetime, ticket_age_add, ticket_nonce, ticket, extensions);
