@@ -126,7 +126,7 @@ public class TestUtils {
                     fail("unexpected UnsupportedOperationException");
                 }
             } catch (InvocationTargetException e) {
-                if (UnsupportedOperationException.class.equals(e.getCause().getClass())) {
+                if (!UnsupportedOperationException.class.equals(e.getCause().getClass())) {
                     fail("unexpected cause");
                 }
             }
