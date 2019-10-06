@@ -111,3 +111,9 @@ even it the TLS implementation is written in a memory-safe programming language.
 - [TLS-Attacker](https://github.com/RUB-NDS/TLS-Attacker): 
   TLS-Attacker is a Java-based framework for analyzing TLS libraries. 
   It is developed by the Ruhr University Bochum and the Hackmanit GmbH.
+
+## Discovered bugs
+
+- [Java: TLS 1.3 server fails if ClientHello doesn't have pre_shared_key and psk_key_exchange_modes](https://bugs.openjdk.java.net/browse/JDK-8210334), [patch](http://hg.openjdk.java.net/jdk/jdk/rev/b6ccd982e33d)
+- [wolfSSL: Buffer overread while parsing key_share extension in TLS 1.3](https://wolfssl.zendesk.com/hc/en-us/requests/4798), [test](src/main/java/com/gypsyengineer/tlsbunny/poc/wolfssl/HeapOverReadInKeyShareEntry.java). [patch](https://github.com/wolfSSL/wolfssl/pull/2082)
+- [wolfSSL: Buffer over-read in DoTls13SupportedVersions()](https://wolfssl.zendesk.com/hc/en-us/requests/5487), [test](src/main/java/com/gypsyengineer/tlsbunny/poc/wolfssl/SupportedVersionsHeapOverRead.java), [patch](https://github.com/wolfSSL/wolfssl/pull/2381)
