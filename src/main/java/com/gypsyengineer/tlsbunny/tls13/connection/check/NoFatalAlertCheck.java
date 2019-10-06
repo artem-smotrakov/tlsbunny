@@ -1,7 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.check;
 
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
-import com.gypsyengineer.tlsbunny.tls13.struct.AlertDescription;
 import com.gypsyengineer.tlsbunny.tls13.struct.AlertLevel;
 
 /**

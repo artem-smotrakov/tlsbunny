@@ -2,8 +2,8 @@ package com.gypsyengineer.tlsbunny.tls13.client;
 
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.*;
-import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.NoExceptionCheck;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.NoFatalAlertCheck;
 import com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck;
 import com.gypsyengineer.tlsbunny.tls13.struct.StructFactory;
 
