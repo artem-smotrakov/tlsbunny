@@ -62,6 +62,12 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     @Override
+    public Client to(String host) {
+        client.to(host);
+        return this;
+    }
+
+    @Override
     public Client to(int port) {
         client.to(port);
         return this;

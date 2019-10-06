@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.security.NoSuchAlgorithmException;
 
-import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.GeneratingClientHello.NO_MAX_FRAGMENT_LENGTH;
+import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.GeneratingClientHello.no_max_fragment_length;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
@@ -95,6 +95,6 @@ public class InvalidMaxFragmentLength extends StagedHttpsClient {
             return factory.createMaxFragmentLength(code);
         }
 
-        return NO_MAX_FRAGMENT_LENGTH;
+        return no_max_fragment_length;
     }
 }
