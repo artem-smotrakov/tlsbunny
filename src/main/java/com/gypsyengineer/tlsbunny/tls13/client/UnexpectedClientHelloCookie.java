@@ -63,7 +63,7 @@ public class UnexpectedClientHelloCookie extends SingleConnectionClient {
                 // receive a ServerHello, EncryptedExtensions, Certificate,
                 // CertificateVerify and Finished messages
                 // TODO: how can we make it more readable?
-                .till(context -> !context.receivedServerFinished() && !context.hasAlert())
+                .until(context -> !context.receivedServerFinished() && !context.hasAlert())
                 .receive(() -> new IncomingMessages(Side.client))
 
                 // send Finished
@@ -80,7 +80,7 @@ public class UnexpectedClientHelloCookie extends SingleConnectionClient {
                 .send(new OutgoingData())
 
                 // receive session tickets and application data
-                .till(context -> !context.receivedApplicationData() && !context.hasAlert())
+                .until(context -> !context.receivedApplicationData() && !context.hasAlert())
                 .receive(() -> new IncomingMessages(Side.client));
     }
 

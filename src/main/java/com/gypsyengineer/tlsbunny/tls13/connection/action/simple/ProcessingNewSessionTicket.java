@@ -13,6 +13,8 @@ public class ProcessingNewSessionTicket extends AbstractAction<ProcessingNewSess
 
     private static final Logger logger = LogManager.getLogger(ProcessingNewSessionTicket.class);
 
+    private NewSessionTicket ticket;
+
     @Override
     public String name() {
         return "processing NewSessionTicket";
@@ -20,11 +22,19 @@ public class ProcessingNewSessionTicket extends AbstractAction<ProcessingNewSess
 
     @Override
     public Action run() throws IOException {
-        NewSessionTicket ticket = context.factory().parser().parseNewSessionTicket(in);
+        synchronized (this) {
+            ticket = context.factory().parser().parseNewSessionTicket(in);
+        }
+        logger.info("received a NewSessionTicket message");
         logger.info("NewSessionTicket encoding length: {}", ticket.encodingLength());
         logger.info("NewSessionTicket content:\n{}", HexDump.printHex(ticket.encoding()));
-        logger.info("received a NewSessionTicket message");
 
         return this;
+    }
+
+    public NewSessionTicket ticket() {
+        synchronized (this) {
+            return ticket;
+        }
     }
 }

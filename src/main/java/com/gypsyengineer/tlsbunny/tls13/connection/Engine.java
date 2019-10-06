@@ -191,7 +191,7 @@ public class Engine {
         return new ActionHolder().set(this).set(factory);
     }
 
-    public ActionHolder till(Condition condition) {
+    public ActionHolder until(Condition condition) {
         return new ActionHolder()
                 .set(this)
                 .type(ActionType.receive_till)

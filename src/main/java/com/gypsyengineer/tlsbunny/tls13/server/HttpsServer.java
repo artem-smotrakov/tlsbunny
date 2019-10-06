@@ -153,14 +153,14 @@ public class HttpsServer extends AbstractServer {
                     .receive(new IncomingData())
 
                     // process ClientHello
-                    .till(context -> !context.hasFirstClientHello() && !context.hasAlert())
+                    .until(context -> !context.hasFirstClientHello() && !context.hasAlert())
                         .receive(() -> new IncomingMessages(Side.server))
 
                     // send messages
                     .send(new OutgoingMainServerFlight(certificate, key))
 
                     // receive Finished and application data
-                    .till(context -> !context.receivedApplicationData() && !context.hasAlert())
+                    .until(context -> !context.receivedApplicationData() && !context.hasAlert())
                         .receive(() -> new IncomingMessages(Side.server))
 
                     // send application data

@@ -33,7 +33,47 @@ The framework also provides an engine which runs specified actions. The engine s
 
 ## Example
 
+Here is what a simple HTTPS client looks like:
 
+```java
+Engine.init()
+    .set(host, port)
+    .set(factory)
+    .set(negotiator)
+
+    .run(generatingClientHello()
+            .supportedVersions(protocolVersion)
+            .groups(secp256r1)
+            .signatureSchemes(ecdsa_secp256r1_sha256)
+            .keyShareEntries(Negotiator::createKeyShareEntry))
+    .run(wrappingIntoHandshake()
+            .type(client_hello)
+            .update(Context.Element.first_client_hello))
+    .run(wrappingIntoTLSPlaintexts()
+            .type(handshake)
+            .version(TLSv12))
+    .send(OutgoingData::new)
+
+    .send(OutgoingChangeCipherSpec::new)
+
+    .until(Condition::serverDone)
+    .receive(IncomingMessages::fromServer)
+
+    .run(GeneratingFinished::new)
+    .run(wrappingIntoHandshake()
+            .type(finished)
+            .update(Context.Element.client_finished))
+    .run(WrappingHandshakeDataIntoTLSCiphertext::new)
+    .send(OutgoingData::new)
+
+    .run(PreparingHttpGetRequest::new)
+    .run(WrappingApplicationDataIntoTLSCiphertext::new)
+    .send(OutgoingData::new)
+
+    .until(Condition::applicationDataReceived)
+    .receive(IncomingMessages::fromServer)
+    .run();
+```
 
 ## Fuzzing
 

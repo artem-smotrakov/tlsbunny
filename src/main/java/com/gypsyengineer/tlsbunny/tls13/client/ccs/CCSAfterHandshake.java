@@ -63,7 +63,7 @@ public class CCSAfterHandshake extends SingleConnectionClient {
 
                 // receive a ServerHello, EncryptedExtensions, Certificate,
                 // CertificateVerify and Finished messages
-                .till(context -> !context.receivedServerFinished() && !context.hasAlert())
+                .until(context -> !context.receivedServerFinished() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client))
 
                 // send Finished
@@ -83,7 +83,7 @@ public class CCSAfterHandshake extends SingleConnectionClient {
                 .send(new OutgoingData())
 
                 // receive session tickets and application data
-                .till(context -> !context.receivedApplicationData() && !context.hasAlert())
+                .until(context -> !context.receivedApplicationData() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client));
     }
 
