@@ -33,6 +33,12 @@ public class FFDHENegotiator extends AbstractNegotiator {
         this.generator = generator;
     }
 
+    public static FFDHENegotiator create(NamedGroup.FFDHE group)
+            throws NegotiatorException {
+
+        return create(group, StructFactory.getDefault());
+    }
+
     public static FFDHENegotiator create(NamedGroup.FFDHE group, StructFactory factory) 
             throws NegotiatorException {
 
