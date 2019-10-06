@@ -31,7 +31,7 @@ public abstract class AbstractClient implements Client, AutoCloseable {
 
     protected AbstractClient() {
         try {
-            negotiator = Negotiator.create(NamedGroup.secp256r1, StructFactory.getDefault());
+            negotiator = Negotiator.create(NamedGroup.secp256r1);
         } catch (NegotiatorException e) {
             throw whatTheHell("could not create a negotiator!", e);
         }
