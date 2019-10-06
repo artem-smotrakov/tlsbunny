@@ -15,8 +15,9 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
 
     private static byte[] empty_session_id = new byte[0];
 
-    private static final byte[] NO_COOKIE = null;
-    public static final MaxFragmentLength NO_MAX_FRAGMENT_LENGTH = null;
+    private static final byte[] no_cookie = null;
+    private static final NewSessionTicket no_ticket = null;
+    public static final MaxFragmentLength no_max_fragment_length = null;
 
     private ProtocolVersion legacyVersion = ProtocolVersion.TLSv12;
     private ProtocolVersion[] versions = new ProtocolVersion[0];
@@ -24,9 +25,10 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
     private NamedGroup[] groups = new NamedGroup[0];
     private KeyShareEntryFactory[] keyShareEntryFactories = new KeyShareEntryFactory[0];
     private KeyShareFactory[] keyShareFactories = new KeyShareFactory[0];
-    private byte[] cookie = NO_COOKIE;
-    private MaxFragmentLength maxFragmentLength = NO_MAX_FRAGMENT_LENGTH;
+    private byte[] cookie = no_cookie;
+    private MaxFragmentLength maxFragmentLength = no_max_fragment_length;
     private CipherSuite[] cipherSuites = { CipherSuite.TLS_AES_128_GCM_SHA256 };
+    private NewSessionTicket ticket;
 
     public static GeneratingClientHello generatingClientHello() {
         return new GeneratingClientHello();
@@ -79,6 +81,11 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
         return this;
     }
 
+    public GeneratingClientHello use(NewSessionTicket ticket) {
+        this.ticket = ticket;
+        return this;
+    }
+
     public GeneratingClientHello set(MaxFragmentLength maxFragmentLength) {
         this.maxFragmentLength = maxFragmentLength;
         return this;
@@ -101,7 +108,9 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
             extensions.add(wrap(context.factory().createSignatureSchemeList(scheme)));
         }
 
-        extensions.add(wrap(context.factory().createNamedGroupList(groups)));
+        if (groups.length > 0) {
+            extensions.add(wrap(context.factory().createNamedGroupList(groups)));
+        }
 
         for (KeyShareFactory factory : keyShareFactories) {
             extensions.add(wrap(factory.create(context)));
@@ -112,12 +121,16 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
                     factory.create(context))));
         }
 
-        if (cookie != NO_COOKIE) {
+        if (cookie != no_cookie) {
             extensions.add(wrap(context.factory().createCookie(cookie)));
         }
 
-        if (maxFragmentLength != NO_MAX_FRAGMENT_LENGTH) {
+        if (maxFragmentLength != no_max_fragment_length) {
             extensions.add(wrap(maxFragmentLength));
+        }
+
+        if (ticket != no_ticket) {
+
         }
 
         ClientHello hello = context.factory().createClientHello(

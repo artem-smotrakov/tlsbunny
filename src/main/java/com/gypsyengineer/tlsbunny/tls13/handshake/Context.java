@@ -6,7 +6,9 @@ import com.gypsyengineer.tlsbunny.tls13.crypto.HKDF;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Context {
 
@@ -39,6 +41,8 @@ public class Context {
     private Handshake clientCertificate;
     private Handshake clientCertificateVerify;
     private Handshake clientFinished;
+
+    private final List<NewSessionTicket> sessionTickets = new ArrayList<>();
 
     private boolean clientFinishedVerified = false;
     private boolean serverFinishedVerified = false;
@@ -78,7 +82,7 @@ public class Context {
 
     private Alert alert;
 
-    private  AEAD handshakeEncryptor;
+    private AEAD handshakeEncryptor;
     private AEAD handshakeDecryptor;
     private AEAD applicationDataEncryptor;
     private AEAD applicationDataDecryptor;
@@ -450,6 +454,15 @@ public class Context {
 
     public void setClientCertificate(Handshake clientCertificate) {
         this.clientCertificate = clientCertificate;
+    }
+
+    public void add(NewSessionTicket ticket) {
+        Objects.requireNonNull(ticket, "What the hell? Session ticket can't be null!");
+        sessionTickets.add(ticket);
+    }
+
+    public List<NewSessionTicket> sessionTickets() {
+        return Collections.unmodifiableList(sessionTickets);
     }
 
     public void setClientCertificateVerify(Handshake clientCertificateVerify) {

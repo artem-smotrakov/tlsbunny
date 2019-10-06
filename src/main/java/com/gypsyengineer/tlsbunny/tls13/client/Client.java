@@ -15,6 +15,7 @@ public interface Client extends AutoCloseable, Runnable {
         not_started, running, done
     }
 
+    Client to(String host);
     Client to(int port);
     Client to(Server server);
     Client set(StructFactory factory);

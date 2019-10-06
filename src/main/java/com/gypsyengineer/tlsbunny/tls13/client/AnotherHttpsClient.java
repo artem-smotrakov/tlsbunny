@@ -32,7 +32,6 @@ public class AnotherHttpsClient extends SingleConnectionClient {
                 .set(factory)
                 .set(negotiator)
 
-
                 .send(new OutgoingClientHello())
                 .send(new OutgoingChangeCipherSpec())
                 .receive(new IncomingServerHello())
