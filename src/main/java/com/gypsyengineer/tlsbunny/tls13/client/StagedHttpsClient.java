@@ -56,7 +56,7 @@ public class StagedHttpsClient extends AbstractClient {
                             .version(TLSv12));
 
     private Stage configuringReceivingSecondFlight = engine ->
-            engine.till(context -> !context.receivedServerFinished() && !context.hasAlert())
+            engine.until(context -> !context.receivedServerFinished() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client));
 
     private Stage configuringGeneratingFinished = engine ->
@@ -71,7 +71,7 @@ public class StagedHttpsClient extends AbstractClient {
                     .run(new WrappingApplicationDataIntoTLSCiphertext());
 
     private Stage configureReceivingApplicationData = engine ->
-            engine.till(context -> !context.receivedApplicationData() && !context.hasAlert())
+            engine.until(context -> !context.receivedApplicationData() && !context.hasAlert())
                     .receive(() -> new IncomingMessages(Side.client));
 
     public StagedHttpsClient() {

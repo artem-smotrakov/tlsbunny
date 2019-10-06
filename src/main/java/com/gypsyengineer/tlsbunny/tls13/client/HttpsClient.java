@@ -62,7 +62,6 @@ public class HttpsClient extends SingleConnectionClient {
                 .set(factory)
                 .set(negotiator)
 
-                // send ClientHello
                 .run(generatingClientHello()
                         .supportedVersions(protocolVersion)
                         .groups(secp256r1)
@@ -78,17 +77,9 @@ public class HttpsClient extends SingleConnectionClient {
 
                 .send(OutgoingChangeCipherSpec::new)
 
-                /* receive ServerHello
-                 *         EncryptedExtensions
-                 *         Certificate,
-                 *         CertificateVerify
-                 *         Finished
-                 * or an alert
-                 */
-                .till(Condition::serverNotDone)
+                .until(Condition::serverDone)
                 .receive(IncomingMessages::fromServer)
 
-                // send Finished
                 .run(GeneratingFinished::new)
                 .run(wrappingIntoHandshake()
                         .type(finished)
@@ -96,13 +87,11 @@ public class HttpsClient extends SingleConnectionClient {
                 .run(WrappingHandshakeDataIntoTLSCiphertext::new)
                 .send(OutgoingData::new)
 
-                // send application data
                 .run(PreparingHttpGetRequest::new)
                 .run(WrappingApplicationDataIntoTLSCiphertext::new)
                 .send(OutgoingData::new)
 
-                // receive session tickets and application data
-                .till(Condition::applicationDataNotReceived)
+                .until(Condition::applicationDataReceived)
                 .receive(IncomingMessages::fromServer);
     }
 

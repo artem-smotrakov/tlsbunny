@@ -84,7 +84,7 @@ public class HttpsClientAuth extends SingleConnectionClient {
                  *         Finished
                  * or an alert
                  */
-                .till(Condition::serverNotDone)
+                .until(Condition::serverDone)
                 .receive(IncomingMessages::fromServer)
 
                 .send(outgoingClientCertificate()
@@ -106,7 +106,7 @@ public class HttpsClientAuth extends SingleConnectionClient {
                 .send(OutgoingData::new)
 
                 // receive session tickets and application data
-                .till(Condition::applicationDataNotReceived)
+                .until(Condition::applicationDataReceived)
                 .receive(IncomingMessages::fromServer);
     }
 

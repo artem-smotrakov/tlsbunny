@@ -6,11 +6,11 @@ public interface Condition {
 
     boolean met(Context context);
 
-    static boolean serverNotDone(Context context) {
+    static boolean serverDone(Context context) {
         return !context.receivedServerFinished() && !context.hasAlert();
     }
 
-    static boolean applicationDataNotReceived(Context context) {
+    static boolean applicationDataReceived(Context context) {
         return !context.receivedApplicationData() && !context.hasAlert();
     }
 }
