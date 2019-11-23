@@ -7,8 +7,10 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
 import com.gypsyengineer.tlsbunny.utils.WhatTheHell;
 
+import javax.net.ssl.SSLContext;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +22,23 @@ public class TestUtils {
 
     public interface TestAction {
         void run() throws Exception;
+    }
+
+    public static boolean jsseSupportsTls13() {
+        try {
+            SSLContext.getInstance("TLSv1.3");
+        } catch (NoSuchAlgorithmException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void sleep(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @SafeVarargs
