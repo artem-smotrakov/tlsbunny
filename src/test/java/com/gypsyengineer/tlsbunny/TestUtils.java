@@ -24,15 +24,6 @@ public class TestUtils {
         void run() throws Exception;
     }
 
-    public static boolean jsseSupportsTls13() {
-        try {
-            SSLContext.getInstance("TLSv1.3");
-        } catch (NoSuchAlgorithmException e) {
-            return false;
-        }
-        return true;
-    }
-
     public static void sleep(int seconds) {
         try {
             Thread.sleep(seconds * 1000);

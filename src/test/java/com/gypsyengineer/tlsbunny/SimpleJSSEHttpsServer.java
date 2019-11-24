@@ -10,20 +10,6 @@ import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
 public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
 
-    static {
-        if (System.getProperty("javax.net.ssl.keyStore") == null) {
-            System.setProperty("javax.net.ssl.keyStore", "certs/keystore");
-        } else {
-            throw whatTheHell("javax.net.ssl.keyStore has been already set!");
-        }
-
-        if (System.getProperty("javax.net.ssl.keyStorePassword") == null) {
-            System.setProperty("javax.net.ssl.keyStorePassword", "passphrase");
-        } else {
-            throw whatTheHell("javax.net.ssl.keyStorePassword has been already set!");
-        }
-    }
-
     private static final String[] protocols = { "TLSv1.3" };
     private static final String[] cipher_suites = { "TLS_AES_128_GCM_SHA256" };
     private static final String message =

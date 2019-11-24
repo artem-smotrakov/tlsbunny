@@ -5,7 +5,8 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
 import org.junit.Test;
 
-import static com.gypsyengineer.tlsbunny.TestUtils.jsseSupportsTls13;
+import static com.gypsyengineer.tlsbunny.JSSEUtils.setKeyStores;
+import static com.gypsyengineer.tlsbunny.JSSEUtils.supportsTls13;
 import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
@@ -13,8 +14,9 @@ import static org.junit.Assume.assumeTrue;
 public class HttpClientWithJSSEServerTest {
 
     @Test
-    public void test() throws Exception {
-        assumeTrue(jsseSupportsTls13());
+    public void standardHandshake() throws Exception {
+        assumeTrue(supportsTls13());
+        setKeyStores();
         try (SimpleJSSEHttpsServer server = SimpleJSSEHttpsServer.start();
              HttpsClient client = httpsClient()) {
 
