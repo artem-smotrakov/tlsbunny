@@ -350,6 +350,16 @@ public class StructFactoryImpl implements StructFactory {
     }
 
     @Override
+    public PskKeyExchangeMode createPskKeyExchangeMode(int code) {
+        return new PskKeyExchangeModeImpl(code);
+    }
+
+    @Override
+    public PskKeyExchangeModes createPskKeyExchangeModes(Vector<PskKeyExchangeMode> ke_modes) {
+        return new PskKeyExchangeModesImpl(ke_modes);
+    }
+
+    @Override
     public CertificateEntry.X509 createX509CertificateEntry(byte[] bytes) {
         return new CertificateEntryImpl.X509Impl(
                     Vector.wrap(CertificateEntry.X509.length_bytes, bytes),

@@ -102,6 +102,8 @@ public interface StructFactory {
                                           Vector<PskBinderEntry> binders);
     PskIdentity createPskIdentity(Vector<Byte> identity, UInt32 obfuscated_ticket_age);
     PskBinderEntry createPskBinderEntry(Vector<Byte> content);
+    PskKeyExchangeMode createPskKeyExchangeMode(int code);
+    PskKeyExchangeModes createPskKeyExchangeModes(Vector<PskKeyExchangeMode> ke_modes);
 
     StructParser parser();
 }
