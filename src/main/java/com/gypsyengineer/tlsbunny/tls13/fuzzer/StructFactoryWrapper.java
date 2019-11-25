@@ -54,11 +54,6 @@ public class StructFactoryWrapper implements StructFactory {
     }
 
     @Override
-    public Cookie createCookie(Vector<Byte> cookie) {
-        return factory.createCookie(cookie);
-    }
-
-    @Override
     public Cookie createCookie(byte[] cookie) {
         return factory.createCookie(cookie);
     }
@@ -305,9 +300,18 @@ public class StructFactoryWrapper implements StructFactory {
     }
 
     @Override
+    public NewSessionTicket createNewSessionTicket(UInt32 ticket_lifetime,
+                                                   UInt32 ticket_age_add,
+                                                   Vector<Byte> ticket_nonce,
+                                                   Vector<Byte> ticket,
+                                                   Vector<Extension> extensions) {
+        return factory.createNewSessionTicket(
+                ticket_lifetime, ticket_age_add, ticket_nonce, ticket, extensions);
+    }
+
+    @Override
     public StructParser parser() {
         return factory.parser();
     }
-
 
 }
