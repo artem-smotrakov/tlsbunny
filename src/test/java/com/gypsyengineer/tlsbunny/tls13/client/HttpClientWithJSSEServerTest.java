@@ -10,7 +10,6 @@ import javax.net.ssl.SSLSession;
 import java.io.IOException;
 
 import static com.gypsyengineer.tlsbunny.JSSEUtils.*;
-import static com.gypsyengineer.tlsbunny.JSSEUtils.connectTo;
 import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
