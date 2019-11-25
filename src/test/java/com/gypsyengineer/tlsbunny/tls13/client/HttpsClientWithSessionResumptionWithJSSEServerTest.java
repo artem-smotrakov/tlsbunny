@@ -6,11 +6,12 @@ import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
 import org.junit.Test;
 
 import javax.net.ssl.SSLSession;
-import java.io.*;
+import java.io.IOException;
 
 import static com.gypsyengineer.tlsbunny.JSSEUtils.*;
 import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClientWithSessionResumption.httpsClientWithSessionResumption;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class HttpsClientWithSessionResumptionWithJSSEServerTest {
 

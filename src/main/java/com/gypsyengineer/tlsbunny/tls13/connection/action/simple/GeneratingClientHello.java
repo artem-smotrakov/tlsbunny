@@ -1,6 +1,5 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
-import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;

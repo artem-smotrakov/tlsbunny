@@ -4,8 +4,6 @@ import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.UInt16;
 import com.gypsyengineer.tlsbunny.tls.UInt32;
 import com.gypsyengineer.tlsbunny.tls.Vector;
-import com.gypsyengineer.tlsbunny.tls13.struct.impl.OfferedPsksImpl;
-import com.gypsyengineer.tlsbunny.tls13.struct.impl.PskIdentityImpl;
 import com.gypsyengineer.tlsbunny.tls13.struct.impl.StructFactoryImpl;
 
 import java.util.List;
