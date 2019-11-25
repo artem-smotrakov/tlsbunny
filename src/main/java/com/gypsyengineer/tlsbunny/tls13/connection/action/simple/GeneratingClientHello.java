@@ -1,5 +1,6 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action.simple;
 
+import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.AbstractAction;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.Action;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
@@ -29,6 +30,7 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
     private MaxFragmentLength maxFragmentLength = no_max_fragment_length;
     private CipherSuite[] cipherSuites = { CipherSuite.TLS_AES_128_GCM_SHA256 };
     private NewSessionTicket ticket;
+    private PskKeyExchangeMode[] pskKeyExchangeModes;
 
     public static GeneratingClientHello generatingClientHello() {
         return new GeneratingClientHello();
@@ -86,6 +88,11 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
         return this;
     }
 
+    public GeneratingClientHello pskKeyExchangeModes(PskKeyExchangeMode... modes) {
+        pskKeyExchangeModes = modes;
+        return this;
+    }
+
     public GeneratingClientHello set(MaxFragmentLength maxFragmentLength) {
         this.maxFragmentLength = maxFragmentLength;
         return this;
@@ -129,8 +136,12 @@ public class GeneratingClientHello extends AbstractAction<GeneratingClientHello>
             extensions.add(wrap(maxFragmentLength));
         }
 
-        if (ticket != no_ticket) {
+        if (pskKeyExchangeModes != null) {
+            extensions.add(wrap(pskKeyExchangeModes));
+        }
 
+        if (ticket != no_ticket) {
+            // TODO: implement
         }
 
         ClientHello hello = context.factory().createClientHello(

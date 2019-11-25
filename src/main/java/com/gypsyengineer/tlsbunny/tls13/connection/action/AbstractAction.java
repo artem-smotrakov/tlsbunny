@@ -1,6 +1,7 @@
 package com.gypsyengineer.tlsbunny.tls13.connection.action;
 
 import com.gypsyengineer.tlsbunny.tls.Random;
+import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEAD;
 import com.gypsyengineer.tlsbunny.tls13.crypto.AEADException;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
@@ -8,6 +9,7 @@ import com.gypsyengineer.tlsbunny.tls13.struct.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import static com.gypsyengineer.tlsbunny.utils.Utils.SEED;
 
@@ -127,6 +129,14 @@ public abstract class AbstractAction<T extends AbstractAction> implements Action
     protected Extension wrap(MaxFragmentLength maxFragmentLength) throws IOException {
         return context.factory().createExtension(
                 ExtensionType.max_fragment_length, maxFragmentLength.encoding());
+    }
+
+    protected Extension wrap(PskKeyExchangeMode... modes) throws IOException {
+        return context.factory().createExtension(
+                ExtensionType.psk_key_exchange_modes,
+                Vector.wrap(
+                        PskKeyExchangeModes.ke_modes_length_bytes,
+                        List.of(modes)).encoding());
     }
 
     protected TLSInnerPlaintext decrypt(AEAD decryptor, TLSPlaintext tlsPlaintext)
