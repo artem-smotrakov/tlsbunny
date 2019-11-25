@@ -25,6 +25,7 @@ import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
 import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
+import static com.gypsyengineer.tlsbunny.tls13.struct.PskKeyExchangeMode.psk_dhe_ke;
 import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 
 public class HttpsClient extends SingleConnectionClient {
@@ -66,7 +67,8 @@ public class HttpsClient extends SingleConnectionClient {
                         .supportedVersions(protocolVersion)
                         .groups(secp256r1)
                         .signatureSchemes(ecdsa_secp256r1_sha256)
-                        .keyShareEntries(Negotiator::createKeyShareEntry))
+                        .keyShareEntries(Negotiator::createKeyShareEntry)
+                        .pskKeyExchangeModes(psk_dhe_ke))
                 .run(wrappingIntoHandshake()
                         .type(client_hello)
                         .update(Context.Element.first_client_hello))

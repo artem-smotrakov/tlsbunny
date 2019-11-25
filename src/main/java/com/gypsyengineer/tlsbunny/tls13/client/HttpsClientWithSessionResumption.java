@@ -5,7 +5,6 @@ import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.composite.IncomingMessages;
 import com.gypsyengineer.tlsbunny.tls13.connection.action.simple.*;
 import com.gypsyengineer.tlsbunny.tls13.handshake.Context;
-import com.gypsyengineer.tlsbunny.tls13.handshake.Negotiator;
 import com.gypsyengineer.tlsbunny.tls13.struct.NewSessionTicket;
 
 import java.util.List;
@@ -17,13 +16,14 @@ import static com.gypsyengineer.tlsbunny.tls13.connection.action.simple.Wrapping
 import static com.gypsyengineer.tlsbunny.tls13.struct.ContentType.handshake;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.client_hello;
 import static com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType.finished;
-import static com.gypsyengineer.tlsbunny.tls13.struct.NamedGroup.secp256r1;
 import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv12;
-import static com.gypsyengineer.tlsbunny.tls13.struct.ProtocolVersion.TLSv13;
-import static com.gypsyengineer.tlsbunny.tls13.struct.SignatureScheme.ecdsa_secp256r1_sha256;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
-public class HttpClientWithSessionResumption extends AbstractClient {
+public class HttpsClientWithSessionResumption extends AbstractClient {
+
+    public static HttpsClientWithSessionResumption httpsClientWithSessionResumption() {
+        return new HttpsClientWithSessionResumption();
+    }
 
     @Override
     protected Client connectImpl() throws Exception {
