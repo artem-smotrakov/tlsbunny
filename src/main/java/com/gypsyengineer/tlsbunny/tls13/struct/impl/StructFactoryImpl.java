@@ -178,13 +178,8 @@ public class StructFactoryImpl implements StructFactory {
     }
 
     @Override
-    public Cookie createCookie(Vector<Byte> cookie) {
-        return new CookieImpl(cookie);
-    }
-
-    @Override
     public Cookie createCookie(byte[] cookie) {
-        return createCookie(Vector.wrap(Cookie.length_bytes, cookie));
+        return new CookieImpl(Vector.wrap(Cookie.length_bytes, cookie));
     }
 
     @Override
@@ -357,6 +352,16 @@ public class StructFactoryImpl implements StructFactory {
     @Override
     public PskKeyExchangeModes createPskKeyExchangeModes(Vector<PskKeyExchangeMode> ke_modes) {
         return new PskKeyExchangeModesImpl(ke_modes);
+    }
+
+    @Override
+    public NewSessionTicket createNewSessionTicket(UInt32 ticket_lifetime,
+                                                   UInt32 ticket_age_add,
+                                                   Vector<Byte> ticket_nonce,
+                                                   Vector<Byte> ticket,
+                                                   Vector<Extension> extensions) {
+        return new NewSessionTicketImpl(
+                ticket_lifetime, ticket_age_add, ticket_nonce, ticket, extensions);
     }
 
     @Override

@@ -86,7 +86,6 @@ public interface StructFactory {
     NamedGroupList createNamedGroupList(NamedGroup... groups);
     CertificateEntry.X509 createX509CertificateEntry(byte[] bytes);
     Extension createExtension(ExtensionType type, byte[] bytes);
-    Cookie createCookie(Vector<Byte> cookie);
     Cookie createCookie(byte[] cookie);
     MaxFragmentLength createMaxFragmentLength(int code);
     CertificateStatusType createCertificateStatusType(int code);
@@ -102,6 +101,11 @@ public interface StructFactory {
     PskBinderEntry createPskBinderEntry(Vector<Byte> content);
     PskKeyExchangeMode createPskKeyExchangeMode(int code);
     PskKeyExchangeModes createPskKeyExchangeModes(Vector<PskKeyExchangeMode> ke_modes);
+    NewSessionTicket createNewSessionTicket(UInt32 ticket_lifetime,
+                                            UInt32 ticket_age_add,
+                                            Vector<Byte> ticket_nonce,
+                                            Vector<Byte> ticket,
+                                            Vector<Extension> extensions);
 
     StructParser parser();
 }
