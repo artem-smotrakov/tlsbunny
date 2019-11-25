@@ -3,6 +3,7 @@ package com.gypsyengineer.tlsbunny.tls13.client.fuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
+import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClient;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClientAuth;
@@ -39,7 +40,6 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     private static final int delay = 3000; // in millis
 
     private final Client client;
-    private Check[] checks;
     private Analyzer analyzer;
     private long test = 0;
     private DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer();
@@ -147,7 +147,8 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         fuzzer.recording();
         try {
             logger.info("run a smoke test before fuzzing");
-            Engine[] engines = client.set(StructFactory.getDefault())
+            Engine[] engines = client
+                    .set(StructFactory.getDefault())
                     .set(fuzzer)
                     .connect()
                     .engines();
@@ -222,7 +223,6 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         while (true) {
             try {
                 client.set(deepHandshakeFuzzer)
-                        .set(checks)
                         .set(analyzer)
                         .connect();
 

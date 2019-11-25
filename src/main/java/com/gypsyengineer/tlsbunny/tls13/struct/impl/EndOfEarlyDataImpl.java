@@ -5,6 +5,7 @@ import com.gypsyengineer.tlsbunny.tls13.struct.HandshakeType;
 
 import java.io.IOException;
 
+// TODO: implement EndOfEarlyDataImpl
 public class EndOfEarlyDataImpl implements EndOfEarlyData {
 
     @Override
