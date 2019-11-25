@@ -1,6 +1,8 @@
 package com.gypsyengineer.tlsbunny;
 
-import javax.net.ssl.SSLException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -9,6 +11,7 @@ import java.util.Objects;
 
 public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
 
+    private static final Logger logger = LogManager.getLogger(SimpleJSSEHttpsServer.class);
     private static final String[] protocols = { "TLSv1.3" };
     private static final String[] cipher_suites = { "TLS_AES_128_GCM_SHA256" };
     private static final String message =
@@ -41,7 +44,7 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        System.out.printf("server started on port %d%n", port());
+        logger.info("server started on port {}", port());
 
         while (true) {
             synchronized (this) {
@@ -51,7 +54,7 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
                 }
             }
             try (SSLSocket socket = (SSLSocket) sslServerSocket.accept()) {
-                System.out.println("accepted");
+                logger.info("accepted");
                 InputStream is = new BufferedInputStream(socket.getInputStream());
                 OutputStream os = new BufferedOutputStream(socket.getOutputStream());
                 byte[] data = new byte[2048];
@@ -59,16 +62,12 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
                 if (len <= 0) {
                     throw new IOException("no data received");
                 }
-                System.out.printf("server received %d bytes: %s%n",
+                logger.info("server received {} bytes: {}",
                         len, new String(data, 0, len));
                 os.write(http_response, 0, len);
                 os.flush();
-            } catch (SSLException e) {
-                System.out.printf("ssl exception: %s%n", e.getMessage());
-                System.out.println("continue");
             } catch (IOException e) {
-                System.out.println("i/o exception, continue");
-                e.printStackTrace(System.out);
+                logger.warn("I/O exception, but continue", e);
             }
         }
     }
