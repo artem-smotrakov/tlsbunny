@@ -3,28 +3,22 @@ package com.gypsyengineer.tlsbunny.tls13.client;
 import com.gypsyengineer.tlsbunny.SimpleJSSEHttpsServer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.struct.CipherSuite;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.net.ssl.SSLSession;
-import java.io.IOException;
+import java.io.*;
 
 import static com.gypsyengineer.tlsbunny.JSSEUtils.*;
-import static com.gypsyengineer.tlsbunny.JSSEUtils.connectTo;
-import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClientWithSessionResumption.httpsClientWithSessionResumption;
+import static org.junit.Assert.*;
 
-public class HttpClientWithJSSEServerTest {
-
-    @BeforeClass
-    public static void configure() {
-        setKeyStores();
-        setTrustStores();
-    }
+public class HttpsClientWithSessionResumptionWithJSSEServerTest {
 
     @Test
-    public void jsseHandshake() throws IOException {
+    public void jsseSessionResumption() throws IOException {
+        setKeyStores();
+        setTrustStores();
+        enableSessionTicketExtension();
         try (SimpleJSSEHttpsServer server = SimpleJSSEHttpsServer.start()) {
             SSLSession session = connectTo(server.port());
 
@@ -34,16 +28,21 @@ public class HttpClientWithJSSEServerTest {
 
             SSLSession theSameSession = connectTo(server.port());
 
-            assertEquals(session.getCreationTime(), theSameSession.getCreationTime());
             assertEquals(session.getCipherSuite(), theSameSession.getCipherSuite());
             assertEquals(session.getProtocol(), theSameSession.getProtocol());
+
+            // check session resumption
+            assertEquals(session.getCreationTime(), theSameSession.getCreationTime());
         }
     }
 
     @Test
-    public void standardHandshake() throws Exception {
-        try (SimpleJSSEHttpsServer server = SimpleJSSEHttpsServer.start();
-             HttpsClient client = httpsClient()) {
+    public void sessionResumption() throws Exception {
+        setKeyStores();
+        setTrustStores();
+        enableSessionTicketExtension();
+        try (SimpleJSSEHttpsServer server = SimpleJSSEHttpsServer.start()) {
+            Client client = httpsClientWithSessionResumption();
 
             client.to("localhost").to(server.port()).connect();
 

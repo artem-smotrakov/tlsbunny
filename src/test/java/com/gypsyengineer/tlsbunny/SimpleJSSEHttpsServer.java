@@ -5,8 +5,7 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-
-import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
+import java.util.Objects;
 
 public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
 
@@ -26,6 +25,8 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
     private boolean shouldStop = false;
 
     private SimpleJSSEHttpsServer(SSLServerSocket sslServerSocket) {
+        Objects.requireNonNull(sslServerSocket,
+                "Hey! Server socket can't be null");
         this.sslServerSocket = sslServerSocket;
     }
 
@@ -34,10 +35,8 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
     }
 
     @Override
-    public void close() throws IOException {
-        if (sslServerSocket != null && !sslServerSocket.isClosed()) {
-            sslServerSocket.close();
-        }
+    public void close() {
+        stop();
     }
 
     @Override
@@ -103,7 +102,7 @@ public class SimpleJSSEHttpsServer implements Runnable, AutoCloseable {
         socket.setEnabledProtocols(protocols);
         socket.setEnabledCipherSuites(cipher_suites);
         SimpleJSSEHttpsServer server = new SimpleJSSEHttpsServer(socket);
-        new Thread(server).start();
+        new Thread(server, SimpleJSSEHttpsServer.class.getSimpleName()).start();
         while (!server.started()) {
             TestUtils.sleep(1);
         }
