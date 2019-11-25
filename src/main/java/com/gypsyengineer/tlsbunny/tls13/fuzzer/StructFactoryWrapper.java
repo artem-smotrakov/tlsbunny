@@ -295,6 +295,16 @@ public class StructFactoryWrapper implements StructFactory {
     }
 
     @Override
+    public PskKeyExchangeMode createPskKeyExchangeMode(int code) {
+        return factory.createPskKeyExchangeMode(code);
+    }
+
+    @Override
+    public PskKeyExchangeModes createPskKeyExchangeModes(Vector<PskKeyExchangeMode> ke_modes) {
+        return factory.createPskKeyExchangeModes(ke_modes);
+    }
+
+    @Override
     public StructParser parser() {
         return factory.parser();
     }
