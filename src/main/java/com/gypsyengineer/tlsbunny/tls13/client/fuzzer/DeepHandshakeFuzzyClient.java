@@ -3,10 +3,10 @@ package com.gypsyengineer.tlsbunny.tls13.client.fuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.BitFlipFuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.ByteFlipFuzzer;
 import com.gypsyengineer.tlsbunny.fuzzer.Fuzzer;
-import com.gypsyengineer.tlsbunny.tls.Struct;
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClient;
 import com.gypsyengineer.tlsbunny.tls13.client.HttpsClientAuth;
+import com.gypsyengineer.tlsbunny.tls13.client.HttpsClientWithSessionResumption;
 import com.gypsyengineer.tlsbunny.tls13.connection.Analyzer;
 import com.gypsyengineer.tlsbunny.tls13.connection.Engine;
 import com.gypsyengineer.tlsbunny.tls13.connection.EngineException;
@@ -26,9 +26,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.gypsyengineer.tlsbunny.tls13.client.HttpsClient.httpsClient;
 import static com.gypsyengineer.tlsbunny.tls13.connection.check.ApplicationDataCheck.applicationDataCheck;
 import static com.gypsyengineer.tlsbunny.tls13.connection.check.SuccessCheck.successCheck;
-import static com.gypsyengineer.tlsbunny.tls13.fuzzer.DeepHandshakeFuzzer.deepHandshakeFuzzer;
 import static com.gypsyengineer.tlsbunny.utils.Achtung.achtung;
 import static com.gypsyengineer.tlsbunny.utils.WhatTheHell.whatTheHell;
 
@@ -36,13 +36,17 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
 
     private static final Logger logger = LogManager.getLogger(DeepHandshakeFuzzyClient.class);
 
+    private static final double minRatio = 0.05;
+    private static final double maxRatio = 0.5;
+    private static final double ratioStep = 0.05;
+
     private static final int max_attempts = 3;
     private static final int delay = 3000; // in millis
 
     private final Client client;
     private Analyzer analyzer;
     private long test = 0;
-    private DeepHandshakeFuzzer fuzzer = deepHandshakeFuzzer();
+    private DeepHandshakeFuzzer deepHandshakeFuzzer = DeepHandshakeFuzzer.deepHandshakeFuzzer();
     private int total = Config.instance.getInt("total", 1000);
 
     public static DeepHandshakeFuzzyClient from(Client client) {
@@ -57,8 +61,8 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         this.client = client;
     }
 
-    public DeepHandshakeFuzzer fuzzer() {
-        return fuzzer;
+    public DeepHandshakeFuzzer deepHandshakeFuzzer() {
+        return deepHandshakeFuzzer;
     }
 
     @Override
@@ -125,7 +129,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     public DeepHandshakeFuzzyClient set(DeepHandshakeFuzzer fuzzer) {
-        this.fuzzer = fuzzer;
+        this.deepHandshakeFuzzer = fuzzer;
         return this;
     }
 
@@ -136,7 +140,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
 
     @Override
     protected void runImpl() {
-        if (fuzzer == null) {
+        if (deepHandshakeFuzzer == null) {
             throw whatTheHell("no fuzzer provided!");
         }
 
@@ -144,12 +148,12 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
             throw whatTheHell("total is not positive!");
         }
 
-        fuzzer.recording();
+        deepHandshakeFuzzer.recording();
         try {
-            logger.info("run a smoke test before fuzzing");
+            logger.info("run a smoke test before fuzzing, " +
+                    "and record which messages are sent out");
             Engine[] engines = client
-                    .set(StructFactory.getDefault())
-                    .set(fuzzer)
+                    .set(deepHandshakeFuzzer)
                     .connect()
                     .engines();
 
@@ -172,34 +176,34 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         }
 
         if (state != null) {
-            fuzzer.state(state);
+            deepHandshakeFuzzer.state(state);
         }
 
-        if (fuzzer.targeted().length == 0) {
+        if (deepHandshakeFuzzer.targeted().length == 0) {
             throw achtung("no targets found!");
         }
 
-        String targets = Arrays.stream(fuzzer.targeted())
+        String targets = Arrays.stream(deepHandshakeFuzzer.targeted())
                 .map(Object::toString)
                 .collect(Collectors.joining( ", " ));
 
         logger.info("fuzzer config:");
         logger.info("targets     = {}", targets);
         logger.info("fuzzer      = {}",
-                () -> fuzzer.fuzzer() != null ? fuzzer.fuzzer() : "null");
+                () -> deepHandshakeFuzzer.fuzzer() != null ? deepHandshakeFuzzer.fuzzer() : "null");
         logger.info("total tests = {}", total);
         logger.info("state       = {}",
                 () -> state != null ? state : "not specified");
 
         try {
-            fuzzer.fuzzing();
+            deepHandshakeFuzzer.fuzzing();
 
             test = 0;
-            while (shouldRun(fuzzer)) {
+            while (shouldRun(deepHandshakeFuzzer)) {
                 try {
-                    run(fuzzer);
+                    run(deepHandshakeFuzzer);
                 } finally {
-                    fuzzer.moveOn();
+                    deepHandshakeFuzzer.moveOn();
                     test++;
                 }
             }
@@ -208,22 +212,22 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         }
     }
 
-    private void run(DeepHandshakeFuzzer deepHandshakeFuzzer) throws Exception {
-        String message = String.format("test #%d, %s/%s, targeted: [%s]",
+    private void run(DeepHandshakeFuzzer fuzzer) throws Exception {
+        logger.info("test #{}, {}/{}, targeted: [{}]",
                 test,
-                deepHandshakeFuzzer.getClass().getSimpleName(),
-                deepHandshakeFuzzer.fuzzer().getClass().getSimpleName(),
-                Arrays.stream(deepHandshakeFuzzer.targeted())
+                fuzzer.getClass().getSimpleName(),
+                fuzzer.fuzzer().getClass().getSimpleName(),
+                Arrays.stream(fuzzer.targeted())
                         .map(Object::toString)
                         .collect(Collectors.joining(", ")));
-        logger.info(message);
-        logger.info("state: {}", deepHandshakeFuzzer.state());
+        logger.info("state: {}", fuzzer.state());
 
         int attempt = 0;
         while (true) {
             try {
-                client.set(deepHandshakeFuzzer)
+                client.set(fuzzer)
                         .set(analyzer)
+                        .set(no_checks)
                         .connect();
 
                 break;
@@ -259,26 +263,42 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     public static void main(String... args) throws Exception {
-        fuzz(ByteFlipFuzzer::new, HttpsClient::new);
-        fuzz(BitFlipFuzzer::new, HttpsClient::new);
-        fuzz(ByteFlipFuzzer::new, HttpsClientAuth::new);
-        fuzz(BitFlipFuzzer::new, HttpsClientAuth::new);
+        String mode = args.length > 0 ? args[0] : "all";
+
+        if (selected(mode, "standard")) {
+            fuzz(ByteFlipFuzzer::new, HttpsClient::new);
+            fuzz(BitFlipFuzzer::new, HttpsClient::new);
+        }
+
+        if (selected(mode, "client_auth")) {
+            fuzz(ByteFlipFuzzer::new, HttpsClientAuth::new);
+            fuzz(BitFlipFuzzer::new, HttpsClientAuth::new);
+        }
+
+        if (selected(mode, "resumption")) {
+            fuzz(ByteFlipFuzzer::new, () -> HttpsClientWithSessionResumption.from(
+                    ProtectedClient.from(httpsClient()).withUnmodifiableStructFactory()));
+            fuzz(BitFlipFuzzer::new, () -> HttpsClientWithSessionResumption.from(httpsClient()));
+        }
+    }
+
+    private static boolean selected(String actualMode, String expectedMode) {
+        return "all".equals(expectedMode) || actualMode.equals(expectedMode);
     }
 
     private static void fuzz(FuzzerFactory fuzzerFactory, ClientFactory clientFactory)
             throws Exception {
 
         for (double ratio = minRatio; ratio <= maxRatio; ratio += ratioStep) {
-            try (DeepHandshakeFuzzyClient client = DeepHandshakeFuzzyClient.from(clientFactory.create())) {
-                client.fuzzer().set(fuzzerFactory.create(ratio));
-                client.connect();
+            try (Client client = clientFactory.create();
+                 DeepHandshakeFuzzyClient fuzzyClient = DeepHandshakeFuzzyClient.from(client)) {
+
+                Fuzzer<byte[]> underlyingFuzzer = fuzzerFactory.create(ratio);
+                fuzzyClient.deepHandshakeFuzzer().set(underlyingFuzzer);
+                fuzzyClient.connect();
             }
         }
     }
-
-    private static final double minRatio = 0.05;
-    private static final double maxRatio = 0.5;
-    private static final double ratioStep = 0.05;
 
     private interface FuzzerFactory {
         Fuzzer<byte[]> create(double ratio);

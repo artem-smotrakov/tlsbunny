@@ -1,9 +1,12 @@
 package com.gypsyengineer.tlsbunny.tls13.client.fuzzer;
 
 import com.gypsyengineer.tlsbunny.tls13.client.Client;
+import com.gypsyengineer.tlsbunny.tls13.connection.check.Check;
 import com.gypsyengineer.tlsbunny.utils.Config;
 
 public abstract class AbstractFuzzyClient implements Client, AutoCloseable {
+
+    protected static final Check[] no_checks = {};
 
     private Status status = Status.not_started;
     private boolean stopped = false;
