@@ -20,7 +20,7 @@ do
         -k ../../../../certs/server_key.pem 2>&1 \
             | tee -a ../server.log
 
-    if grep AddressSanitizer server.log > /dev/null 2>&1 ; then
+    if grep AddressSanitizer ../server.log > /dev/null 2>&1 ; then
         echo "Achtung! AddressSanitizer found something!"
         exit 1
     fi
