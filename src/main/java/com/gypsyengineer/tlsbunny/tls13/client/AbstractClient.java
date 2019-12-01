@@ -55,11 +55,6 @@ public abstract class AbstractClient implements Client, AutoCloseable {
         return this;
     }
 
-    public AbstractClient port(int n) {
-        port = n;
-        return this;
-    }
-
     @Override
     public synchronized Status status() {
         return status;
@@ -127,5 +122,6 @@ public abstract class AbstractClient implements Client, AutoCloseable {
     public Engine[] engines() {
         return engines.toArray(new Engine[0]);
     }
+
 
 }
