@@ -22,7 +22,11 @@ fi
     --prefix="${prefix}" \
     --enable-tls13 \
     --enable-webserver \
-    --enable-debug
+    --enable-debug \
+    --enable-psk \
+    --enable-poly1305 \
+    --enable-chacha \
+    --enable-session-ticket
 
 make
 make install
