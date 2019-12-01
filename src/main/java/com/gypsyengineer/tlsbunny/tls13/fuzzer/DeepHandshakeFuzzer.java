@@ -5,6 +5,7 @@ import com.gypsyengineer.tlsbunny.tls.*;
 import com.gypsyengineer.tlsbunny.tls.Random;
 import com.gypsyengineer.tlsbunny.tls.Vector;
 import com.gypsyengineer.tlsbunny.tls13.struct.*;
+import com.gypsyengineer.tlsbunny.utils.HexDump;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -132,7 +133,7 @@ public class DeepHandshakeFuzzer implements Fuzzer<HandshakeMessage>, StructFact
         HandshakeMessage fuzzedMessage = set(
                 message, currentPath(), fuzzedHandshakeMessage(fuzzed));
 
-        explain(target.getClass().getSimpleName(), encoding, fuzzed);
+        logger.info(HexDump.explain(target.getClass().getSimpleName(), encoding, fuzzed));
 
         return fuzzedMessage;
     }
@@ -173,15 +174,6 @@ public class DeepHandshakeFuzzer implements Fuzzer<HandshakeMessage>, StructFact
             round = scanner.nextInt();
             scanner.skip(":");
             fuzzer.state(scanner.nextLine());
-        }
-    }
-
-    private void explain(String what, byte[] encoding, byte[] fuzzed) {
-        logger.info("{} (original):\n{}", what, printHexDiff(encoding, fuzzed));
-        logger.info("{} (fuzzed):\n{}", what, printHexDiff(fuzzed, encoding));
-
-        if (Arrays.equals(encoding, fuzzed)) {
-            logger.info("nothing actually fuzzed");
         }
     }
 

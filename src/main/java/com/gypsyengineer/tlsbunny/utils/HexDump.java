@@ -1,20 +1,25 @@
 package com.gypsyengineer.tlsbunny.utils;
 
+import java.util.Arrays;
+
 public class HexDump {
 
     public static final int width = 16;
 
-    public static final String ansi_red ;
-    public static final String ansi_reset;
+    private static final String ansi_red = "\u001B[31m";
+    private static final String ansi_reset = "\u001B[0m";
+
+    private static final String leftHighlighter;
+    private static final String rightHighlighter;
     static {
-        boolean enableDiffHighlighting = Boolean.valueOf(
-                System.getProperty("tlsbunny.output.enable.highlighting", "true"));
+        boolean enableDiffHighlighting = Boolean.parseBoolean(
+                System.getProperty("tlsbunny.output.enable.highlighting", "false"));
         if (enableDiffHighlighting) {
-            ansi_red = "\u001B[31m";
-            ansi_reset = "\u001B[0m";
+            leftHighlighter = ansi_red;
+            rightHighlighter = ansi_reset;
         } else {
-            ansi_red = "";
-            ansi_reset = "";
+            leftHighlighter = "[";
+            rightHighlighter = "]";
         }
     }
 
@@ -40,7 +45,7 @@ public class HexDump {
             builder.append(String.format("%n"));
         }
 
-        return builder.toString();
+        return builder.toString().trim();
     }
 
     public static String printHexDiff(byte[] array, byte[] original) {
@@ -57,7 +62,7 @@ public class HexDump {
                 int k = rowOffset + index;
                 if (k < array.length) {
                     if (k >= original.length || array[k] != original[k]) {
-                        builder.append(String.format("%s%02x%s ", ansi_red, array[k], ansi_reset));
+                        builder.append(String.format("%s%02x%s ", leftHighlighter, array[k], rightHighlighter));
                     } else {
                         builder.append(String.format("%02x ", array[k]));
                     }
@@ -70,7 +75,18 @@ public class HexDump {
             }
         }
 
-        return builder.toString();
+        return builder.toString().trim();
+    }
+
+    public static String explain(String what, byte[] encoding, byte[] fuzzed) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s (original):%n%s%n", what, printHexDiff(encoding, fuzzed)));
+        sb.append(String.format("%s (modified):%n%s%n", what, printHexDiff(fuzzed, encoding)));
+        if (Arrays.equals(encoding, fuzzed)) {
+            sb.append("nothing actually modified");
+        }
+
+        return sb.toString().trim();
     }
 
 }
