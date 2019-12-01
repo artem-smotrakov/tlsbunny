@@ -276,9 +276,10 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
         }
 
         if (selected(mode, "resumption")) {
-            fuzz(ByteFlipFuzzer::new, () -> HttpsClientWithSessionResumption.from(
-                    ProtectedClient.from(httpsClient()).withUnmodifiableStructFactory()));
-            fuzz(BitFlipFuzzer::new, () -> HttpsClientWithSessionResumption.from(httpsClient()));
+            ClientFactory factory = () -> HttpsClientWithSessionResumption.from(
+                    ProtectedClient.from(httpsClient()).withUnmodifiableStructFactory());
+            fuzz(ByteFlipFuzzer::new, factory);
+            fuzz(BitFlipFuzzer::new, factory);
         }
     }
 
