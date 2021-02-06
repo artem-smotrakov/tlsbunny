@@ -104,6 +104,43 @@ and react in an expected way, for example, by throwing a documented exception.
 An unexpected behavior while processing incorrect data may still have security implications.
 even it the TLS implementation is written in a memory-safe programming language.
 
+## Example: Fuzzing TLSv1.3 server
+
+Let's run `DeepHandshakeFuzzyClient` that fuzzes a TLSv1.3 server.
+
+First, make sure that you use Java 11+. Then, build tlsbunny:
+
+```bash
+mvn clean install -DskipTests
+```
+
+Next, start a target TLSv1.3 server that you'd like to fuzz. Let's assume that it runs on port `50101`.
+It is better to run the server with AddressSanitizer and other sanitizers. They'll report memory corruptions
+that didn't result to a crash.
+
+Then, prepare a config for tlsbunny:
+
+```
+client.certificate.path=certs/client_cert.pem
+client.key.path=certs/client_key.pkcs8
+target.host=localhost
+target.port=50101
+total=10000
+```
+
+The [certs](https://github.com/artem-smotrakov/tlsbunny/tree/master/certs) directory contains certiticates and keys for testing.
+
+`total` is a number of iterations for the fuzzer.
+
+Finally, run the fuzzer:
+
+```bash
+java -cp target/tlsbunny-1.0-SNAPSHOT-all.jar \
+    com.gypsyengineer.tlsbunny.tls13.client.fuzzer.DeepHandshakeFuzzyClient
+```
+
+Watch how the server handles fuzzed TLS messages.
+
 ## Similar projects
 
 - [tlsfuzzer](https://github.com/tomato42/tlsfuzzer): 
