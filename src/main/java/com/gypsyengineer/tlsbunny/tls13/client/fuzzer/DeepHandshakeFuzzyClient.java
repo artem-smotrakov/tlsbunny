@@ -284,7 +284,7 @@ public class DeepHandshakeFuzzyClient extends AbstractFuzzyClient {
     }
 
     private static boolean selected(String actualMode, String expectedMode) {
-        return "all".equals(expectedMode) || actualMode.equals(expectedMode);
+        return "all".equals(actualMode) || actualMode.equals(expectedMode);
     }
 
     private static void fuzz(FuzzerFactory fuzzerFactory, ClientFactory clientFactory)
